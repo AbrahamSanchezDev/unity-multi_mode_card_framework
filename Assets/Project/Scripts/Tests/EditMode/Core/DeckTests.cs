@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using CardFramework.Core.Models;
+using System;
 
 namespace CardFramework.Tests.EditMode.Core {
     [TestFixture]
@@ -22,6 +23,34 @@ namespace CardFramework.Tests.EditMode.Core {
             deck.Initialize();
             _ = deck.Draw();
             Assert.AreEqual(51, deck.RemainingCount, "Drawing a card must decrement the remaining count by 1.");
+        }
+
+        [Test]
+        public void IsEmpty_ReturnsTrueWhenDeckIsEmpty() {
+            deck.Initialize();
+            for (int i = 0; i < 52; i++) {
+                deck.Draw();
+            }
+
+            Assert.IsTrue(deck.IsEmpty, "Deck must report empty when all cards have been drawn.");
+        }
+
+        [Test]
+        public void Peek_ReturnsNextCardWithoutRemovingIt() {
+            deck.Initialize();
+            var firstCard = deck.Peek();
+            Assert.AreEqual(52, deck.RemainingCount, "Peek must not remove a card from the deck.");
+            Assert.AreEqual(firstCard, deck.Peek(), "Peek should return the same top-card on repeated calls.");
+        }
+
+        [Test]
+        public void Peek_ThrowsWhenEmpty() {
+            deck.Initialize();
+            for (int i = 0; i < 52; i++) {
+                deck.Draw();
+            }
+
+            Assert.Throws<InvalidOperationException>(() => deck.Peek(), "Peeking an empty deck must throw an InvalidOperationException.");
         }
 
         [Test]

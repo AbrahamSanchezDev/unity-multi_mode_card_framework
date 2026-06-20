@@ -42,14 +42,16 @@ namespace CardFramework.Core.Engines {
 
         public enum GameState { PlayerTurn, DealerTurn, PlayerBust, DealerBust, Showdown, GameOver }
 
-        private Deck deck = new();
+        private Deck deck;
         private Hand playerHand = new();
         private Hand dealerHand = new();
         public GameState CurrentState { get; private set; } = GameState.PlayerTurn;
 
-        public BlackjackEngine() {
-            deck.Initialize();
-            deck.Shuffle();
+        // Allow injecting a Deck for deterministic tests. Defaults to a new Deck when null.
+        public BlackjackEngine(Deck deck = null) {
+            this.deck = deck ?? new Deck();
+            this.deck.Initialize();
+            this.deck.Shuffle();
         }
 
         public void DealInitialHands() {

@@ -2,6 +2,4 @@
   <Project Path="Core.csproj" />
   <Project Path="Tests.csproj" />
   <Project Path="DOTween.Modules.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
 </Solution>

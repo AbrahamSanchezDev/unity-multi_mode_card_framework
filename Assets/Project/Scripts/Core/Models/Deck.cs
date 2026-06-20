@@ -54,7 +54,7 @@ namespace CardFramework.Core.Models {
         /// <summary>
         /// Draw a card from the deck
         /// </summary>
-        public CardData Draw() {
+        public virtual CardData Draw() {
             if (IsEmpty)
                 throw new InvalidOperationException("Cannot draw from empty deck");
 
