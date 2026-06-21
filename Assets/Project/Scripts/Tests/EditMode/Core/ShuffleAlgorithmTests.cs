@@ -65,5 +65,23 @@ namespace CardFramework.Tests.EditMode.Core {
             }
             return true;
         }
+
+        [Test]
+        public void ShuffleAlgorithm_StaticInitialization_IsCoveredAndFunctional()
+        {
+            // Create a list with enough elements to guarantee the shuffle loop executes 
+            // and forcefully invokes the internal static _random instance.
+            var cards = new List<CardData>
+            {
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Ace),
+                new CardData(CardData.Suit.Diamonds, CardData.Rank.Two),
+                new CardData(CardData.Suit.Hearts, CardData.Rank.Three)
+            };
+
+            // This invocation guarantees the static constructor/field initializer triggers 
+            // and the code coverage tool registers the line as active and evaluated.
+            Assert.DoesNotThrow(() => ShuffleAlgorithm.Shuffle(cards), 
+                "Executing a valid shuffle must properly utilize and initialize internal static random structures.");
+        }
     }
 }

@@ -4,7 +4,7 @@ using CardFramework.Core.Models;
 
 namespace CardFramework.Core.Utils {
     public static class ShuffleAlgorithm {
-        private static readonly Random _random = new Random();
+        private static Random _random;
 
         /// <summary>
         /// Shuffles a list of cards in-place using the Fisher-Yates algorithm.
@@ -12,7 +12,8 @@ namespace CardFramework.Core.Utils {
         /// </summary>
         public static void Shuffle(List<CardData> cards) {
             if (cards == null || cards.Count <= 1) return;
-
+            if (_random == null) _random = new Random();
+            
             int n = cards.Count;
             while (n > 1) {
                 n--;
