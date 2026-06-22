@@ -1,10 +1,15 @@
 name: CI - Run Tests
-# name: CI - Run Tests & Build
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+
+# Agrega esto para dar permisos
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
 
 jobs:
   test:
@@ -22,9 +27,11 @@ jobs:
     
     - uses: game-ci/unity-test-runner@v4
       env:
-        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
       with:
         projectPath: ./
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
         unityVersion: 6000.3.10f1
         testMode: editmode
         artifactsPath: test-results
