@@ -2,8 +2,13 @@
   <Project Path="VContainer.csproj" />
   <Project Path="Core.csproj" />
   <Project Path="Tests.csproj" />
+  <Project Path="PlayFab.csproj" />
   <Project Path="VContainer.Editor.csproj" />
+  <Project Path="PlayFabEditorExtensions.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="PlayModeTests.csproj" />
+  <Project Path="PlayFabSDKEditor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Cloud.csproj" />
   <Project Path="Presentation.csproj" />
 </Solution>
