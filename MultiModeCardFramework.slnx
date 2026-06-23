@@ -1,5 +1,9 @@
 ﻿<Solution>
+  <Project Path="VContainer.csproj" />
   <Project Path="Core.csproj" />
   <Project Path="Tests.csproj" />
+  <Project Path="VContainer.Editor.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Presentation.csproj" />
 </Solution>
