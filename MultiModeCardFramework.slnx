@@ -7,8 +7,8 @@
   <Project Path="PlayFabEditorExtensions.csproj" />
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="PlayModeTests.csproj" />
+  <Project Path="Presentation.csproj" />
   <Project Path="PlayFabSDKEditor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Cloud.csproj" />
-  <Project Path="Presentation.csproj" />
 </Solution>
