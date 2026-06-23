@@ -2,7 +2,8 @@
     "name": "Presentation",
     "rootNamespace": "",
     "references": [
-        "GUID:951684e7ad05c7f47b692969443aae66"
+        "GUID:951684e7ad05c7f47b692969443aae66",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
