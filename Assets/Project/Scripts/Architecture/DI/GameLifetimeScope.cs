@@ -1,6 +1,7 @@
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using CardFramework.Core.Models;
 using CardFramework.Core.Engines;
 using CardFramework.Cloud.Interfaces;
 using CardFramework.Cloud.PlayFab;
@@ -17,6 +18,10 @@ namespace CardFramework.Architecture.DI {
         [Header("UI Presentation Hierarchy References")]
         [SerializeField] private BlackjackView blackjackViewInstance;
         protected override void Configure(IContainerBuilder builder) {
+
+            // Core Data Models & Decks (Transient so each engine gets a unique stack)
+            builder.Register<Deck>(Lifetime.Transient);
+            
             // Register Core Game Engines as Transients.
             // This ensures every time a new game scene or table is loaded, 
             // a fresh, isolated logic instance is provided without cross-contamination.
@@ -36,7 +41,7 @@ namespace CardFramework.Architecture.DI {
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
 
             // ---- PRESENTATION LAYER REGISTRATIONS (TASK-3.3) ----
-            
+
             // Registering the view instance present inside the active Unity Scene Hierarchy
             builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
 

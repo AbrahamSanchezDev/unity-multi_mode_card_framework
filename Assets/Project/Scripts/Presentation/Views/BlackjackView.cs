@@ -1,87 +1,102 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
 
-namespace CardFramework.Presentation.Views
-{
+namespace CardFramework.Presentation.Views {
     /// <summary>
-    /// MonoBehavior UI implementation mapping Unity Canvas components to the IBlackjackView architectural boundary.
+    /// UI Toolkit implementation mapping UXML VisualElements to the IBlackjackView architectural boundary.
     /// </summary>
-    public class BlackjackView : MonoBehaviour, IBlackjackView
-    {
-        [Header("Buttons Configuration")]
-        [SerializeField] private Button hitButton;
-        [SerializeField] private Button standButton;
-        [SerializeField] private Button restartButton;
+    [RequireComponent(typeof(UIDocument))]
+    public class BlackjackView : MonoBehaviour, IBlackjackView {
 
-        [Header("Text Labels Configuration")]
-        [SerializeField] private TextMeshProUGUI playerScoreText;
-        [SerializeField] private TextMeshProUGUI dealerScoreText;
-        [SerializeField] private TextMeshProUGUI outcomeMessageText;
+        public bool HasAll;
+        private VisualElement _root;
+        private Button _hitButton;
+        private Button _standButton;
+        private Button _restartButton;
+        private Label _playerScoreLabel;
+        private Label _dealerScoreLabel;
+        private Label _outcomeMessageLabel;
+        private VisualElement _outcomeMessageVisualElement;
 
         // Implementation of the architectural view contract events
         public event Action OnHitRequested;
         public event Action OnStandRequested;
         public event Action OnRestartRequested;
 
-        private void Awake()
-        {
-            // Sanity check to ensure UI components are properly assigned in the inspector
-            ValidateInspectorBindings();
+        private void OnEnable() {
+            // Acquire the root visual element from the native UIDocument component
+            var uiDocument = GetComponent<UIDocument>();
+            _root = uiDocument.rootVisualElement;
 
-            // Forward Unity UI button click events directly into the architecture loop
-            hitButton.onClick.AddListener(() => OnHitRequested?.Invoke());
-            standButton.onClick.AddListener(() => OnStandRequested?.Invoke());
-            restartButton.onClick.AddListener(() => OnRestartRequested?.Invoke());
-        }
-
-        private void OnDestroy()
-        {
-            // Clean up listeners to prevent memory fragmentation on scene teardown
-            hitButton.onClick.RemoveAllListeners();
-            standButton.onClick.RemoveAllListeners();
-            restartButton.onClick.RemoveAllListeners();
-        }
-
-        public void UpdatePlayerScore(int score)
-        {
-            playerScoreText.text = $"Player: {score}";
-        }
-
-        public void UpdateDealerScore(int score)
-        {
-            dealerScoreText.text = $"Dealer: {score}";
-        }
-
-        public void DisplayWinner(string winnerName)
-        {
-            outcomeMessageText.gameObject.SetActive(true);
-            outcomeMessageText.text = winnerName;
-        }
-
-        public void ClearTable()
-        {
-            outcomeMessageText.text = string.Empty;
-            outcomeMessageText.gameObject.SetActive(false);
-            
-            // Note: Card asset instantiation cleanup will be handled inside TASK-3.4
-        }
-
-        public void SetInteractionState(bool canInteract)
-        {
-            hitButton.interactable = canInteract;
-            standButton.interactable = canInteract;
-        }
-
-        private void ValidateInspectorBindings()
-        {
-            if (hitButton == null || standButton == null || restartButton == null ||
-                playerScoreText == null || dealerScoreText == null || outcomeMessageText == null)
-            {
-                Debug.LogError($"[{name}]: Missing UI references in the Unity Inspector. Please assign all fields.");
+            // Query elements using standard UXML naming conventions
+            _hitButton = _root.Q<Button>("hit-button");
+            _standButton = _root.Q<Button>("stand-button");
+            _restartButton = _root.Q<Button>("restart-button");
+            _playerScoreLabel = _root.Q<Label>("player-score-label");
+            _dealerScoreLabel = _root.Q<Label>("dealer-score-label");
+            _outcomeMessageVisualElement = _root.Q<VisualElement>("outcome-message-label");
+            if (_outcomeMessageVisualElement != null) {
+                _outcomeMessageLabel = _outcomeMessageVisualElement.Q<Label>();
             }
+            if (_hitButton != null && _standButton != null && _restartButton != null &&
+               _playerScoreLabel != null && _dealerScoreLabel != null && _outcomeMessageLabel != null) {
+                HasAll = true;
+            }
+            else {
+                HasAll = false;
+            }
+            // Sanity check for UI Toolkit bindings
+            ValidateVisualTreeBindings();
+
+            // Register callbacks into the UI Toolkit architecture loop
+            _hitButton.clicked += () => OnHitRequested?.Invoke();
+            _standButton.clicked += () => OnStandRequested?.Invoke();
+            _restartButton.clicked += () => OnRestartRequested?.Invoke();
+        }
+
+        private void OnDisable() {
+            // Clean up callbacks to prevent memory fragmentation
+            if (_hitButton != null) _hitButton.clicked -= () => OnHitRequested?.Invoke();
+            if (_standButton != null) _standButton.clicked -= () => OnStandRequested?.Invoke();
+            if (_restartButton != null) _restartButton.clicked -= () => OnRestartRequested?.Invoke();
+        }
+
+        public void UpdatePlayerScore(int score) {
+            _playerScoreLabel.text = $"Player: {score}";
+        }
+
+        public void UpdateDealerScore(int score) {
+            _dealerScoreLabel.text = $"Dealer: {score}";
+        }
+
+        public void DisplayWinner(string winnerName) {
+            _outcomeMessageVisualElement.style.display = DisplayStyle.Flex;
+            _outcomeMessageLabel.text = winnerName;
+        }
+
+        public void ClearTable() {
+            _outcomeMessageLabel.text = string.Empty;
+            _outcomeMessageVisualElement.style.display = DisplayStyle.None;
+        }
+
+        public void SetInteractionState(bool canInteract) {
+            _hitButton.SetEnabled(canInteract);
+            _standButton.SetEnabled(canInteract);
+        }
+
+        private void ValidateVisualTreeBindings() {
+            if (_hitButton == null || _standButton == null || _restartButton == null ||
+                _playerScoreLabel == null || _dealerScoreLabel == null || _outcomeMessageLabel == null) {
+                Debug.LogError($"[{name}]: Missing critical VisualElements inside the UXML tree hierarchy. Verify element Names.");
+            }
+            if (_hitButton == null) Debug.LogError($"[{name}]: Missing 'hit-button' VisualElement.");
+            if (_standButton == null) Debug.LogError($"[{name}]: Missing 'stand-button' VisualElement.");
+            if (_restartButton == null) Debug.LogError($"[{name}]: Missing 'restart-button' VisualElement.");
+            if (_playerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'player-score-label' VisualElement.");
+            if (_dealerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'dealer-score-label' VisualElement.");
+            if (_outcomeMessageLabel == null) Debug.LogError($"[{name}]: Missing 'outcome-message-label' VisualElement.");
         }
     }
 }
