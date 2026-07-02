@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/BlackjackStyle.uss?fileID=7433441132597879392&amp;guid=d5086c7d9571c2f46bbb78e37cf40870&amp;type=3#BlackjackStyle"/>
+    <ui:VisualElement class="screen-container" style="opacity: 1; background-color: rgba(11, 64, 34, 0.69);">
+        <ui:VisualElement class="table-header">
+            <ui:Label text="BLACKJACK TABLE" class="title-label"/>
+        </ui:VisualElement>
+        <ui:VisualElement style="align-items: center; justify-content: center; flex-grow: 1;">
+            <ui:VisualElement class="score-board">
+                <ui:Label name="dealer-score-label" text="Dealer: 0" class="score-label"/>
+                <ui:Label name="player-score-label" text="Player: 0" class="score-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: none;">
+                <ui:Label text="PLAYER WINS!" class="outcome-text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="action-container">
+            <ui:Button name="hit-button" text="HIT" class="btn-casino btn-hit"/>
+            <ui:Button name="stand-button" text="STAND" class="btn-casino"/>
+            <ui:Button name="restart-button" text="DEAL NEW HAND" class="btn-casino"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

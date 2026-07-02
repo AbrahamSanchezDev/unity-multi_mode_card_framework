@@ -1,0 +1,114 @@
+/* Premium Casino Layout Palette */
+.screen-container {
+    flex-grow: 1;
+    background-color: #0b4022; /* Deep Casino Felt Green */
+    padding: 24px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-header {
+    align-items: center;
+    margin-top: 10px;
+}
+
+.title-label {
+    font-size: 28px;
+    color: #ffffff;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+/* Score Board System */
+.score-board {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 16px 32px;
+    margin: 10px;
+    min-width: 250px;
+    align-items: center;
+    border-width: 1px;
+    border-color: #d4af37; /* Gold Accent Outline */
+}
+
+.score-label {
+    font-size: 22px;
+    color: #ffffff;
+    margin: 4px;
+}
+
+/* Center Outcome Notification Banner */
+.outcome-banner {
+    background-color: rgba(0, 0, 0, 0.85);
+    border-color: #d4af37;
+    border-width: 2px;
+    border-radius: 16px;
+    padding: 20px 40px;
+    margin: 20px;
+    align-items: center;
+    transition-property: display, opacity;
+    transition-duration: 0.25s;
+}
+
+.outcome-text {
+    font-size: 32px;
+    color: #d4af37; /* Radiant Gold Winner Text */
+    -unity-font-style: bold;
+    text-align: center;
+}
+
+/* Ergonomic Action Controls */
+.action-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.btn-casino {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: #ffffff;
+    background-color: #1e5e3a;
+    border-width: 2px;
+    border-color: #2a8552;
+    border-radius: 10px;
+    padding: 14px 36px;
+    margin: 0 12px;
+    min-width: 140px;
+    transition-property: background-color, scale;
+    transition-duration: 0.1s;
+}
+
+.btn-casino:hover {
+    background-color: #26774a;
+    scale: 1.05;
+}
+
+.btn-casino:active {
+    background-color: #16482c;
+    scale: 0.98;
+}
+
+/* Highlight Primary Hit Choice */
+.btn-hit {
+    background-color: #b22222; /* Crimson Accent for Hit Action */
+    border-color: #d23636;
+}
+
+.btn-hit:hover {
+    background-color: #cd2626;
+}
+
+.btn-hit:active {
+    background-color: #8b1a1a;
+}
+
+/* Disabled state handling for UI Toolkit */
+.btn-casino:disabled {
+    background-color: #33443a;
+    border-color: #44554b;
+    color: #77887f;
+    opacity: 0.6;
+}

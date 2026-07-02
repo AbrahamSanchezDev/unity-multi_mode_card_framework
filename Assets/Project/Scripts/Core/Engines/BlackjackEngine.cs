@@ -54,6 +54,19 @@ namespace CardFramework.Core.Engines {
             this.deck.Shuffle();
         }
 
+        /// <summary>
+        /// Resets the engine state, prepares a fresh deck, and shuffles.
+        /// </summary>
+        public void ResetEngineState()
+        {
+            deck = new Deck();
+            deck.Initialize();
+            deck.Shuffle();
+            playerHand.Cards.Clear();
+            dealerHand.Cards.Clear();
+            CurrentState = GameState.PlayerTurn;
+        }
+
         public void DealInitialHands() {
             playerHand.Cards.Clear();
             dealerHand.Cards.Clear();
