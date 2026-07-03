@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 990b5a5d206f9a242bdc16ae91bf1b5b, type: 3}
+  m_Name: CardsGraphics
+  m_EditorClassIdentifier: Presentation::CardsGraphics
+  SuitsData:
+  - Suit: 0
+    Icon: {fileID: 183458870, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
+    Jack: {fileID: -1119020984, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    Queen: {fileID: -724794895, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    King: {fileID: -1091415810, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+  - Suit: 1
+    Icon: {fileID: 363892402, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
+    Jack: {fileID: 855939766, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    Queen: {fileID: -1260084574, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    King: {fileID: -52165167, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+  - Suit: 2
+    Icon: {fileID: 1217900047, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
+    Jack: {fileID: -1819479230, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    Queen: {fileID: -1769638026, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    King: {fileID: 131957048, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+  - Suit: 3
+    Icon: {fileID: 1816333410, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
+    Jack: {fileID: -416410012, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    Queen: {fileID: 991299764, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+    King: {fileID: 2048042188, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}

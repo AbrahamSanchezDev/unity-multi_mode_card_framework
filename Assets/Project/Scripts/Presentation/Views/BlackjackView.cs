@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
+using CardFramework.Core.Models;
+using System.Collections.Generic;
 
 namespace CardFramework.Presentation.Views {
     /// <summary>
@@ -24,6 +26,22 @@ namespace CardFramework.Presentation.Views {
         public event Action OnHitRequested;
         public event Action OnStandRequested;
         public event Action OnRestartRequested;
+
+        #region 3D Spawning
+
+        [Header("3D Spawning Architecture")]
+        [SerializeField] private CardsGraphics cardsGraphics;
+        [SerializeField] private GameObject cardPrefab;
+        [SerializeField] private Transform playerSpawnAnchor;
+        [SerializeField] private Transform dealerSpawnAnchor;
+
+        private int _playerCardsSpawned;
+        private int _dealerCardsSpawned;
+        private List<GameObject> _spawnedCards = new List<GameObject>();
+        // 6cm card width + 1cm margin gap
+        private const float CardOffsetHorizontal = 0.07f;
+
+        #endregion
 
         private void OnEnable() {
             // Acquire the root visual element from the native UIDocument component
@@ -79,6 +97,12 @@ namespace CardFramework.Presentation.Views {
         public void ClearTable() {
             _outcomeMessageLabel.text = string.Empty;
             _outcomeMessageVisualElement.style.display = DisplayStyle.None;
+            _playerCardsSpawned = 0;
+            _dealerCardsSpawned = 0;
+            foreach (var card in _spawnedCards) {
+                Destroy(card);
+            }
+            _spawnedCards.Clear();
         }
 
         public void SetInteractionState(bool canInteract) {
@@ -97,6 +121,41 @@ namespace CardFramework.Presentation.Views {
             if (_playerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'player-score-label' VisualElement.");
             if (_dealerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'dealer-score-label' VisualElement.");
             if (_outcomeMessageLabel == null) Debug.LogError($"[{name}]: Missing 'outcome-message-label' VisualElement.");
+        }
+
+
+        public void SpawnPhysicalCard(CardData card, bool isPlayer) {
+            Transform anchor = isPlayer ? playerSpawnAnchor : dealerSpawnAnchor;
+            int cardIndex = isPlayer ? _playerCardsSpawned : _dealerCardsSpawned;
+
+            // Calculate the procedural local coordinate shift
+            Vector3 localOffset = new Vector3(cardIndex * CardOffsetHorizontal, 0, 0);
+            Vector3 targetPosition = anchor.TransformPoint(localOffset);
+            Quaternion targetRotation = anchor.rotation;
+
+            // Instantiate and inject your procedural parameters
+            GameObject spawnedCard = Instantiate(cardPrefab, targetPosition, targetRotation);
+
+            // Invoke your custom runtime card shader/atlas binder
+            var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
+            if (faceGenerator != null) {
+                // Mapping: CardFramework Core Enum Ranks to your byte parameters
+                CardData.Rank rank = card.CardRank;
+                bool isBlack = card.CardSuit == CardData.Suit.Spades || card.CardSuit == CardData.Suit.Clubs;
+
+                // Fetch your Suit icon from your asset database/cache as needed
+                Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(card.CardSuit) : null;
+                Sprite faceSprite = null;
+                if (card.CardRank == CardData.Rank.Jack || card.CardRank == CardData.Rank.Queen || card.CardRank == CardData.Rank.King) {
+                    // Fetch the face card sprite for Jack, Queen, King
+                    faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(card) : null;
+                }
+                faceGenerator.GenerateCard(suitIcon, rank, faceSprite, isBlack);
+            }
+
+            if (isPlayer) _playerCardsSpawned++;
+            else _dealerCardsSpawned++;
+            _spawnedCards.Add(spawnedCard);
         }
     }
 }

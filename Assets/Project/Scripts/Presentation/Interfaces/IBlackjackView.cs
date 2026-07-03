@@ -1,4 +1,5 @@
 using System;
+using CardFramework.Core.Models;
 
 namespace CardFramework.Presentation.Interfaces
 {
@@ -18,5 +19,8 @@ namespace CardFramework.Presentation.Interfaces
         void DisplayWinner(string winnerName);
         void ClearTable();
         void SetInteractionState(bool canInteract);
+
+        // Adds a physical 3D card instance onto the matching actor's layout zone
+        void SpawnPhysicalCard(CardData card, bool isPlayer);
     }
 }
