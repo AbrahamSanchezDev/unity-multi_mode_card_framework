@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
     <Style src="project://database/Assets/Project/UI/BlackjackStyle.uss?fileID=7433441132597879392&amp;guid=d5086c7d9571c2f46bbb78e37cf40870&amp;type=3#BlackjackStyle"/>
-    <ui:VisualElement class="screen-container" style="opacity: 1; background-color: rgba(11, 64, 34, 0.69);">
+    <ui:VisualElement class="screen-container" style="background-color: rgba(11, 64, 34, 0.5);">
         <ui:VisualElement class="table-header">
             <ui:Label text="BLACKJACK TABLE" class="title-label"/>
         </ui:VisualElement>
@@ -17,6 +17,6 @@
             <ui:Button name="hit-button" text="HIT" class="btn-casino btn-hit"/>
             <ui:Button name="stand-button" text="STAND" class="btn-casino"/>
             <ui:Button name="restart-button" text="DEAL NEW HAND" class="btn-casino"/>
-        </ui:VisualElement>
+        </ui:VisualElement>        
     </ui:VisualElement>
 </ui:UXML>

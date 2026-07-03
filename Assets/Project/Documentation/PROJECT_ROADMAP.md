@@ -54,7 +54,7 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Define `IView` contracts (`IBlackjackView`).
   - Create POCO Controllers (`BlackjackTableController`) implementing VContainer's `IStartable`.
   - EditMode tests validating controller state machines.
-- [ ] **TASK-3.4: Dynamic Table UI Controller Implementation**
+- [x] **TASK-3.4: Dynamic Table UI Controller Implementation**
   - Map logic events to visual UI feedback loops.
   - Instantiate and animate physical/UI cards on draw actions.
   - Disengage logic handles cleanly upon view destruction.

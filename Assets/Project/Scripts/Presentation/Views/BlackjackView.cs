@@ -58,6 +58,7 @@ namespace CardFramework.Presentation.Views {
             if (_outcomeMessageVisualElement != null) {
                 _outcomeMessageLabel = _outcomeMessageVisualElement.Q<Label>();
             }
+
             if (_hitButton != null && _standButton != null && _restartButton != null &&
                _playerScoreLabel != null && _dealerScoreLabel != null && _outcomeMessageLabel != null) {
                 HasAll = true;

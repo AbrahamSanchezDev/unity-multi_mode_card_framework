@@ -112,3 +112,51 @@
     color: #77887f;
     opacity: 0.6;
 }
+
+/* ---- Modal UI Toolkit System ---- */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75); /* Blurred dark background */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-window {
+    background-color: #141916; /* Slick Matte Dark Grey/Green */
+    border-color: #d4af37;
+    border-width: 2px;
+    border-radius: 16px;
+    padding: 32px;
+    min-width: 400px;
+    max-width: 85%;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+    font-size: 24px;
+    color: #d4af37;
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.modal-body {
+    font-size: 16px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 24px;
+    white-space: normal; /* Allows text wrapping */
+}
+
+.modal-action-row {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
