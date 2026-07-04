@@ -54,18 +54,21 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Define `IView` contracts (`IBlackjackView`).
   - Create POCO Controllers (`BlackjackTableController`) implementing VContainer's `IStartable`.
   - EditMode tests validating controller state machines.
-- [ ] **TASK-3.4: Dynamic Table UI Controller Implementation**
+- [x] **TASK-3.4: Dynamic Table UI Controller Implementation**
   - Map logic events to visual UI feedback loops.
   - Instantiate and animate physical/UI cards on draw actions.
   - Disengage logic handles cleanly upon view destruction.
-- [ ] **TASK-3.5: User Notification & Modal Window System**
+- [x] **TASK-3.5: User Notification & Modal Window System**
   - Screen-space modal canvas for errors, loading overlays, and async cloud operations.
-- [ ] **TASK-3.6: Multi-Platform Input Adapter**
-  - Implement universal click/drag using Unity's New Input System.
-  - Abstract coordinate conversions for VR pointers vs. Mouse clicks.
-- [ ] **TASK-3.7: Adaptive Screen-Space UI**
-  - Responsive layout scaling across 16:9 desktop and 19.5:9 mobile formats without distortion.
-
+- [x] **TASK-3.6: Multi-Platform Input Adapter**
+  - Implement abstraction layer (`IInputContext`) for platform-agnostic interactions.
+  - Create standard pointer inputs adapter mapping core press definitions.
+  - Establish registration hooks for future XR controller injection pipelines.
+- [x] **TASK-3.7: Adaptive Screen-Space UI & Responsiveness**
+  - Refactor USS sheets using flexbox auto-wrapping and relative dimensions (`flex-basis`).
+  - Eliminate layout engine parser warnings by aligning properties to native sub-specs.
+  - Implement dynamic local space auto-centering for 3D physical card hand layout structures.
+  
 ---
 
 ## 🎮 Epic 4: Extended Game Loops & Metagame

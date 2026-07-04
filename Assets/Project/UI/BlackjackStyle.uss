@@ -1,99 +1,111 @@
-/* Premium Casino Layout Palette */
+/* ---- General Floating HUD Layout ---- */
 .screen-container {
     flex-grow: 1;
-    background-color: #0b4022; /* Deep Casino Felt Green */
-    padding: 24px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 16px;
     justify-content: space-between;
-    align-items: center;
 }
 
-.table-header {
+/* Top Header Row: Wraps seamlessly on mobile layouts */
+.hud-header-row {
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 .title-label {
-    font-size: 28px;
+    font-size: 24px;
     color: #ffffff;
     -unity-font-style: bold;
     letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    min-width: 200px;
+    margin-bottom: 8px; /* Safe margin substitution instead of row-gap */
 }
 
-/* Score Board System */
+/* Minimalist Upper Scoreboard */
 .score-board {
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 12px;
-    padding: 16px 32px;
-    margin: 10px;
-    min-width: 250px;
-    align-items: center;
+    background-color: rgba(20, 25, 22, 0.85);
+    border-radius: 8px;
+    padding: 10px 16px;
     border-width: 1px;
-    border-color: #d4af37; /* Gold Accent Outline */
+    border-color: #d4af37;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .score-label {
-    font-size: 22px;
+    font-size: 15px;
     color: #ffffff;
-    margin: 4px;
+    -unity-font-style: bold;
+    margin: 0 8px;
 }
 
-/* Center Outcome Notification Banner */
+/* Floating Center Banner for Outcomes */
+.center-container {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 .outcome-banner {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(20, 25, 22, 0.95);
     border-color: #d4af37;
     border-width: 2px;
-    border-radius: 16px;
-    padding: 20px 40px;
-    margin: 20px;
-    align-items: center;
-    transition-property: display, opacity;
-    transition-duration: 0.25s;
+    border-radius: 12px;
+    padding: 16px 24px;
+    max-width: 90%;
 }
 
 .outcome-text {
-    font-size: 32px;
-    color: #d4af37; /* Radiant Gold Winner Text */
+    font-size: 24px;
+    color: #d4af37;
     -unity-font-style: bold;
-    text-align: center;
+    -unity-text-align: middle-center; /* Native USS text centering alignment alignment signature */
 }
 
-/* Ergonomic Action Controls */
+/* Action Terminal Footer: Controls elastic wrapping layout safely */
 .action-container {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
     width: 100%;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    flex-wrap: wrap;
 }
 
+/* Casino Buttons Elastic Layout Parameters */
 .btn-casino {
-    font-size: 20px;
+    font-size: 14px;
     -unity-font-style: bold;
     color: #ffffff;
     background-color: #1e5e3a;
-    border-width: 2px;
+    border-width: 1px;
     border-color: #2a8552;
-    border-radius: 10px;
-    padding: 14px 36px;
-    margin: 0 12px;
-    min-width: 140px;
-    transition-property: background-color, scale;
-    transition-duration: 0.1s;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 6px; /* Uniform margins ensure beautiful wrapping gaps without depending on row-gap */
+    flex-grow: 1;
+    flex-basis: 120px;
+    max-width: 200px;
 }
 
 .btn-casino:hover {
     background-color: #26774a;
-    scale: 1.05;
 }
 
 .btn-casino:active {
     background-color: #16482c;
-    scale: 0.98;
 }
 
-/* Highlight Primary Hit Choice */
 .btn-hit {
-    background-color: #b22222; /* Crimson Accent for Hit Action */
+    background-color: #b22222;
     border-color: #d23636;
 }
 
@@ -105,10 +117,8 @@
     background-color: #8b1a1a;
 }
 
-/* Disabled state handling for UI Toolkit */
 .btn-casino:disabled {
-    background-color: #33443a;
-    border-color: #44554b;
-    color: #77887f;
-    opacity: 0.6;
+    background-color: #2b332e;
+    border-color: #3b443f;
+    color: #66726b;
 }

@@ -8,6 +8,7 @@ using CardFramework.Cloud.PlayFab;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Views;
+using CardFramework.Presentation.Input;
 
 namespace CardFramework.Architecture.DI {
     /// <summary>
@@ -17,11 +18,13 @@ namespace CardFramework.Architecture.DI {
     public class GameLifetimeScope : LifetimeScope {
         [Header("UI Presentation Hierarchy References")]
         [SerializeField] private BlackjackView blackjackViewInstance;
+        [Header("Global Infrastructure UI References")]
+        [SerializeField] private ModalServiceView modalServiceViewInstance;
         protected override void Configure(IContainerBuilder builder) {
 
             // Core Data Models & Decks (Transient so each engine gets a unique stack)
             builder.Register<Deck>(Lifetime.Transient);
-            
+
             // Register Core Game Engines as Transients.
             // This ensures every time a new game scene or table is loaded, 
             // a fresh, isolated logic instance is provided without cross-contamination.
@@ -40,13 +43,20 @@ namespace CardFramework.Architecture.DI {
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
 
+
+            // Multi-Platform Input Architecture Adapter
+            builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
+
             // ---- PRESENTATION LAYER REGISTRATIONS (TASK-3.3) ----
 
-            // Registering the view instance present inside the active Unity Scene Hierarchy
+            // Registering the view instance present inside the active Unity Scene Hierarchy to satisfy both contracts
             builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
+            builder.RegisterInstance<IModalService>(modalServiceViewInstance);
 
             // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
+
+
         }
     }
 }

@@ -4,18 +4,15 @@ using CardFramework.Core.Engines;
 using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Interfaces;
 
-namespace CardFramework.Tests.EditMode.Presentation
-{
+namespace CardFramework.Tests.EditMode.Presentation {
     [TestFixture]
-    public class BlackjackTableControllerTests
-    {
+    public class BlackjackTableControllerTests {
         private BlackjackEngine _engine;
         private MockBlackjackView _mockView;
         private BlackjackTableController _controller;
 
         [SetUp]
-        public void Setup()
-        {
+        public void Setup() {
             // Injecting clean instances for isolated architectural evaluation
             _engine = new BlackjackEngine();
             _mockView = new MockBlackjackView();
@@ -23,14 +20,12 @@ namespace CardFramework.Tests.EditMode.Presentation
         }
 
         [TearDown]
-        public void TearDown()
-        {
+        public void TearDown() {
             _controller.Dispose();
         }
 
         [Test]
-        public void Controller_OnStart_InitializesTableAndDealsInitialHands()
-        {
+        public void Controller_OnStart_InitializesTableAndDealsInitialHands() {
             // Act
             _controller.Start();
 
@@ -41,8 +36,7 @@ namespace CardFramework.Tests.EditMode.Presentation
         }
 
         [Test]
-        public void Controller_OnHitRequest_UpdatesPlayerScoreOnView()
-        {
+        public void Controller_OnHitRequest_UpdatesPlayerScoreOnView() {
             // Arrange
             _controller.Start();
             int initialScore = _mockView.PlayerScore;
@@ -55,8 +49,7 @@ namespace CardFramework.Tests.EditMode.Presentation
         }
 
         [Test]
-        public void Controller_OnStandRequest_DisablesInteractionAndEvaluatesDealerTurn()
-        {
+        public void Controller_OnStandRequest_DisablesInteractionAndEvaluatesDealerTurn() {
             // Arrange
             _controller.Start();
 
@@ -68,11 +61,33 @@ namespace CardFramework.Tests.EditMode.Presentation
             Assert.IsFalse(string.IsNullOrEmpty(_mockView.WinnerMessage), "A clear victor or tie match conclusion must be announced upon Standing.");
         }
 
+        [Test]
+        public void Controller_OnStart_SpawnsFourInitialPhysicalCards() {
+            // Act
+            _controller.Start();
+
+            // Assert
+            Assert.AreEqual(2, _mockView.PlayerCardsSpawnedCount, "Should spawn exactly 2 physical cards for the player at start.");
+            Assert.AreEqual(2, _mockView.DealerCardsSpawnedCount, "Should spawn exactly 2 physical cards for the dealer at start.");
+        }
+
+        [Test]
+        public void Controller_OnHitRequest_SpawnsAdditionalPlayerPhysicalCard() {
+            // Arrange
+            _controller.Start();
+            int initialPlayerCards = _mockView.PlayerCardsSpawnedCount;
+
+            // Act
+            _mockView.SimulateHitRequest();
+
+            // Assert
+            Assert.AreEqual(initialPlayerCards + 1, _mockView.PlayerCardsSpawnedCount, "Hitting must instantly trigger the instantiation of a physical player card.");
+        }
+
         /// <summary>
         /// Controlled Mock implementation mimicking the UI Canvas layer boundaries.
         /// </summary>
-        private class MockBlackjackView : IBlackjackView
-        {
+        private class MockBlackjackView : IBlackjackView {
             public event Action OnHitRequested;
             public event Action OnStandRequested;
             public event Action OnRestartRequested;
@@ -83,11 +98,27 @@ namespace CardFramework.Tests.EditMode.Presentation
             public bool ClearTableCalled { get; private set; }
             public bool InteractionState { get; private set; }
 
+            // Tracked variables for test validation
+            public int PlayerCardsSpawnedCount { get; private set; }
+            public int DealerCardsSpawnedCount { get; private set; }
+
             public void UpdatePlayerScore(int score) => PlayerScore = score;
             public void UpdateDealerScore(int score) => DealerScore = score;
             public void DisplayWinner(string winnerName) => WinnerMessage = winnerName;
-            public void ClearTable() => ClearTableCalled = true;
+
+            public void ClearTable() {
+                ClearTableCalled = true;
+                PlayerCardsSpawnedCount = 0;
+                DealerCardsSpawnedCount = 0;
+            }
+
             public void SetInteractionState(bool canInteract) => InteractionState = canInteract;
+
+            // Fulfill the new structural 3D spawning interface contract
+            public void SpawnPhysicalCard(CardFramework.Core.Models.CardData card, bool isPlayer) {
+                if (isPlayer) PlayerCardsSpawnedCount++;
+                else DealerCardsSpawnedCount++;
+            }
 
             public void SimulateHitRequest() => OnHitRequested?.Invoke();
             public void SimulateStandRequest() => OnStandRequested?.Invoke();
