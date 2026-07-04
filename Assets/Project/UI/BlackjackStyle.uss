@@ -1,17 +1,18 @@
-/* ---- Layout General de HUD Flotante ---- */
+/* ---- General Floating HUD Layout ---- */
 .screen-container {
     flex-grow: 1;
-    background-color: rgba(0, 0, 0, 0); /* ¡Totalmente transparente para ver la mesa 3D! */
-    padding: 24px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 16px;
     justify-content: space-between;
 }
 
-/* Encabezado Superior (Título a la izquierda, Marcador a la derecha) */
+/* Top Header Row: Wraps seamlessly on mobile layouts */
 .hud-header-row {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .title-label {
@@ -20,32 +21,35 @@
     -unity-font-style: bold;
     letter-spacing: 2px;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    min-width: 200px;
+    margin-bottom: 8px; /* Safe margin substitution instead of row-gap */
 }
 
-/* Marcador Minimalista Superior Derecho */
+/* Minimalist Upper Scoreboard */
 .score-board {
-    background-color: rgba(20, 25, 22, 0.85); /* Fondo oscuro traslúcido elegante */
+    background-color: rgba(20, 25, 22, 0.85);
     border-radius: 8px;
-    padding: 10px 20px;
+    padding: 10px 16px;
     border-width: 1px;
-    border-color: #d4af37; /* Borde dorado fino */
+    border-color: #d4af37;
     flex-direction: row;
     align-items: center;
+    margin-bottom: 8px;
 }
 
 .score-label {
-    font-size: 16px;
+    font-size: 15px;
     color: #ffffff;
     -unity-font-style: bold;
-    margin: 0 12px;
+    margin: 0 8px;
 }
 
-/* Banner de Victoria Central Flotante (Se activa al final) */
+/* Floating Center Banner for Outcomes */
 .center-container {
     flex-grow: 1;
     justify-content: center;
     align-items: center;
-    pointer-events: none; /* No bloquea clics en el espacio 3D */
+    width: 100%;
 }
 
 .outcome-banner {
@@ -53,38 +57,43 @@
     border-color: #d4af37;
     border-width: 2px;
     border-radius: 12px;
-    padding: 16px 36px;
+    padding: 16px 24px;
+    max-width: 90%;
 }
 
 .outcome-text {
-    font-size: 28px;
+    font-size: 24px;
     color: #d4af37;
     -unity-font-style: bold;
-    text-align: center;
+    -unity-text-align: middle-center; /* Native USS text centering alignment alignment signature */
 }
 
-/* ---- Consola de Acciones Inferior Estilizada ---- */
+/* Action Terminal Footer: Controls elastic wrapping layout safely */
 .action-container {
     flex-direction: row;
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 16px;
-    background-color: rgba(0, 0, 0, 0.4); /* Cintillo inferior discreto */
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 12px;
+    flex-wrap: wrap;
 }
 
+/* Casino Buttons Elastic Layout Parameters */
 .btn-casino {
-    font-size: 15px;
+    font-size: 14px;
     -unity-font-style: bold;
     color: #ffffff;
     background-color: #1e5e3a;
     border-width: 1px;
     border-color: #2a8552;
     border-radius: 6px;
-    padding: 10px 24px;
-    margin: 0 10px;
-    min-width: 130px;
+    padding: 12px 16px;
+    margin: 6px; /* Uniform margins ensure beautiful wrapping gaps without depending on row-gap */
+    flex-grow: 1;
+    flex-basis: 120px;
+    max-width: 200px;
 }
 
 .btn-casino:hover {

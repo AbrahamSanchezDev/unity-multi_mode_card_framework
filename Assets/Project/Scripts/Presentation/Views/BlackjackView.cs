@@ -35,11 +35,12 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private Transform playerSpawnAnchor;
         [SerializeField] private Transform dealerSpawnAnchor;
 
-        private int _playerCardsSpawned;
-        private int _dealerCardsSpawned;
-        private List<GameObject> _spawnedCards = new List<GameObject>();
         // 6cm card width + 1cm margin gap
         private const float CardOffsetHorizontal = 0.07f;
+
+        // Track active runtime card instances to dynamically recalculate hand centers
+        private readonly List<Transform> _playerCardTransforms = new();
+        private readonly List<Transform> _dealerCardTransforms = new();
 
         #endregion
 
@@ -98,12 +99,14 @@ namespace CardFramework.Presentation.Views {
         public void ClearTable() {
             _outcomeMessageLabel.text = string.Empty;
             _outcomeMessageVisualElement.style.display = DisplayStyle.None;
-            _playerCardsSpawned = 0;
-            _dealerCardsSpawned = 0;
-            foreach (var card in _spawnedCards) {
-                Destroy(card);
-            }
-            _spawnedCards.Clear();
+
+            // Clear Player visual objects
+            foreach (var t in _playerCardTransforms) { if (t != null) Destroy(t.gameObject); }
+            _playerCardTransforms.Clear();
+
+            // Clear Dealer visual objects
+            foreach (var t in _dealerCardTransforms) { if (t != null) Destroy(t.gameObject); }
+            _dealerCardTransforms.Clear();
         }
 
         public void SetInteractionState(bool canInteract) {
@@ -124,26 +127,33 @@ namespace CardFramework.Presentation.Views {
             if (_outcomeMessageLabel == null) Debug.LogError($"[{name}]: Missing 'outcome-message-label' VisualElement.");
         }
 
-
         public void SpawnPhysicalCard(CardData card, bool isPlayer) {
             Transform anchor = isPlayer ? playerSpawnAnchor : dealerSpawnAnchor;
-            int cardIndex = isPlayer ? _playerCardsSpawned : _dealerCardsSpawned;
+            System.Collections.Generic.List<Transform> activeList = isPlayer ? _playerCardTransforms : _dealerCardTransforms;
 
-            // Calculate the procedural local coordinate shift
-            Vector3 localOffset = new Vector3(cardIndex * CardOffsetHorizontal, 0, 0);
-            Vector3 targetPosition = anchor.TransformPoint(localOffset);
-            Quaternion targetRotation = anchor.rotation;
+            // Instantiate the physical asset as a direct child of its target spatial anchor
+            GameObject spawnedCard = Instantiate(cardPrefab, anchor);
+            activeList.Add(spawnedCard.transform);
 
-            // Instantiate and inject your procedural parameters
-            GameObject spawnedCard = Instantiate(cardPrefab, targetPosition, targetRotation);
+            // Dynamic auto-centering calculation for the entire hand layout
+            int totalCards = activeList.Count;
+            float totalWidth = (totalCards - 1) * CardOffsetHorizontal;
+            float startX = -totalWidth / 2f;
 
-            // Invoke your custom runtime card shader/atlas binder
+            // Reposition all existing cards in this hand relative to the local origin
+            for (int i = 0; i < totalCards; i++) {
+                float localX = startX + (i * CardOffsetHorizontal);
+
+                // Keep local Y and Z at 0 so they respect the Anchor's native transform layout orientation
+                activeList[i].localPosition = new Vector3(localX, 0f, 0f);
+                activeList[i].localRotation = Quaternion.identity;
+            }
+
+            // Invoke your custom runtime card shader/atlas binder parameters
             var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
             if (faceGenerator != null) {
-                // Mapping: CardFramework Core Enum Ranks to your byte parameters
                 CardData.Rank rank = card.CardRank;
                 bool isBlack = card.CardSuit == CardData.Suit.Spades || card.CardSuit == CardData.Suit.Clubs;
-
                 // Fetch your Suit icon from your asset database/cache as needed
                 Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(card.CardSuit) : null;
                 Sprite faceSprite = null;
@@ -151,12 +161,9 @@ namespace CardFramework.Presentation.Views {
                     // Fetch the face card sprite for Jack, Queen, King
                     faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(card) : null;
                 }
+
                 faceGenerator.GenerateCard(suitIcon, rank, faceSprite, isBlack);
             }
-
-            if (isPlayer) _playerCardsSpawned++;
-            else _dealerCardsSpawned++;
-            _spawnedCards.Add(spawnedCard);
         }
     }
 }

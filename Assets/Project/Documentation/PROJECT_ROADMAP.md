@@ -61,8 +61,9 @@ All newly generated code must adhere strictly to these architectural boundaries.
 - [x] **TASK-3.5: User Notification & Modal Window System**
   - Screen-space modal canvas for errors, loading overlays, and async cloud operations.
 - [x] **TASK-3.6: Multi-Platform Input Adapter**
-  - Implement universal click/drag using Unity's New Input System.
-  - Abstract coordinate conversions for VR pointers vs. Mouse clicks.
+  - Implement abstraction layer (`IInputContext`) for platform-agnostic interactions.
+  - Create standard pointer inputs adapter mapping core press definitions.
+  - Establish registration hooks for future XR controller injection pipelines.
 - [ ] **TASK-3.7: Adaptive Screen-Space UI**
   - Responsive layout scaling across 16:9 desktop and 19.5:9 mobile formats without distortion.
 
