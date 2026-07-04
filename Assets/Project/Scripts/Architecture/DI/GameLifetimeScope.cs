@@ -8,6 +8,7 @@ using CardFramework.Cloud.PlayFab;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Views;
+using CardFramework.Presentation.Input;
 
 namespace CardFramework.Architecture.DI {
     /// <summary>
@@ -41,6 +42,10 @@ namespace CardFramework.Architecture.DI {
             // Binding contracts directly to PlayFab concrete services seamlessly
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
+
+
+            // Multi-Platform Input Architecture Adapter
+            builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
 
             // ---- PRESENTATION LAYER REGISTRATIONS (TASK-3.3) ----
 

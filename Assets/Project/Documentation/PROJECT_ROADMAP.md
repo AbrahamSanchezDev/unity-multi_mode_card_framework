@@ -58,9 +58,9 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Map logic events to visual UI feedback loops.
   - Instantiate and animate physical/UI cards on draw actions.
   - Disengage logic handles cleanly upon view destruction.
-- [ ] **TASK-3.5: User Notification & Modal Window System**
+- [x] **TASK-3.5: User Notification & Modal Window System**
   - Screen-space modal canvas for errors, loading overlays, and async cloud operations.
-- [ ] **TASK-3.6: Multi-Platform Input Adapter**
+- [x] **TASK-3.6: Multi-Platform Input Adapter**
   - Implement universal click/drag using Unity's New Input System.
   - Abstract coordinate conversions for VR pointers vs. Mouse clicks.
 - [ ] **TASK-3.7: Adaptive Screen-Space UI**

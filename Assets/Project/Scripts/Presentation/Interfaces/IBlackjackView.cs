@@ -1,13 +1,11 @@
 using System;
 using CardFramework.Core.Models;
 
-namespace CardFramework.Presentation.Interfaces
-{
+namespace CardFramework.Presentation.Interfaces {
     /// <summary>
     /// Contract defining the abstraction of the Blackjack table visual representation.
     /// </summary>
-    public interface IBlackjackView
-    {
+    public interface IBlackjackView {
         // UI Events forwarded to the controller
         event Action OnHitRequested;
         event Action OnStandRequested;
