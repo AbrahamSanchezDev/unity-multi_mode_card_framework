@@ -133,21 +133,7 @@ namespace CardFramework.Presentation.Views {
 
             // Instantiate the physical asset as a direct child of its target spatial anchor
             GameObject spawnedCard = Instantiate(cardPrefab, anchor);
-            activeList.Add(spawnedCard.transform);
 
-            // Dynamic auto-centering calculation for the entire hand layout
-            int totalCards = activeList.Count;
-            float totalWidth = (totalCards - 1) * CardOffsetHorizontal;
-            float startX = -totalWidth / 2f;
-
-            // Reposition all existing cards in this hand relative to the local origin
-            for (int i = 0; i < totalCards; i++) {
-                float localX = startX + (i * CardOffsetHorizontal);
-
-                // Keep local Y and Z at 0 so they respect the Anchor's native transform layout orientation
-                activeList[i].localPosition = new Vector3(localX, 0f, 0f);
-                activeList[i].localRotation = Quaternion.identity;
-            }
 
             // Invoke your custom runtime card shader/atlas binder parameters
             var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
@@ -164,6 +150,25 @@ namespace CardFramework.Presentation.Views {
 
                 faceGenerator.GenerateCard(suitIcon, rank, faceSprite, isBlack);
             }
+
+
+            activeList.Add(spawnedCard.transform);
+
+            // Dynamic auto-centering calculation for the entire hand layout
+            int totalCards = activeList.Count;
+            float totalWidth = (totalCards - 1) * CardOffsetHorizontal;
+            float startX = -totalWidth / 2f;
+
+            // Reposition all existing cards in this hand relative to the local origin
+            for (int i = 0; i < totalCards; i++) {
+                float localX = startX + (i * CardOffsetHorizontal);
+
+                // Keep local Y and Z at 0 so they respect the Anchor's native transform layout orientation
+                activeList[i].localPosition = new Vector3(localX, 0f, 0f);
+                activeList[i].localRotation = Quaternion.identity;
+            }
+
+
         }
     }
 }

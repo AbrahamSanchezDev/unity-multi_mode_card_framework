@@ -64,9 +64,11 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Implement abstraction layer (`IInputContext`) for platform-agnostic interactions.
   - Create standard pointer inputs adapter mapping core press definitions.
   - Establish registration hooks for future XR controller injection pipelines.
-- [ ] **TASK-3.7: Adaptive Screen-Space UI**
-  - Responsive layout scaling across 16:9 desktop and 19.5:9 mobile formats without distortion.
-
+- [x] **TASK-3.7: Adaptive Screen-Space UI & Responsiveness**
+  - Refactor USS sheets using flexbox auto-wrapping and relative dimensions (`flex-basis`).
+  - Eliminate layout engine parser warnings by aligning properties to native sub-specs.
+  - Implement dynamic local space auto-centering for 3D physical card hand layout structures.
+  
 ---
 
 ## 🎮 Epic 4: Extended Game Loops & Metagame
