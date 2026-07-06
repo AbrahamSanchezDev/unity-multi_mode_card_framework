@@ -7,10 +7,12 @@ namespace CardFramework.Presentation.Controllers {
     // IInitializable tells VContainer to invoke the 'Initialize' method automatically once injection finishes
     public class CloudInitializationController : IInitializable {
         private readonly ICloudService _cloudService;
+        private readonly IEconomyService _economyService;
 
         [Inject]
-        public CloudInitializationController(ICloudService cloudService) {
+        public CloudInitializationController(ICloudService cloudService, IEconomyService economyService) {
             _cloudService = cloudService;
+            _economyService = economyService;
         }
 
         public void Initialize() {
@@ -27,7 +29,10 @@ namespace CardFramework.Presentation.Controllers {
         private void OnCloudReady() {
             Debug.Log($"[Boot] Cloud connection established. Player authenticated as ID: {_cloudService.PlayerId}");
 
-            // Here you can unlock your UI buttons, or trigger the next steps (e.g., fetch economy/currency balances)
+            // Once authenticated, immediately fetch the player's currency balance and recharge ticks
+            Debug.Log("[Boot] Synchronizing server economy balances...");
+            _economyService.RefreshBalance();
+
             _cloudService.OnAuthenticationSuccess -= OnCloudReady;
             _cloudService.OnAuthenticationFailed -= OnCloudBootError;
         }

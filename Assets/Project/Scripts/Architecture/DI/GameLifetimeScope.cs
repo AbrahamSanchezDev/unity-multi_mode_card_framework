@@ -46,7 +46,9 @@ namespace CardFramework.Architecture.DI {
             builder.Register<ICloudService, PlayFabCloudService>(Lifetime.Singleton);
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
-
+            
+            // Registering our new server-authoritative Gold Economy System
+            builder.Register<IEconomyService, PlayFabEconomyService>(Lifetime.Singleton);
 
             // Multi-Platform Input Architecture Adapter
             builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
