@@ -1,21 +1,24 @@
 # 🃏 Card Framework - Project Master Roadmap
 
 ## 🤖 AI Context & System Prompt
+
 **Target AI / Developer Instructions:**
-You are acting as a Senior Unity Developer. This document tracks the development of a cross-platform Card Game Framework (targeting WebGL and Meta Quest 3). 
-* **Architecture:** Strict decoupled MVP/MVC.
-* **Dependency Injection:** VContainer (No global Singletons or `GameManager.Instance`).
-* **Cloud Backend:** Microsoft PlayFab (Async/Await pattern using `TaskCompletionSource`, `IPlayFabDataWrapper` for test isolation).
-* **Testing Standard:** Test-Driven Development (TDD). 100% Line Coverage required for Controllers and Services using NUnit (EditMode for unit, PlayMode for integration).
-* **Language:** C# 9.0+ / Unity 6000+
-* **UI System:** UI Toolkit (.uxml / .uss) designed with Responsive Panel Settings (Screen-Space for Flatscreen, prepared for seamless migration to World-Space Panels for Meta Quest 3).
+You are acting as a Senior Unity Developer. This document tracks the development of a cross-platform Card Game Framework (targeting WebGL and Meta Quest 3).
+
+- **Architecture:** Strict decoupled MVP/MVC.
+- **Dependency Injection:** VContainer (No global Singletons or `GameManager.Instance`).
+- **Cloud Backend:** Microsoft PlayFab (Async/Await pattern using `TaskCompletionSource`, `IPlayFabDataWrapper` for test isolation).
+- **Testing Standard:** Test-Driven Development (TDD). 100% Line Coverage required for Controllers and Services using NUnit (EditMode for unit, PlayMode for integration).
+- **Language:** C# 9.0+ / Unity 6000+
+- **UI System:** UI Toolkit (.uxml / .uss) designed with Responsive Panel Settings (Screen-Space for Flatscreen, prepared for seamless migration to World-Space Panels for Meta Quest 3).
 
 All newly generated code must adhere strictly to these architectural boundaries. Update checkboxes `[x]` as tasks are completed.
 
 ---
 
 ## 📌 Epic 1: Core Logic Engine
-*Pure C# simulation logic, deterministic and independent of Unity's MonoBehaviour loop.*
+
+_Pure C# simulation logic, deterministic and independent of Unity's MonoBehaviour loop._
 
 - [x] **TASK-1.1: Blackjack Engine Implementation**
   - Hand evaluation, bust detection, dealer soft-17 rules.
@@ -29,7 +32,8 @@ All newly generated code must adhere strictly to these architectural boundaries.
 ---
 
 ## ☁️ Epic 2: Persistence & Cloud Backend
-*PlayFab integration, data storage, and cross-device syncing pipelines.*
+
+_PlayFab integration, data storage, and cross-device syncing pipelines._
 
 - [x] **TASK-2.1: Dependency Injection Container**
   - Setup `VContainer` lifecycle (`GameLifetimeScope`).
@@ -48,7 +52,8 @@ All newly generated code must adhere strictly to these architectural boundaries.
 ---
 
 ## 🖥️ Epic 3: Architecture & UI Foundation
-*Screen-space canvases, decoupled presentation controllers, and input abstraction.*
+
+_Screen-space canvases, decoupled presentation controllers, and input abstraction._
 
 - [x] **TASK-3.3: UI Presentation Layer Architecture (MVP/MVC Setup)**
   - Define `IView` contracts (`IBlackjackView`).
@@ -68,23 +73,31 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Refactor USS sheets using flexbox auto-wrapping and relative dimensions (`flex-basis`).
   - Eliminate layout engine parser warnings by aligning properties to native sub-specs.
   - Implement dynamic local space auto-centering for 3D physical card hand layout structures.
-  
+
 ---
 
-## 🎮 Epic 4: Extended Game Loops & Metagame
-*Expanding the framework to support economy and alternative game modes.*
+## 🎮 EPIC-04: Cloud Infrastructure & Metagame
 
-- [ ] **TASK-4.1: Economy & Betting System**
-  - Logic for placing wagers, resolving payouts, and syncing currency via `ICloudSaveService`.
-- [ ] **TASK-4.2: Texas Holdem UI Implementation**
-  - Table controller for multiplayer/AI poker states.
-- [ ] **TASK-4.3: Solitaire UI Implementation**
-  - Drag-and-drop controller for tableau manipulation.
+Expanding the framework to support persistence, cross-platform linking, and economy.
+
+- [x] **TASK-4.1: PlayFab SDK & Silent Authentication**
+  - Integrate PlayFab SDK extensions with decoupled injection safety mappings.
+  - Formulate hardware-invariant `ICloudService` abstract definitions.
+  - Implement zero-friction `CustomID` silent login execution workflows via `IInitializable` hooks.
+- [ ] **TASK-4.2: Economy & Betting System**
+  - Placed wagers, payouts, and server-side currency synchronization loops.
+- [ ] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
+  - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
+- [ ] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
+  - Integrate server-verified rewards and prevent device-clock tampering via PlayFab Time/Title Data.
+- [ ] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
+  - Table and drag-and-drop controllers for secondary game states.
 
 ---
 
 ## 🥽 Epic 5: XR Integration & Deployment
-*Meta Quest 3 spatial design and final deployment pipelines.*
+
+_Meta Quest 3 spatial design and final deployment pipelines._
 
 - [ ] **TASK-5.1: Meta Quest 3 Rig Setup**
   - Implement XR Interaction Toolkit or Oculus Integration for hand-tracking/controllers.

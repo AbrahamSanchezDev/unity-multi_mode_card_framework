@@ -5,6 +5,8 @@ using CardFramework.Core.Models;
 using CardFramework.Core.Engines;
 using CardFramework.Cloud.Interfaces;
 using CardFramework.Cloud.PlayFab;
+using CardFramework.Cloud;
+using CardFramework.Core.Interfaces;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Views;
@@ -40,6 +42,8 @@ namespace CardFramework.Architecture.DI {
 
             // Cloud Infrastructure Contracts (Singletons)
             // Binding contracts directly to PlayFab concrete services seamlessly
+            // PlayFab Cloud Service Infrastructure Injection
+            builder.Register<ICloudService, PlayFabCloudService>(Lifetime.Singleton);
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
 
@@ -53,8 +57,11 @@ namespace CardFramework.Architecture.DI {
             builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
             builder.RegisterInstance<IModalService>(modalServiceViewInstance);
 
+
+            // VContainer automatically detects 'IInitializable' on entry points registered as EntryPoints
             // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<CloudInitializationController>();
 
 
         }
