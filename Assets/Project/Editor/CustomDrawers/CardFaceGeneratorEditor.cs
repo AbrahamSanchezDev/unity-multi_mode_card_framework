@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CardFramework.Presentation.Views {
     [CustomEditor(typeof(CardFaceGenerator))]
-    public class CardFaceGeneratorEditor : UnityEditor.Editor {
+    public class CardFaceGeneratorEditor : Editor {
         public override void OnInspectorGUI() {
             serializedObject.Update();
             DrawDefaultInspector();

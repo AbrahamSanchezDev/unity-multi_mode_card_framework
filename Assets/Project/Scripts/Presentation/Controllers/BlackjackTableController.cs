@@ -16,6 +16,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly IBlackjackView _uiView;
         private readonly IEconomyService _economyService;
         private readonly BettingModalView _bettingModalView;
+        private readonly NavigationController _navigationController;
 
         private int _currentActiveWager = 0;
 
@@ -23,11 +24,13 @@ namespace CardFramework.Presentation.Controllers {
             BlackjackEngine gameEngine,
             IBlackjackView uiView,
             IEconomyService economyService,
-            BettingModalView bettingModalView) {
+            BettingModalView bettingModalView,
+            NavigationController navigationController) {
             _gameEngine = gameEngine;
             _uiView = uiView;
             _economyService = economyService;
             _bettingModalView = bettingModalView;
+            _navigationController = navigationController;
         }
 
         public void Start() {
@@ -41,6 +44,10 @@ namespace CardFramework.Presentation.Controllers {
 
             // Subscribe to server balance changes to update the table HUD immediately
             _economyService.OnBalanceUpdated += HandleWalletBalanceChanged;
+
+            // Listen to Navigation lifecycle changes to freeze/unfreeze interactions
+            _navigationController.OnMenuOpened += HandleMenuOpened;
+            _navigationController.OnMenuClosed += HandleMenuClosed;
 
             // Initialize the UI with the cached starting balance right away
             _uiView.UpdateWalletBalance(_economyService.CurrentGold);
@@ -61,6 +68,10 @@ namespace CardFramework.Presentation.Controllers {
             if (_economyService != null) {
                 _economyService.OnBalanceUpdated -= HandleWalletBalanceChanged;
             }
+
+            // Clean up navigation listeners
+            _navigationController.OnMenuOpened -= HandleMenuOpened;
+            _navigationController.OnMenuClosed -= HandleMenuClosed;
         }
 
         private void HandleRestart() {
@@ -70,6 +81,19 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.ClearTable();
 
             _bettingModalView.ShowModal();
+        }
+
+        private void HandleMenuOpened() {
+            Debug.Log("[Blackjack Controller] Menu opened. Disabling table interactions.");
+            _uiView.SetInteractionState(false);
+        }
+
+        private void HandleMenuClosed() {
+            Debug.Log("[Blackjack Controller] Menu closed. Restoring game layout context.");
+            // Only restore interaction state if the game is currently active and not awaiting a wager confirmation
+            if (_gameEngine.CurrentState != BlackjackEngine.GameState.Showdown) {
+                _uiView.SetInteractionState(true);
+            }
         }
 
         private void HandleWalletBalanceChanged(int freshBalance) {

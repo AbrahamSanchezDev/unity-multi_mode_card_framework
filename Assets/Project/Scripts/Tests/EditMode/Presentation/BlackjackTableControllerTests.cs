@@ -16,6 +16,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         private MockBlackjackView _mockView;
         private MockEconomyService _mockEconomy;
         private BettingModalView _bettingModalView;
+        private NavigationController _navigationController;
         private GameObject _modalContainer;
         private BlackjackTableController _controller;
 
@@ -38,7 +39,11 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 rootField.SetValue(_bettingModalView, new VisualElement());
             }
 
-            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _bettingModalView);
+            // Setup the clean isolated navigation stack required by the constructor
+            var mockDashView = _modalContainer.AddComponent<DashboardMenuView>();
+            _navigationController = new NavigationController(mockDashView);
+
+            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _bettingModalView, _navigationController);
         }
 
         [TearDown]

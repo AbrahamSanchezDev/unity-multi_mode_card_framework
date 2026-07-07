@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/DashboardMenu.uss?fileID=7433441132597879392&amp;guid=dc42de5be2c288a42a03b8d7c57bfe27&amp;type=3#DashboardMenu"/>
+    <ui:VisualElement class="dash-backdrop">
+        <ui:VisualElement class="dash-panel">
+            <ui:VisualElement class="dash-header">
+                <ui:Label text="CASINO DASHBOARD" class="dash-title"/>
+                <ui:Button name="btn-close-dash" text="✕" class="btn-close-generic"/>
+            </ui:VisualElement>
+            <ui:Label text="SELECT EXPERIENCE" class="dash-section-subtitle"/>
+            <ui:VisualElement class="dash-game-grid">
+                <ui:Button name="btn-game-blackjack" text="BLACKJACK (ACTIVE)" class="btn-game-card game-active"/>
+                <ui:Button name="btn-game-solitaire" text="SOLITAIRE" class="btn-game-card game-locked"/>
+                <ui:Button name="btn-game-texasholdem" text="TEXAS HOLD&apos;EM" class="btn-game-card game-locked"/>
+            </ui:VisualElement>
+            <ui:Label text="CROSS-PLATFORM SYNC" class="dash-section-subtitle margin-top-md"/>
+            <ui:VisualElement class="dash-account-container">
+                <ui:VisualElement class="dash-account-status">
+                    <ui:Label text="Account Status:" class="text-muted"/>
+                    <ui:Label name="lbl-account-status" text="Guest Device Profile" class="text-highlight-green"/>
+                </ui:VisualElement>
+                <ui:Button name="btn-open-linking" text="LINK META QUEST 3 / WEBGL ACCOUNT" class="btn-action-premium"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="dash-footer-container margin-top-md">
+                <ui:Button name="btn-exit-app" text="EXIT GAME APPLICATION" class="btn-action-danger"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

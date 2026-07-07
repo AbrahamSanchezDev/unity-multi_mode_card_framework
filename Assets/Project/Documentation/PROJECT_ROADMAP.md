@@ -42,12 +42,6 @@ _PlayFab integration, data storage, and cross-device syncing pipelines._
   - Implement `PlayFabAuthService` with device-unique fallback.
   - Implement `PlayFabDataService` with mocked wrapper for 0ms unit testing.
   - 100% Test Coverage (PlayMode & EditMode).
-- [ ] **TASK-2.3: Cross-Platform Account Linking**
-  - Build asynchronous 6-character alphanumeric PIN system.
-  - Sync game state from flatscreen (WebGL) to VR profiles (Meta Quest 3) with a 10-minute validity window.
-- [ ] **TASK-2.4: Cloud Mailbox & Cooldown Systems**
-  - Integrate server-verified message inbox for daily rewards.
-  - Mitigate device-clock tampering using PlayFab Title Data/CloudScript.
 
 ---
 
@@ -89,13 +83,19 @@ Expanding the framework to support persistence, cross-platform linking, and econ
   - Establish loose `IEconomyService` structures to prevent runtime client memory tampering.
   - Implement dynamic multi-project credit/debit cloud network sync pipelines.
   - Deliver automated EditMode test coverage adapters validating game loop wagering states.
+    - [x] **TASK-4.2.1: Dynamic UI Wallet Balance (HUD Sync)**
+      - Extend `IBlackjackView` contract to handle real-time cash flow signatures.
+      - Bind reactive event subscriptions between `IEconomyService` and the main UI Toolkit canvas.
+      - Secure clean data updates across round transitions (debits, standard payouts, natural blackjacks, and push resolutions).
 - [ ] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
   - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
+    - [ ] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
+      - Design the central dashboard canvas in UXML/USS featuring a multi-game selection carousel and account status views.
+      - Handle active scene context switching routines to seamlessly transition between Blackjack and secondary game slots.
 - [ ] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
   - Integrate server-verified rewards and prevent device-clock tampering via PlayFab Time/Title Data.
 - [ ] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
   - Table and drag-and-drop controllers for secondary game states.
-
 ---
 
 ## 🥽 Epic 5: XR Integration & Deployment

@@ -556,6 +556,7 @@ MonoBehaviour:
   blackjackViewInstance: {fileID: 1537347080}
   modalServiceViewInstance: {fileID: 2091487886}
   bettingModalView: {fileID: 856836102}
+  menuActionReference: {fileID: -4899954564831684455, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!4 &978833526
 Transform:
   m_ObjectHideFlags: 0
@@ -571,6 +572,7 @@ Transform:
   m_Children:
   - {fileID: 2091487885}
   - {fileID: 856836104}
+  - {fileID: 1900687046}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1168954696
@@ -791,6 +793,74 @@ MonoBehaviour:
   cardPrefab: {fileID: 3061051009987425311, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
   playerSpawnAnchor: {fileID: 1984778156}
   dealerSpawnAnchor: {fileID: 1168954697}
+--- !u!1 &1900687045
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1900687046}
+  - component: {fileID: 1900687047}
+  - component: {fileID: 1900687048}
+  m_Layer: 0
+  m_Name: Dashboard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1900687046
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900687045}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.79575, y: -0.992, z: -0.09137}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 978833526}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1900687047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900687045}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 0b6a68da62b1d254795b957155e282cf, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: ddf411672add4d4419fbc90e6abd8c99, type: 3}
+  m_SortingOrder: 11
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &1900687048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900687045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6d78b59a0a3b2d4d897b2dd5cffb0c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.DashboardMenuView
 --- !u!1 &1984778155
 GameObject:
   m_ObjectHideFlags: 0

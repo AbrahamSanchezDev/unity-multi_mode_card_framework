@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 using CardFramework.Core.Models;
@@ -23,6 +24,8 @@ namespace CardFramework.Architecture.DI {
         [Header("Global Infrastructure UI References")]
         [SerializeField] private ModalServiceView modalServiceViewInstance;
         [SerializeField] private BettingModalView bettingModalView;
+
+        [SerializeField] private InputActionReference menuActionReference;
 
         protected override void Configure(IContainerBuilder builder) {
 
@@ -55,11 +58,13 @@ namespace CardFramework.Architecture.DI {
             // Multi-Platform Input Architecture Adapter
             builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
 
-            // ---- PRESENTATION LAYER REGISTRATIONS (TASK-3.3) ----
+            // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
 
             // Registering the view instance present inside the active Unity Scene Hierarchy to satisfy both contracts
             builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
             builder.RegisterInstance<IModalService>(modalServiceViewInstance);
+
+            builder.RegisterComponentInHierarchy<DashboardMenuView>();
 
 
             // VContainer automatically detects 'IInitializable' on entry points registered as EntryPoints
@@ -67,6 +72,10 @@ namespace CardFramework.Architecture.DI {
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
             builder.RegisterEntryPoint<CloudInitializationController>();
 
+            // Navigation Controller registered as EntryPoint for ITickable loops with custom parameter mapping
+            builder.RegisterEntryPoint<NavigationController>()
+                .WithParameter(menuActionReference)
+                .AsSelf();
 
             // Component Views
             builder.RegisterComponent(bettingModalView);
