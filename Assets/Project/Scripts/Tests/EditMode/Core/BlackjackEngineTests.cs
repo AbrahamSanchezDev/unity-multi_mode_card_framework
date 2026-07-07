@@ -368,6 +368,27 @@ namespace CardFramework.Tests.EditMode.Core {
         }
 
         [Test]
+        public void PlayerStand_DealerBust_TransitionsToDealerBust() {
+            var mock = new MockDeck();
+            mock.EnqueueCards(
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Two),
+                new CardData(CardData.Suit.Diamonds, CardData.Rank.Ten),
+                new CardData(CardData.Suit.Hearts, CardData.Rank.Three),
+                new CardData(CardData.Suit.Spades, CardData.Rank.Six),
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Ten)
+            );
+
+            var engine = new BlackjackEngine(mock);
+            engine.DealInitialHands();
+
+            engine.PlayerStand();
+
+            Assert.AreEqual(BlackjackEngine.GameState.DealerBust, engine.CurrentState,
+                "Dealer should transition to DealerBust when the hit causes a bust.");
+            Assert.IsTrue(engine.GetDealerHand().IsBust, "Dealer hand should be marked as a bust after exceeding 21.");
+        }
+
+        [Test]
         public void GetPlayerValue_ReturnsHandValue() {
             var engine = new BlackjackEngine();
             engine.DealInitialHands();
