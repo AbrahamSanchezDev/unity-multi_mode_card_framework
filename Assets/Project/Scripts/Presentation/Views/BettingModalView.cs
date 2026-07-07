@@ -26,6 +26,7 @@ namespace CardFramework.Presentation.Views {
         private void OnEnable() {
             SetupUiReferences();
         }
+        
         public void SetupUiReferences() {
 
             if (_root != null) return;
@@ -36,6 +37,7 @@ namespace CardFramework.Presentation.Views {
 
             // Use Unity's native inspector-linked tree structure safely
             _root = uiDocument.rootVisualElement;
+            if (_root == null) return;
 
             // Fetch elements via query layout markers
             _lblCurrentBalance = _root.Q<Label>("lbl-balance");
@@ -63,6 +65,7 @@ namespace CardFramework.Presentation.Views {
         private void OnDisable() {
             RemoveUiReferences();
         }
+
         private void RemoveUiReferences() {
 
             if (_economyService != null)
