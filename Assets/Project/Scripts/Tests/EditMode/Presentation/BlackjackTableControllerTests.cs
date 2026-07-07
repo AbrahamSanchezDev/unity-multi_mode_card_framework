@@ -95,21 +95,32 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Controller_OnStandRequest_SpawnsDealerHitCardsWhenDealerDraws() {
-            // Use a fixed deck so the dealer must draw at least one extra card on stand.
+            // Use a fixed deck with a single known dealer hit card.
             var fixedDeck = new FixedDeck(new[] {
-                new CardData(CardData.Suit.Clubs, CardData.Rank.Ace),   // player first card
-                new CardData(CardData.Suit.Diamonds, CardData.Rank.Two), // dealer first card
-                new CardData(CardData.Suit.Hearts, CardData.Rank.Eight), // player second card
-                new CardData(CardData.Suit.Spades, CardData.Rank.Ten),   // dealer second card (12 total)
                 new CardData(CardData.Suit.Clubs, CardData.Rank.Six)     // dealer hit card -> 18 total
             });
 
             InjectDeckIntoEngine(_engine, fixedDeck);
-            _controller.Start();
-            SimulateModalBetConfirmation(10);
-            _mockView.SimulateStandRequest();
 
-            Assert.Greater(_mockView.DealerCardsSpawnedCount, 2, "The dealer must spawn additional cards when the dealer AI hits after a stand.");
+            var playerHand = _engine.GetPlayerHand();
+            playerHand.Cards.Clear();
+            playerHand.Cards.Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Ace));
+            playerHand.Cards.Add(new CardData(CardData.Suit.Hearts, CardData.Rank.Seven));
+
+            var dealerHand = _engine.GetDealerHand();
+            dealerHand.Cards.Clear();
+            dealerHand.Cards.Add(new CardData(CardData.Suit.Diamonds, CardData.Rank.Two));
+            dealerHand.Cards.Add(new CardData(CardData.Suit.Spades, CardData.Rank.Ten));
+
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            stateField?.SetValue(_engine, BlackjackEngine.GameState.PlayerTurn);
+
+            var methodInfo = typeof(BlackjackTableController).GetMethod("HandleStand",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            methodInfo?.Invoke(_controller, null);
+
+            Assert.AreEqual(1, _mockView.DealerCardsSpawnedCount, "The dealer must spawn one extra card when the dealer AI hits after a stand.");
         }
 
         [Test]

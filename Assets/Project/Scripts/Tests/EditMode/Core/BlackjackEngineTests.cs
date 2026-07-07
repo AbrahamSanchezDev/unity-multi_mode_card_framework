@@ -315,6 +315,29 @@ namespace CardFramework.Tests.EditMode.Core {
         }
 
         [Test]
+        public void PlayerHit_SetsPlayerBustStateWhenHandExceeds21() {
+            var mock = new MockDeck();
+            mock.EnqueueCards(
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Ten),
+                new CardData(CardData.Suit.Diamonds, CardData.Rank.Seven),
+                new CardData(CardData.Suit.Hearts, CardData.Rank.Five),
+                new CardData(CardData.Suit.Spades, CardData.Rank.Two)
+            );
+
+            var engine = new BlackjackEngine(mock);
+            engine.DealInitialHands();
+
+            Assert.AreEqual(BlackjackEngine.GameState.PlayerTurn, engine.CurrentState,
+                "Initial hand should start in PlayerTurn unless natural blackjack occurs.");
+
+            engine.PlayerHit();
+
+            Assert.AreEqual(BlackjackEngine.GameState.PlayerBust, engine.CurrentState,
+                "PlayerHit must set state to PlayerBust when the player hand exceeds 21.");
+            Assert.IsTrue(engine.GetPlayerHand().IsBust, "Player hand should be marked bust after exceeding 21.");
+        }
+
+        [Test]
         public void PlayerHit_IgnoredWhenNotInPlayerTurn() {
             var engine = new BlackjackEngine();
             engine.DealInitialHands();
