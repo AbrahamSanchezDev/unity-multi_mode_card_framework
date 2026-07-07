@@ -8,6 +8,13 @@ using System.Reflection;
 namespace CardFramework.Tests.EditMode.Presentation {
     [TestFixture]
     public class CardFaceGeneratorTests {
+        private class TestableCardFaceGenerator : CardFaceGenerator {
+            public bool ForceUseCache { get; set; }
+
+            protected override bool ShouldUseCache() {
+                return ForceUseCache;
+            }
+        }
         private GameObject _cardContainer;
         private CardFaceGenerator _generator;
         private MeshRenderer _mockRenderer;
@@ -128,7 +135,9 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _generator.GenerateCard(_suitSprite, CardData.Rank.Four, null, false);
             string expectedKey = _generator.CardKey;
 
-            // Corrected to "GetCardTexture" which handles the internal _textureCache check
+            var publicCacheMethod = _generator.GetCardTextureFromCache();
+            Assert.IsNotNull(publicCacheMethod, "GetCardTextureFromCache should return a cached texture.");
+
             var getCacheMethod = typeof(CardFaceGenerator).GetMethod("GetCardTexture",
                 BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -139,6 +148,59 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 cachedTex = (Texture2D)getCacheMethod.Invoke(_generator, new object[] { expectedKey });
             });
             Assert.IsNotNull(cachedTex, "Should return a valid cached Texture2D asset.");
+
+            Texture2D cachedTexAgain = null;
+            Assert.DoesNotThrow(() => {
+                cachedTexAgain = (Texture2D)getCacheMethod.Invoke(_generator, new object[] { expectedKey });
+            });
+            Assert.IsNotNull(cachedTexAgain, "The second cache lookup should still return a valid texture.");
+            Assert.AreSame(cachedTex, cachedTexAgain, "The second lookup should return the cached texture instance.");
+        }
+
+        [Test]
+        public void Generator_GetCardTexture_UsesCachePathWhenForced() {
+            var isolatedContainer = new GameObject("Test_Cache_Generator");
+            var testGenerator = isolatedContainer.AddComponent<TestableCardFaceGenerator>();
+            testGenerator.ForceUseCache = true;
+            testGenerator.targetRenderer = isolatedContainer.AddComponent<MeshRenderer>();
+            testGenerator.cardCollider = isolatedContainer.AddComponent<BoxCollider>();
+            testGenerator.topCornerAnchor = isolatedContainer.transform;
+            testGenerator.bottomCornerAnchor = isolatedContainer.transform;
+            testGenerator.setupData.materialIndex = 0;
+            testGenerator.setupData.texturePropertyName = "_MainTex";
+            testGenerator.setupData.textureWidth = 64;
+
+            var texture = testGenerator.GetCardTexture();
+            Assert.IsNotNull(texture, "Forced cache mode should generate a texture.");
+
+            Object.DestroyImmediate(isolatedContainer);
+        }
+
+        [Test]
+        public void Generator_GetCardTexture_UsesDirectGenerationWhenCacheDisabled() {
+            var texture = _generator.GetCardTexture();
+            Assert.IsNotNull(texture, "Direct generation should return a texture when caching is disabled.");
+        }
+
+        [Test]
+        public void Generator_GetCardTextureFromCache_ReturnsCachedTextureImmediately() {
+            var cachedTexture = new Texture2D(4, 4);
+            CardFaceGenerator._textureCache[_generator.CardKey] = cachedTexture;
+
+            var returnedTexture = _generator.GetCardTextureFromCache();
+
+            Assert.AreSame(cachedTexture, returnedTexture, "A pre-populated cache entry should be returned immediately.");
+        }
+
+        [Test]
+        public void Generator_GetCardTexture_PrivateHelperCoversCacheMiss() {
+            var getCacheMethod = typeof(CardFaceGenerator).GetMethod("GetCardTexture",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            Assert.IsNotNull(getCacheMethod, "The private cache helper must be accessible.");
+
+            var freshTexture = (Texture2D)getCacheMethod.Invoke(_generator, new object[] { "CacheMissKey" });
+            Assert.IsNotNull(freshTexture, "A cache-miss lookup should generate and return a texture.");
         }
 
         [Test]
@@ -271,10 +333,13 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_SaveTextureMenuReflectionCheck_ValidatesExistence() {
-            // Corrected to look for NonPublic since SaveTextureMenu is private
             var saveMenuMethod = typeof(CardFaceGenerator).GetMethod("SaveTextureMenu",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(saveMenuMethod, "SaveTextureMenu entry point must be accessible.");
+
+            Assert.DoesNotThrow(() => {
+                saveMenuMethod.Invoke(_generator, null);
+            });
         }
 
 

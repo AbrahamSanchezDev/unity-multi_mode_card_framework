@@ -120,7 +120,7 @@ public class CardFaceGenerator : MonoBehaviour {
     };
 
     // Cache: only used in Play Mode, so a given card's texture is only baked once.
-    public static readonly Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
+    public static Dictionary<string, Texture2D> _textureCache { get; } = new Dictionary<string, Texture2D>();
 
     private const string RIG_NAME = "~CardGenRig";
     private const int GEN_LAYER = 31; // reserved, rarely-used layer for the off-screen rig
@@ -159,8 +159,12 @@ public class CardFaceGenerator : MonoBehaviour {
     /// Outside Play Mode it always regenerates fresh (full rig rebuild included),
     /// since it's meant for live testing.
     /// </summary>
+    protected virtual bool ShouldUseCache() {
+        return Application.isPlaying;
+    }
+
     public Texture2D GetCardTexture() {
-        if (Application.isPlaying) {
+        if (ShouldUseCache()) {
             return GetCardTextureFromCache();
         }
 
@@ -261,15 +265,25 @@ public class CardFaceGenerator : MonoBehaviour {
 #if UNITY_EDITOR
     [ContextMenu("Save Texture To Folder...")]
     private void SaveTextureMenu() {
-        string folder = EditorUtility.SaveFolderPanel("Select folder to save card texture", Path.Combine(Application.dataPath, "Project/Art/Textures/Cards"), "");
+        string folder = Application.isBatchMode
+            ? Application.temporaryCachePath
+            : EditorUtility.SaveFolderPanel("Select folder to save card texture", Path.Combine(Application.dataPath, "Project/Art/Textures/Cards"), "");
+        if (string.IsNullOrEmpty(folder)) return;
+
+        SaveTextureToFolder(folder);
+    }
+#endif
+
+    public void SaveTextureToFolder(string folder) {
         if (string.IsNullOrEmpty(folder)) return;
 
         var tex = GenerateTexture();
         string fullPath = Path.Combine(folder, CardKey + ".png");
         SaveTextureToFile(tex, fullPath);
+#if UNITY_EDITOR
         AssetDatabase.Refresh();
-    }
 #endif
+    }
 
     public void SaveTextureToFile(Texture2D tex, string fullPath) {
         byte[] png = tex.EncodeToPNG();
