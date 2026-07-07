@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
+using UnityEngine.Events;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -24,20 +25,41 @@ namespace CardFramework.Presentation.Views {
             // Ensure the panel starts completely disabled so it releases input focus on startup
             _uiDocument.enabled = false;
         }
-        private IEnumerator Start() {
+
+        public IEnumerator Start() {
             if (TestModeUi) {
 
                 // Optional: Demonstrate the modal service functionality after a brief delay
                 yield return new WaitForSeconds(1f);
-                ShowLoading("Initializing system overlay framework...");
+                TestLoading();
                 yield return new WaitForSeconds(2f);
-                ShowAlert("Welcome", "This is a test alert modal.", () => {
-                    Debug.Log("Alert confirmed by user.");
-                    ShowConfirmation("Confirm Action", "Do you want to proceed?",
-                        () => Debug.Log("User confirmed action."),
-                        () => Debug.Log("User canceled action."));
+                TestAlert(() => {
+                    TestConfirmation();
                 });
             }
+        }
+        
+        public void TestLoading() {
+            ShowLoading("Initializing system overlay framework...");
+        }
+
+        public void TestAlert(UnityAction onConfirm = null) {
+            ShowAlert("Test Alert", "This is a test alert modal.", () => {
+                Debug.Log("Alert confirmed by user.");
+                onConfirm?.Invoke();
+            });
+        }
+
+        public void TestConfirmation(UnityAction onConfirm = null, UnityAction onCancel = null) {
+            ShowConfirmation("Test Confirmation", "Do you want to proceed?",
+                () => {
+                    Debug.Log("User confirmed action.");
+                    onConfirm?.Invoke();
+                },
+                () => {
+                    Debug.Log("User canceled action.");
+                    onCancel?.Invoke();
+                });
         }
 
         /// <summary>
@@ -94,8 +116,8 @@ namespace CardFramework.Presentation.Views {
 
             void SystemAction() {
                 _modalConfirmBtn.clicked -= SystemAction;
+                InvokeCallback(onConfirm);
                 HideModal();
-                onConfirm?.Invoke();
             }
         }
 
@@ -117,14 +139,18 @@ namespace CardFramework.Presentation.Views {
             _modalOverlay.style.display = DisplayStyle.Flex;
             _modalOverlay.pickingMode = PickingMode.Position;
 
-            void ConfirmAction() { Unbind(); onConfirm?.Invoke(); }
-            void CancelAction() { Unbind(); onCancel?.Invoke(); }
+            void ConfirmAction() { InvokeCallback(onConfirm); Unbind(); }
+            void CancelAction() { InvokeCallback(onCancel); Unbind(); }
 
             void Unbind() {
                 _modalConfirmBtn.clicked -= ConfirmAction;
                 _modalCancelBtn.clicked -= CancelAction;
                 HideModal();
             }
+        }
+
+        private void InvokeCallback(Action callback) {
+            callback?.Invoke();
         }
 
         public void HideModal() {

@@ -10,7 +10,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "PlayFab",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "VContainer"
     ],
     "includePlatforms": [
         "Editor"

@@ -94,6 +94,25 @@ namespace CardFramework.Tests.EditMode.Presentation {
         }
 
         [Test]
+        public void Controller_OnStandRequest_SpawnsDealerHitCardsWhenDealerDraws() {
+            // Use a fixed deck so the dealer must draw at least one extra card on stand.
+            var fixedDeck = new FixedDeck(new[] {
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Ace),   // player first card
+                new CardData(CardData.Suit.Diamonds, CardData.Rank.Two), // dealer first card
+                new CardData(CardData.Suit.Hearts, CardData.Rank.Eight), // player second card
+                new CardData(CardData.Suit.Spades, CardData.Rank.Ten),   // dealer second card (12 total)
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Six)     // dealer hit card -> 18 total
+            });
+
+            InjectDeckIntoEngine(_engine, fixedDeck);
+            _controller.Start();
+            SimulateModalBetConfirmation(10);
+            _mockView.SimulateStandRequest();
+
+            Assert.Greater(_mockView.DealerCardsSpawnedCount, 2, "The dealer must spawn additional cards when the dealer AI hits after a stand.");
+        }
+
+        [Test]
         public void Controller_OnPlayerBust_LocksInteractionAndDoesNotCreditCloud() {
             _controller.Start();
             SimulateModalBetConfirmation(100);
@@ -242,7 +261,30 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public new void ResetEngineState() { }
             public new void DealInitialHands() { }
         }
-        
+
+        private class FixedDeck : Deck {
+            private readonly CardData[] _cards;
+            private int _index;
+
+            public FixedDeck(CardData[] cards) {
+                _cards = cards;
+            }
+
+            public override CardData Draw() {
+                if (_index >= _cards.Length)
+                    throw new InvalidOperationException("FixedDeck has no more cards to draw.");
+
+                return _cards[_index++];
+            }
+        }
+
+        private static void InjectDeckIntoEngine(BlackjackEngine engine, Deck deck) {
+            var deckField = typeof(BlackjackEngine).GetField("deck", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (deckField != null) {
+                deckField.SetValue(engine, deck);
+            }
+        }
+
         private void SimulateModalBetConfirmation(int targetBet) {
             var field = typeof(BettingModalView).GetField("OnBetConfirmed", 
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);

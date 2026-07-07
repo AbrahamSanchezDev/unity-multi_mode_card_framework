@@ -1,6 +1,7 @@
 using UnityEngine;
 using CardFramework.Presentation.Interfaces;
 using VContainer;
+using CardFramework.Presentation.Views;
 
 namespace CardFramework.Presentation.Interaction {
     public class TableInteractionManager : MonoBehaviour {

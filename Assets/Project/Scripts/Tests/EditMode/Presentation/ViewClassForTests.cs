@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine.UIElements;
+using System.Reflection;
 
 namespace CardFramework.Tests.EditMode.Presentation {
     public class ViewClassForTests {
@@ -21,5 +22,22 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 Assert.Fail("No se pudo resolver el método interno 'Invoke' en Clickable para simular el click.");
             }
         }
+
+        protected void SetPrivateField(object target, string fieldName, object value) {
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (field == null) {
+                Assert.Fail($"Field '{fieldName}' no se pudo resolver en {target.GetType().Name}.");
+            }
+            field.SetValue(target, value);
+        }
+
+        protected object GetPrivateField(object target, string fieldName) {
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (field == null) {
+                Assert.Fail($"Field '{fieldName}' no se pudo resolver en {target.GetType().Name}.");
+            }
+            return field.GetValue(target);
+        }
+
     }
 }

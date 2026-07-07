@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using CardFramework.Core.Models;
 using System.Reflection;
+using CardFramework.Presentation.Views;
 
 namespace CardFramework.Tests.EditMode.Presentation {
     [TestFixture]
@@ -15,6 +16,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 return ForceUseCache;
             }
         }
+
         private GameObject _cardContainer;
         private CardFaceGenerator _generator;
         private MeshRenderer _mockRenderer;
@@ -332,14 +334,21 @@ namespace CardFramework.Tests.EditMode.Presentation {
         }
 
         [Test]
-        public void Generator_SaveTextureMenuReflectionCheck_ValidatesExistence() {
-            var saveMenuMethod = typeof(CardFaceGenerator).GetMethod("SaveTextureMenu",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(saveMenuMethod, "SaveTextureMenu entry point must be accessible.");
+        public void Generator_SaveTextureToFolder_WritesCardTextureToDisk() {
+            string tempFolder = Path.Combine(Application.temporaryCachePath, "CardFaceGeneratorTests", System.Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempFolder);
 
-            Assert.DoesNotThrow(() => {
-                saveMenuMethod.Invoke(_generator, null);
-            });
+            try {
+                _generator.SaveTextureToFolder(tempFolder);
+
+                string outputPath = Path.Combine(tempFolder, _generator.CardKey + ".png");
+                Assert.IsTrue(File.Exists(outputPath), "The card texture should be written to disk.");
+            }
+            finally {
+                if (Directory.Exists(tempFolder)) {
+                    Directory.Delete(tempFolder, true);
+                }
+            }
         }
 
 
