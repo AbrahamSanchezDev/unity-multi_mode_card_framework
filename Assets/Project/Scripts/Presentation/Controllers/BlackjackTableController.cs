@@ -39,6 +39,12 @@ namespace CardFramework.Presentation.Controllers {
             // Bind Cloud Betting Modal Confirmation
             _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
 
+            // Subscribe to server balance changes to update the table HUD immediately
+            _economyService.OnBalanceUpdated += HandleWalletBalanceChanged;
+
+            // Initialize the UI with the cached starting balance right away
+            _uiView.UpdateWalletBalance(_economyService.CurrentGold);
+
             // Trigger the initial match setup by requesting a wager first
             HandleRestart();
         }
@@ -50,6 +56,11 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.OnRestartRequested -= HandleRestart;
 
             _bettingModalView.OnBetConfirmed -= HandleWagerConfirmed;
+
+            // Clean up the event hook to protect memory management pipelines
+            if (_economyService != null) {
+                _economyService.OnBalanceUpdated -= HandleWalletBalanceChanged;
+            }
         }
 
         private void HandleRestart() {
@@ -59,6 +70,11 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.ClearTable();
 
             _bettingModalView.ShowModal();
+        }
+
+        private void HandleWalletBalanceChanged(int freshBalance) {
+            Debug.Log($"[Wallet Sync] Pushing updated balance to main HUD layout: {freshBalance} GD");
+            _uiView.UpdateWalletBalance(freshBalance);
         }
 
         private void HandleWagerConfirmed(int confirmedBet) {

@@ -22,6 +22,8 @@ namespace CardFramework.Presentation.Views {
         private Label _outcomeMessageLabel;
         private VisualElement _outcomeMessageVisualElement;
 
+        private Label _lblWalletBalance;
+
         // Implementation of the architectural view contract events
         public event Action OnHitRequested;
         public event Action OnStandRequested;
@@ -56,6 +58,9 @@ namespace CardFramework.Presentation.Views {
             _playerScoreLabel = _root.Q<Label>("player-score-label");
             _dealerScoreLabel = _root.Q<Label>("dealer-score-label");
             _outcomeMessageVisualElement = _root.Q<VisualElement>("outcome-message-label");
+            // Fetch the new wallet element text label
+            _lblWalletBalance = _root.Q<Label>("lbl-wallet-balance");
+
             if (_outcomeMessageVisualElement != null) {
                 _outcomeMessageLabel = _outcomeMessageVisualElement.Q<Label>();
             }
@@ -74,6 +79,12 @@ namespace CardFramework.Presentation.Views {
             _hitButton.clicked += () => OnHitRequested?.Invoke();
             _standButton.clicked += () => OnStandRequested?.Invoke();
             _restartButton.clicked += () => OnRestartRequested?.Invoke();
+
+            // Set an initial placeholder text safely text forced white for contrast
+            if (_lblWalletBalance != null) {
+                _lblWalletBalance.text = "Balance: -- GD";
+                _lblWalletBalance.style.color = Color.white;
+            }
         }
 
         private void OnDisable() {
@@ -89,6 +100,12 @@ namespace CardFramework.Presentation.Views {
 
         public void UpdateDealerScore(int score) {
             _dealerScoreLabel.text = $"Dealer: {score}";
+        }
+        
+        public void UpdateWalletBalance(int freshBalance) {
+            if (_lblWalletBalance != null) {
+                _lblWalletBalance.text = $"Balance: {freshBalance} GD";
+            }
         }
 
         public void DisplayWinner(string winnerName) {

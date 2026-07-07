@@ -20,5 +20,10 @@ namespace CardFramework.Presentation.Interfaces {
 
         // Adds a physical 3D card instance onto the matching actor's layout zone
         void SpawnPhysicalCard(CardData card, bool isPlayer);
+
+        /// <summary>
+        /// Updates the main HUD display with the player's current authoritative wallet balance.
+        /// </summary>
+        void UpdateWalletBalance(int freshBalance);
     }
 }

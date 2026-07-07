@@ -32,7 +32,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _bettingModalView.Construct(_mockEconomy);
 
             // Force reflection setup to assign a simulated empty VisualElement root for EditMode
-            var rootField = typeof(BettingModalView).GetField("_root", 
+            var rootField = typeof(BettingModalView).GetField("_root",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (rootField != null) {
                 rootField.SetValue(_bettingModalView, new VisualElement());
@@ -69,7 +69,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         public void Controller_OnHitRequest_UpdatesPlayerScoreOnView() {
             _controller.Start();
             SimulateModalBetConfirmation(50);
-            
+
             _mockView.UpdatePlayerScore(5);
             int baselineScore = _mockView.PlayerScore;
 
@@ -128,7 +128,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _controller.Start();
             SimulateModalBetConfirmation(100);
 
-            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField", 
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (stateField != null) {
                 stateField.SetValue(_engine, BlackjackEngine.GameState.PlayerBust);
@@ -145,7 +145,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _controller.Start();
             SimulateModalBetConfirmation(100);
 
-            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField", 
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (stateField != null) {
                 stateField.SetValue(_engine, BlackjackEngine.GameState.Showdown);
@@ -171,7 +171,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _controller.Start();
             SimulateModalBetConfirmation(100);
 
-            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField", 
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (stateField != null) {
                 stateField.SetValue(_engine, BlackjackEngine.GameState.DealerBust);
@@ -187,7 +187,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _controller.Start();
             SimulateModalBetConfirmation(100);
 
-            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField", 
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (stateField != null) {
                 stateField.SetValue(_engine, BlackjackEngine.GameState.Showdown);
@@ -215,18 +215,18 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _controller.Start();
             SimulateModalBetConfirmation(100);
 
-            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField", 
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (stateField != null) {
                 stateField.SetValue(_engine, BlackjackEngine.GameState.Showdown);
             }
 
-            var playerHand = _engine.GetPlayerHand(); 
+            var playerHand = _engine.GetPlayerHand();
             playerHand.Cards.Clear();
             playerHand.Cards.Add(new CardFramework.Core.Models.CardData(CardData.Suit.Clubs, CardData.Rank.Ten));
             playerHand.Cards.Add(new CardFramework.Core.Models.CardData(CardData.Suit.Clubs, CardData.Rank.King));
 
-            var dealerHand = _engine.GetDealerHand(); 
+            var dealerHand = _engine.GetDealerHand();
             dealerHand.Cards.Clear();
             dealerHand.Cards.Add(new CardFramework.Core.Models.CardData(CardData.Suit.Hearts, CardData.Rank.Ten));
             dealerHand.Cards.Add(new CardFramework.Core.Models.CardData(CardData.Suit.Hearts, CardData.Rank.Queen));
@@ -236,21 +236,21 @@ namespace CardFramework.Tests.EditMode.Presentation {
             Assert.AreEqual(100, _mockEconomy.CreditCalledWithAmount, "Tie push matches must safely credit back the original wager amount.");
         }
 
-        
-[Test]
+
+        [Test]
         public void Controller_OnInitShowdown_InstantlyDisablesInteractionAndEvaluatesMatch() {
             _controller.Start();
 
             // 1. Get references to the private fields inside BlackjackTableController
-            var engineField = typeof(BlackjackTableController).GetField("_gameEngine", 
+            var engineField = typeof(BlackjackTableController).GetField("_gameEngine",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var methodInfo = typeof(BlackjackTableController).GetMethod("InitializeTable", 
+            var methodInfo = typeof(BlackjackTableController).GetMethod("InitializeTable",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
             if (engineField != null && methodInfo != null) {
                 // 2. Create a specific mock class instance that forces Showdown state
                 var testEngine = new StubShowdownEngine();
-                
+
                 // Inject our test engine into the controller
                 engineField.SetValue(_controller, testEngine);
 
@@ -267,7 +267,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         /// </summary>
         private class StubShowdownEngine : BlackjackEngine {
             public override GameState CurrentState => GameState.Showdown;
-            
+
             // Override lifecycle resets to maintain Showdown state
             public new void ResetEngineState() { }
             public new void DealInitialHands() { }
@@ -297,7 +297,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         }
 
         private void SimulateModalBetConfirmation(int targetBet) {
-            var field = typeof(BettingModalView).GetField("OnBetConfirmed", 
+            var field = typeof(BettingModalView).GetField("OnBetConfirmed",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             if (field != null) {
                 var del = field.GetValue(_bettingModalView) as Action<int>;
@@ -307,7 +307,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         private class MockEconomyService : IEconomyService {
             public event Action<int> OnBalanceUpdated;
-            
+
 #pragma warning disable CS0067
             public event Action<string> OnEconomyError;
 #pragma warning restore CS0067
@@ -338,6 +338,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
             public int PlayerScore { get; private set; }
             public int DealerScore { get; private set; }
+            public int MockedWalletBalance { get; private set; }
             public string WinnerMessage { get; private set; }
             public bool ClearTableCalled { get; private set; }
             public bool InteractionState { get; private set; }
@@ -365,6 +366,10 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public void SimulateHitRequest() => OnHitRequested?.Invoke();
             public void SimulateStandRequest() => OnStandRequested?.Invoke();
             public void SimulateRestartRequest() => OnRestartRequested?.Invoke();
+
+            public void UpdateWalletBalance(int freshBalance) {
+                MockedWalletBalance = freshBalance;
+            }
         }
     }
 }
