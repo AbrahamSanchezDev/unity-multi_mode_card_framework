@@ -106,7 +106,7 @@ public class CardFaceGenerator : MonoBehaviour {
     // the "lower half is upside down" rule, including the extra rows added on 8/9/10.
     // NOTE: this pip rotation rule is independent from the top/bottom corner rotation
     // rule below - the corners use topCornerAnchor/bottomCornerAnchor instead.
-    private static readonly Dictionary<int, Vector2[]> PipLayouts = new Dictionary<int, Vector2[]>{
+    public readonly Dictionary<int, Vector2[]> PipLayouts = new Dictionary<int, Vector2[]>{
         { 1, new[] { new Vector2(0.5f, 0.5f) } },
         { 2, new[] { new Vector2(0.5f, 0f), new Vector2(0.5f, 1f) } },
         { 3, new[] { new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 1f) } },
@@ -120,7 +120,7 @@ public class CardFaceGenerator : MonoBehaviour {
     };
 
     // Cache: only used in Play Mode, so a given card's texture is only baked once.
-    private static readonly Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
+    public static readonly Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
 
     private const string RIG_NAME = "~CardGenRig";
     private const int GEN_LAYER = 31; // reserved, rarely-used layer for the off-screen rig
@@ -159,17 +159,30 @@ public class CardFaceGenerator : MonoBehaviour {
     /// Outside Play Mode it always regenerates fresh (full rig rebuild included),
     /// since it's meant for live testing.
     /// </summary>
-    private Texture2D GetCardTexture() {
+    public Texture2D GetCardTexture() {
         if (Application.isPlaying) {
-            if (_textureCache.TryGetValue(CardKey, out var cached) && cached != null)
-                return cached;
-
-            var generated = GenerateTexture();
-            _textureCache[CardKey] = generated;
-            return generated;
+            return GetCardTextureFromCache();
         }
 
         return GenerateTexture();
+    }
+
+    public Texture2D GetCardTextureFromCache() {
+        if (_textureCache.TryGetValue(CardKey, out var cached) && cached != null)
+            return cached;
+
+        var generated = GenerateTexture();
+        _textureCache[CardKey] = generated;
+        return generated;
+    }
+
+    private Texture2D GetCardTexture(string cacheKey) {
+        if (_textureCache.TryGetValue(cacheKey, out var cached) && cached != null)
+            return cached;
+
+        var generated = GenerateTexture();
+        _textureCache[cacheKey] = generated;
+        return generated;
     }
 
     /// <summary>Clears the play-mode texture cache. Call this e.g. when reloading a scene or theme.</summary>
@@ -203,7 +216,7 @@ public class CardFaceGenerator : MonoBehaviour {
     }
 
     [ContextMenu("Preview Card On Target Renderer")]
-    private void PreviewCard() {
+    public void PreviewCard() {
         GenerateAndApplyTexture();
     }
 
@@ -245,20 +258,18 @@ public class CardFaceGenerator : MonoBehaviour {
         }
     }
 
+#if UNITY_EDITOR
     [ContextMenu("Save Texture To Folder...")]
     private void SaveTextureMenu() {
-#if UNITY_EDITOR
-        string folder = EditorUtility.SaveFolderPanel("Select folder to save card texture", Application.dataPath + "Project/Art/Textures/Cards", "");
+        string folder = EditorUtility.SaveFolderPanel("Select folder to save card texture", Path.Combine(Application.dataPath, "Project/Art/Textures/Cards"), "");
         if (string.IsNullOrEmpty(folder)) return;
 
         var tex = GenerateTexture();
         string fullPath = Path.Combine(folder, CardKey + ".png");
         SaveTextureToFile(tex, fullPath);
         AssetDatabase.Refresh();
-#else
-        Debug.LogWarning("Saving card textures to disk is only supported in the Unity Editor.");
-#endif
     }
+#endif
 
     public void SaveTextureToFile(Texture2D tex, string fullPath) {
         byte[] png = tex.EncodeToPNG();
@@ -276,7 +287,7 @@ public class CardFaceGenerator : MonoBehaviour {
         }
     }
 
-    private void DestroyGO(GameObject go) {
+    public void DestroyGO(GameObject go) {
         if (go == null) return;
         if (Application.isPlaying) Destroy(go);
         else DestroyImmediate(go);
@@ -399,6 +410,16 @@ public class CardFaceGenerator : MonoBehaviour {
 
     // --- Layout building -----------------------------------------------------
 
+    public void DestroyPreviewsPips() {
+        DestroyPreviewPips();
+    }
+
+    private void DestroyPreviewPips() {
+        for (int i = _pipInstances.Count - 1; i >= 0; i--)
+            DestroyGO(_pipInstances[i]);
+
+        _pipInstances.Clear();
+    }
     private void BuildLayout() {
         int rankValue = (int)rank;
         string label = RankToLabel(rankValue);
@@ -412,9 +433,7 @@ public class CardFaceGenerator : MonoBehaviour {
         if (_iconTL != null) _iconTL.sprite = suitIcon;
         if (_iconBR != null) _iconBR.sprite = suitIcon;
 
-        for (int i = _pipInstances.Count - 1; i >= 0; i--)
-            DestroyGO(_pipInstances[i]);
-        _pipInstances.Clear();
+        DestroyPreviewsPips();
 
         _centerFace.gameObject.SetActive(isFaceCard);
         _centerArea.gameObject.SetActive(!isFaceCard);

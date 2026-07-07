@@ -84,8 +84,11 @@ Expanding the framework to support persistence, cross-platform linking, and econ
   - Integrate PlayFab SDK extensions with decoupled injection safety mappings.
   - Formulate hardware-invariant `ICloudService` abstract definitions.
   - Implement zero-friction `CustomID` silent login execution workflows via `IInitializable` hooks.
-- [ ] **TASK-4.2: Economy & Betting System**
-  - Placed wagers, payouts, and server-side currency synchronization loops.
+- [x] **TASK-4.2: Economy & Betting System (Cloud Core)**
+  - Map global currency code `GD` inside PlayFab GameManager with server-time passive recharge hooks.
+  - Establish loose `IEconomyService` structures to prevent runtime client memory tampering.
+  - Implement dynamic multi-project credit/debit cloud network sync pipelines.
+  - Deliver automated EditMode test coverage adapters validating game loop wagering states.
 - [ ] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
   - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
 - [ ] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**

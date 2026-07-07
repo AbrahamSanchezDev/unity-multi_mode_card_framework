@@ -22,6 +22,8 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private BlackjackView blackjackViewInstance;
         [Header("Global Infrastructure UI References")]
         [SerializeField] private ModalServiceView modalServiceViewInstance;
+        [SerializeField] private BettingModalView bettingModalView;
+
         protected override void Configure(IContainerBuilder builder) {
 
             // Core Data Models & Decks (Transient so each engine gets a unique stack)
@@ -46,7 +48,7 @@ namespace CardFramework.Architecture.DI {
             builder.Register<ICloudService, PlayFabCloudService>(Lifetime.Singleton);
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
-            
+
             // Registering our new server-authoritative Gold Economy System
             builder.Register<IEconomyService, PlayFabEconomyService>(Lifetime.Singleton);
 
@@ -64,6 +66,10 @@ namespace CardFramework.Architecture.DI {
             // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
             builder.RegisterEntryPoint<CloudInitializationController>();
+
+
+            // Component Views
+            builder.RegisterComponent(bettingModalView);
 
 
         }

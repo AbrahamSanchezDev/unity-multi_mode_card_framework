@@ -45,7 +45,7 @@ namespace CardFramework.Core.Engines {
         private Deck deck;
         private Hand playerHand = new();
         private Hand dealerHand = new();
-        public GameState CurrentState { get; private set; } = GameState.PlayerTurn;
+        public virtual GameState CurrentState { get; private set; } = GameState.PlayerTurn;
 
         // Allow injecting a Deck for deterministic tests. Defaults to a new Deck when null.
         public BlackjackEngine(Deck deck = null) {

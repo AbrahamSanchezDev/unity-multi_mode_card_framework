@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/BettingModal.uss?fileID=7433441132597879392&amp;guid=522f931b0accc1746976176425c4a74b&amp;type=3#BettingModal"/>
+    <ui:VisualElement class="bet-modal-backdrop" style="display: flex;">
+        <ui:VisualElement class="bet-card-panel">
+            <ui:VisualElement class="bet-header-container">
+                <ui:Label text="PLACE YOUR WAGER" class="bet-header-title"/>
+                <ui:Label name="lbl-balance" text="Available: -- GD" class="bet-balance-text"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="bet-display-container">
+                <ui:Label name="lbl-current-bet" text="10 GD" class="bet-amount-highlight"/>
+            </ui:VisualElement>
+            <ui:Label text="QUICK ADD" class="bet-section-subtitle"/>
+            <ui:VisualElement class="bet-grid-row">
+                <ui:Button name="btn-add-10" text="+10" class="btn-chip-action chip-10"/>
+                <ui:Button name="btn-add-100" text="+100" class="btn-chip-action chip-100"/>
+                <ui:Button name="btn-add-1000" text="+1k" class="btn-chip-action chip-1k"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="bet-grid-row margin-top-sm">
+                <ui:Button name="btn-clear-bet" text="RESET" class="btn-utility-action"/>
+                <ui:Button name="btn-max-bet" text="MAX BET" class="btn-utility-action btn-utility-max"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="bet-footer-row">
+                <ui:Button name="btn-confirm-bet" text="CONFIRM WAGER" class="btn-confirm-main"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
