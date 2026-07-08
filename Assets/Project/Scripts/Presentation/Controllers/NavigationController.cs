@@ -14,6 +14,8 @@ namespace CardFramework.Presentation.Controllers {
         private readonly InputActionReference _toggleMenuAction;
 
         private bool _isMenuOpen = false;
+        // Test hook: allow forcing the toggle branch from tests when input simulation is unreliable
+        private bool _forceToggleThisFrame = false;
 
         // Reactive events to let other controllers toggle their interaction visibility states cleanly
         public event Action OnMenuOpened;
@@ -59,9 +61,18 @@ namespace CardFramework.Presentation.Controllers {
             if (_toggleMenuAction == null || _toggleMenuAction.action == null) return;
 
             // Triggered checks handling frame-perfect user inputs safely
-            if (_toggleMenuAction.action.WasPressedThisFrame()) {
+            if (_toggleMenuAction.action.WasPressedThisFrame() || _forceToggleThisFrame) {
                 ToggleMenuState();
+                _forceToggleThisFrame = false;
             }
+        }
+
+        /// <summary>
+        /// Test helper to force the toggle branch inside Tick() on the next frame.
+        /// Use only in tests where InputSystem simulation is unreliable.
+        /// </summary>
+        public void ForceNextTickToggle() {
+            _forceToggleThisFrame = true;
         }
 
         private void ToggleMenuState() {

@@ -321,7 +321,8 @@ namespace CardFramework.Tests.EditMode.Core {
                 new CardData(CardData.Suit.Clubs, CardData.Rank.Ten),
                 new CardData(CardData.Suit.Diamonds, CardData.Rank.Seven),
                 new CardData(CardData.Suit.Hearts, CardData.Rank.Five),
-                new CardData(CardData.Suit.Spades, CardData.Rank.Two)
+                new CardData(CardData.Suit.Spades, CardData.Rank.Two),
+                new CardData(CardData.Suit.Clubs, CardData.Rank.Ten)
             );
 
             var engine = new BlackjackEngine(mock);

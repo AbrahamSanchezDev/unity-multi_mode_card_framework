@@ -267,6 +267,58 @@ namespace CardFramework.Tests.EditMode.Presentation {
             Assert.IsFalse(_mockView.InteractionState, "An immediate initialization showdown must lock interaction states instantly.");
         }
 
+        [Test]
+        public void Controller_HandleMenuOpened_LocksUiInteractionState() {
+            // 1. Arrange: Turn interaction state to true initially
+            _mockView.SetInteractionState(true);
+
+            // 2. Act: Invoke the private menu opening listener method using reflection
+            var methodInfo = typeof(BlackjackTableController).GetMethod("HandleMenuOpened",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            methodInfo?.Invoke(_controller, null);
+
+            // 3. Assert: Verify the view was cleanly locked from taking interactions
+            Assert.IsFalse(_mockView.InteractionState, "UI interaction controls must be explicitly locked when the dashboard menu overlay opens.");
+        }
+
+        [Test]
+        public void Controller_HandleMenuClosed_RestoresUiInteractionState_WhenNotAtShowdown() {
+            // 1. Arrange: Enforce a standard active gaming state (e.g., PlayerTurn)
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (stateField != null) {
+                stateField.SetValue(_engine, BlackjackEngine.GameState.PlayerTurn);
+            }
+            _mockView.SetInteractionState(false);
+
+            // 2. Act: Force invoke the private menu closure listener layout route
+            var methodInfo = typeof(BlackjackTableController).GetMethod("HandleMenuClosed",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            methodInfo?.Invoke(_controller, null);
+
+            // 3. Assert: Confirm interactions are restored smoothly
+            Assert.IsTrue(_mockView.InteractionState, "UI interaction controls should be restored if the table is closed outside of a Showdown boundary context.");
+        }
+
+        [Test]
+        public void Controller_HandleMenuClosed_DoesNotRestoreUiInteractionState_WhenAtShowdown() {
+            // 1. Arrange: Force match the game engine state to the Showdown constraint boundary
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (stateField != null) {
+                stateField.SetValue(_engine, BlackjackEngine.GameState.Showdown);
+            }
+            _mockView.SetInteractionState(false);
+
+            // 2. Act: Trigger menu close handling 
+            var methodInfo = typeof(BlackjackTableController).GetMethod("HandleMenuClosed",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            methodInfo?.Invoke(_controller, null);
+
+            // 3. Assert: Interaction state MUST remain disabled to protect the win animation sequence loops
+            Assert.IsFalse(_mockView.InteractionState, "UI interaction controls must not be re-enabled upon menu closure if the table is currently sitting on a Showdown screen display.");
+        }
+
         /// <summary>
         /// Stub engine specifically designed to force a Showdown state for initialization edge-case coverage.
         /// </summary>

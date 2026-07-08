@@ -14,6 +14,10 @@ namespace CardFramework.Presentation.Views {
         private Label _lblAccountStatus;
 
         private void OnEnable() {
+            InitUi();
+        }
+        public void InitUi() {
+            if (_root != null) return; // Already initialized
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) return;
             uiDocument.enabled = true;

@@ -57,8 +57,7 @@ namespace CardFramework.Core.Engines {
         /// <summary>
         /// Resets the engine state, prepares a fresh deck, and shuffles.
         /// </summary>
-        public void ResetEngineState()
-        {
+        public void ResetEngineState() {
             deck = new Deck();
             deck.Initialize();
             deck.Shuffle();
@@ -91,8 +90,10 @@ namespace CardFramework.Core.Engines {
 
             playerHand.Cards.Add(deck.Draw());
 
-            if (playerHand.IsBust)
+            if (playerHand.IsBust) {
                 CurrentState = GameState.PlayerBust;
+            }
+
         }
 
         public void PlayerStand() {

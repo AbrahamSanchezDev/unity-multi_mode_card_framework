@@ -23,6 +23,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         private Label _dealerScoreLabel;
         private VisualElement _outcomeMessageVisualElement;
         private Label _outcomeMessageLabel;
+        private Label _lblWalletBalance;
 
         private GameObject _cardPrefab;
         private GameObject _playerAnchorGo;
@@ -65,6 +66,8 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _playerScoreLabel = new Label() { name = "player-score-label" };
             _dealerScoreLabel = new Label() { name = "dealer-score-label" };
 
+            _lblWalletBalance = new Label() { name = "lbl-wallet-balance" };
+
             _outcomeMessageVisualElement = new VisualElement() { name = "outcome-message-label" };
             _outcomeMessageLabel = new Label(); // Attached as direct child so visual tree queries retrieve it successfully
             _outcomeMessageVisualElement.Add(_outcomeMessageLabel);
@@ -75,6 +78,8 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _rootElement.Add(_playerScoreLabel);
             _rootElement.Add(_dealerScoreLabel);
             _rootElement.Add(_outcomeMessageVisualElement);
+
+            _rootElement.Add(_lblWalletBalance);
 
             // 5. Explicitly invoke the internal OnEnable method using reflection.
             // This ensures that binding confirmation validations run safely against a perfectly constructed visual layout.
@@ -256,6 +261,33 @@ namespace CardFramework.Tests.EditMode.Presentation {
             var dealerList = (List<Transform>)GetPrivateField("_dealerCardTransforms");
             Assert.AreEqual(1, dealerList.Count);
             Assert.AreEqual(0f, dealerList[0].localPosition.x, 0.001f);
+        }
+
+        [Test]
+        public void View_OnEnableLifecycle_InitializesWalletPlaceholderSafelyTextWhite() {
+            // Asserts the setup block: _lblWalletBalance.text = "Balance: -- GD";
+            Assert.AreEqual("Balance: -- GD", _lblWalletBalance.text, "Wallet balance should display a clear default placeholder text on initialization.");
+            Assert.AreEqual(Color.white, _lblWalletBalance.style.color.value, "Wallet balance initialization label text color should be forced white for layout contrast.");
+        }
+
+        [Test]
+        public void View_UpdateWalletBalance_ModifiesLabelToFreshBalanceValue() {
+            // Act: Fire the public modification API endpoint with a target budget integer
+            _view.UpdateWalletBalance(2500);
+
+            // Assert: Confirm text strings concatenate accurately
+            Assert.AreEqual("Balance: 2500 GD", _lblWalletBalance.text, "The wallet label display text string failed to parse the given numerical currency value.");
+        }
+
+        [Test]
+        public void View_UpdateWalletBalance_HandlesNullFieldGracefully() {
+            // Arrange: Force-evict the underlying field instance link to test code branch safety filters
+            SetPrivateField(_view, "_lblWalletBalance", null);
+
+            // Act & Assert: Running shouldn't throw a NullReferenceException if the node is missing from a dynamic hierarchy
+            Assert.DoesNotThrow(() => {
+                _view.UpdateWalletBalance(500);
+            }, "UpdateWalletBalance should short-circuit gracefully if the target UXML text node binding reference is missing.");
         }
 
         private void SetPrivateField(string fieldName, object value) {
