@@ -130,3 +130,42 @@
     min-width: 120px;
     -unity-text-align: middle-center;
 }
+/* ---- Header Structural Groups ---- */
+.hud-left-group {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.hud-right-group {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ---- Hamburger Button Styling ---- */
+.btn-hamburger {
+    font-size: 20px;
+    color: rgb(212, 175, 55); /* Matching your gold theme signature color */
+    background-color: rgba(20, 25, 22, 0.85);
+    border-width: 1px;
+    border-color: rgb(212, 175, 55);
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-right: 12px;
+    -unity-font-style: bold;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s;
+}
+
+.btn-hamburger:hover {
+    background-color: rgb(30, 94, 58);
+    color: rgb(255, 255, 255);
+    border-color: rgb(42, 133, 82);
+    scale: 1.05;
+}
+
+.btn-hamburger:active {
+    background-color: rgb(22, 72, 44);
+    scale: 0.95;
+}

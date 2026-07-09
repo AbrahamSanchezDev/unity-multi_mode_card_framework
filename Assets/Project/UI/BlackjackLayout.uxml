@@ -5,15 +5,19 @@
     <ui:VisualElement class="screen-container">
         
         <ui:VisualElement class="hud-header-row">
-            <ui:Label text="BLACKJACK TABLE" class="title-label"/>
+            <ui:VisualElement class="hud-left-group">
+                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger" />
+                <ui:Label text="BLACKJACK TABLE" class="title-label"/>
+            </ui:VisualElement>
             
-            <!-- New wallet balance display -->
-            <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label"/>
-            
-            <ui:VisualElement class="score-board">
-                <ui:Label name="dealer-score-label" text="Dealer: 0" class="score-label"/>
-                <ui:Label style="color: #d4af37; font-size: 16px; -unity-font-style: bold;" text="|"/>
-                <ui:Label name="player-score-label" text="Player: 0" class="score-label"/>
+            <ui:VisualElement class="hud-right-group">
+                <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label"/>
+                
+                <ui:VisualElement class="score-board">
+                    <ui:Label name="dealer-score-label" text="Dealer: 0" class="score-label"/>
+                    <ui:Label style="color: #d4af37; font-size: 16px; -unity-font-style: bold;" text="|"/>
+                    <ui:Label name="player-score-label" text="Player: 0" class="score-label"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -27,7 +31,7 @@
             <ui:Button name="hit-button" text="HIT" class="btn-casino btn-hit"/>
             <ui:Button name="stand-button" text="STAND" class="btn-casino"/>
             <ui:Button name="restart-button" text="DEAL NEW HAND" class="btn-casino"/>
-        </ui:VisualElement> 
-               
+        </ui:VisualElement>        
+      
     </ui:VisualElement>
 </ui:UXML>

@@ -28,7 +28,7 @@ namespace CardFramework.Presentation.Views {
         public event Action OnHitRequested;
         public event Action OnStandRequested;
         public event Action OnRestartRequested;
-
+        public event Action OnMenuRequested;
         #region 3D Spawning
 
         [Header("3D Spawning Architecture")]
@@ -60,6 +60,11 @@ namespace CardFramework.Presentation.Views {
             _outcomeMessageVisualElement = _root.Q<VisualElement>("outcome-message-label");
             // Fetch the new wallet element text label
             _lblWalletBalance = _root.Q<Label>("lbl-wallet-balance");
+
+            var btnHamburger = _root.Q<Button>("btn-hamburger-menu");
+            if (btnHamburger != null) {
+                btnHamburger.clicked += () => OnMenuRequested?.Invoke();
+            }
 
             if (_outcomeMessageVisualElement != null) {
                 _outcomeMessageLabel = _outcomeMessageVisualElement.Q<Label>();
@@ -101,7 +106,7 @@ namespace CardFramework.Presentation.Views {
         public void UpdateDealerScore(int score) {
             _dealerScoreLabel.text = $"Dealer: {score}";
         }
-        
+
         public void UpdateWalletBalance(int freshBalance) {
             if (_lblWalletBalance != null) {
                 _lblWalletBalance.text = $"Balance: {freshBalance} GD";

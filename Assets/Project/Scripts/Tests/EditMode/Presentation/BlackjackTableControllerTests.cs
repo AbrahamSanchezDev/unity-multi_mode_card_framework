@@ -424,6 +424,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public event Action OnHitRequested;
             public event Action OnStandRequested;
             public event Action OnRestartRequested;
+            public event Action OnMenuRequested;
 
             public int PlayerScore { get; private set; }
             public int DealerScore { get; private set; }
@@ -455,6 +456,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public void SimulateHitRequest() => OnHitRequested?.Invoke();
             public void SimulateStandRequest() => OnStandRequested?.Invoke();
             public void SimulateRestartRequest() => OnRestartRequested?.Invoke();
+            public void SimulateMenuRequest() => OnMenuRequested?.Invoke();
 
             public void UpdateWalletBalance(int freshBalance) {
                 MockedWalletBalance = freshBalance;

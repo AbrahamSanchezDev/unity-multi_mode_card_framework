@@ -10,6 +10,7 @@ namespace CardFramework.Presentation.Interfaces {
         event Action OnHitRequested;
         event Action OnStandRequested;
         event Action OnRestartRequested;
+        event Action OnMenuRequested;
 
         // UI Update Methods
         void UpdatePlayerScore(int score);
