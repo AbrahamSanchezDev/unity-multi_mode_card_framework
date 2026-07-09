@@ -26,6 +26,7 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private BettingModalView bettingModalView;
 
         [SerializeField] private InputActionReference menuActionReference;
+        [SerializeField] private DashboardMenuView dashboardMenuView;
 
         protected override void Configure(IContainerBuilder builder) {
 
@@ -64,7 +65,7 @@ namespace CardFramework.Architecture.DI {
             builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
             builder.RegisterInstance<IModalService>(modalServiceViewInstance);
 
-            builder.RegisterComponentInHierarchy<DashboardMenuView>();
+            builder.RegisterComponent(dashboardMenuView);
 
 
             // VContainer automatically detects 'IInitializable' on entry points registered as EntryPoints

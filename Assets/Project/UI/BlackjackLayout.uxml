@@ -1,37 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
-    <ui:Style src="BlackjackStyle.uss" />
-    
-    <ui:VisualElement class="screen-container">
-        
+    <Style src="project://database/Assets/Project/UI/BlackjackStyle.uss?fileID=7433441132597879392&amp;guid=d5086c7d9571c2f46bbb78e37cf40870&amp;type=3#BlackjackStyle"/>
+    <ui:VisualElement name="screen-container" class="screen-container">
         <ui:VisualElement class="hud-header-row">
-            <ui:VisualElement class="hud-left-group">
-                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger" />
+            <ui:VisualElement name="VisualElement" class="hud-left-group">
+                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
                 <ui:Label text="BLACKJACK TABLE" class="title-label"/>
             </ui:VisualElement>
-            
             <ui:VisualElement class="hud-right-group">
                 <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label"/>
-                
                 <ui:VisualElement class="score-board">
                     <ui:Label name="dealer-score-label" text="Dealer: 0" class="score-label"/>
-                    <ui:Label style="color: #d4af37; font-size: 16px; -unity-font-style: bold;" text="|"/>
+                    <ui:Label text="|" style="color: rgb(212, 175, 55); font-size: 16px; -unity-font-style: bold;"/>
                     <ui:Label name="player-score-label" text="Player: 0" class="score-label"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement class="center-container">
             <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: none;">
                 <ui:Label text="PLAYER WINS!" class="outcome-text"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement class="action-container">
             <ui:Button name="hit-button" text="HIT" class="btn-casino btn-hit"/>
             <ui:Button name="stand-button" text="STAND" class="btn-casino"/>
             <ui:Button name="restart-button" text="DEAL NEW HAND" class="btn-casino"/>
-        </ui:VisualElement>        
-      
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

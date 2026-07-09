@@ -557,6 +557,7 @@ MonoBehaviour:
   modalServiceViewInstance: {fileID: 2091487886}
   bettingModalView: {fileID: 856836102}
   menuActionReference: {fileID: -4899954564831684455, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  dashboardMenuView: {fileID: 1900687048}
 --- !u!4 &978833526
 Transform:
   m_ObjectHideFlags: 0

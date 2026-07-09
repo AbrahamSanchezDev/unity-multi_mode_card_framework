@@ -21,6 +21,7 @@ namespace CardFramework.Presentation.Views {
         private Label _dealerScoreLabel;
         private Label _outcomeMessageLabel;
         private VisualElement _outcomeMessageVisualElement;
+        private VisualElement _screenContainer;
 
         private Label _lblWalletBalance;
 
@@ -50,7 +51,7 @@ namespace CardFramework.Presentation.Views {
             // Acquire the root visual element from the native UIDocument component
             var uiDocument = GetComponent<UIDocument>();
             _root = uiDocument.rootVisualElement;
-
+            _screenContainer = _root.Q<VisualElement>(className: "screen-container");
             // Query elements using standard UXML naming conventions
             _hitButton = _root.Q<Button>("hit-button");
             _standButton = _root.Q<Button>("stand-button");
@@ -131,9 +132,18 @@ namespace CardFramework.Presentation.Views {
             _dealerCardTransforms.Clear();
         }
 
+        /// <summary>
+        /// Toggles the entire gameplay visual canvas interaction state cleanly.
+        /// </summary>
         public void SetInteractionState(bool canInteract) {
             _hitButton.SetEnabled(canInteract);
             _standButton.SetEnabled(canInteract);
+            if (_screenContainer == null) {
+                Debug.LogWarning($"[{name}]: _screenContainer is null. Cannot set interaction state.");
+                return;
+            }
+            _screenContainer.SetEnabled(canInteract);
+            _screenContainer.pickingMode = canInteract ? PickingMode.Position : PickingMode.Ignore;
         }
 
         private void ValidateVisualTreeBindings() {
@@ -189,8 +199,6 @@ namespace CardFramework.Presentation.Views {
                 activeList[i].localPosition = new Vector3(localX, 0f, 0f);
                 activeList[i].localRotation = Quaternion.identity;
             }
-
-
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace CardFramework.Core.Interfaces {
     public interface ICloudService {
@@ -16,5 +17,15 @@ namespace CardFramework.Core.Interfaces {
 
         // Initializes the silent login sequence using hardware uniqueness markers
         void AuthenticateSilently();
+
+        /// <summary>
+        /// Generates a unique 6-character linking PIN from the PlayFab server.
+        /// </summary>
+        Task<string> GenerateLinkingPINAsync();
+
+        /// <summary>
+        /// Validates a 6-character PIN provided by the user to link the current device to an existing profile.
+        /// </summary>
+        Task<bool> LinkAccountWithPINAsync(string pinCode);
     }
 }

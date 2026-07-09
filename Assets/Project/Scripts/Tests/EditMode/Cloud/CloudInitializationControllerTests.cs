@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using CardFramework.Core.Interfaces;
 using CardFramework.Presentation.Controllers;
+using CardFramework.Cloud.Interfaces;
+using System.Threading.Tasks;
 
 namespace CardFramework.Tests.EditMode.Presentation {
     [TestFixture]
@@ -102,6 +104,13 @@ namespace CardFramework.Tests.EditMode.Presentation {
             }
 
             public bool IsAuthenticated => !string.IsNullOrEmpty(PlayerId);
+
+            public Task<string> GenerateLinkingPINAsync() {
+                throw new NotImplementedException();
+            }
+            public Task<bool> LinkAccountWithPINAsync(string pinCode) {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>

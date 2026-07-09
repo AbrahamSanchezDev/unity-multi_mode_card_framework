@@ -27,8 +27,6 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void OnCloudReady() {
-            Debug.Log($"[Boot] Cloud connection established. Player authenticated as ID: {_cloudService.PlayerId}");
-
             // Once authenticated, immediately fetch the player's currency balance and recharge ticks
             Debug.Log("[Boot] Synchronizing server economy balances...");
             _economyService.RefreshBalance();

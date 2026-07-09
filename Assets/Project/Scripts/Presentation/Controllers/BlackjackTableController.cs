@@ -52,9 +52,10 @@ namespace CardFramework.Presentation.Controllers {
             // Initialize the UI with the cached starting balance right away
             _uiView.UpdateWalletBalance(_economyService.CurrentGold);
 
-            // Bind hamburger event straight to the core tracking controller
-            _uiView.OnMenuRequested += () => _navigationController.OpenMenu("PlayFab Synced Profile");
+            // Subscribe to the event for when the menu gets open
+            _uiView.OnMenuRequested += HandleMenuToggleRequested;
 
+            // Subscribe to the open and close of the menu
             _navigationController.OnMenuOpened += HandleMenuOpened;
             _navigationController.OnMenuClosed += HandleMenuClosed;
 
@@ -87,6 +88,10 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.ClearTable();
 
             _bettingModalView.ShowModal();
+        }
+
+        private void HandleMenuToggleRequested() {
+            _navigationController.OpenMenu("PlayFab Synced Profile");
         }
 
         private void HandleMenuOpened() {
