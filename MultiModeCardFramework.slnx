@@ -1,5 +1,7 @@
 ﻿<Solution>
+  <Project Path="MCPForUnity.Runtime.csproj" />
   <Project Path="VContainer.csproj" />
+  <Project Path="MCPForUnity.Editor.csproj" />
   <Project Path="Core.csproj" />
   <Project Path="Tests.csproj" />
   <Project Path="PlayFab.csproj" />
@@ -12,4 +14,5 @@
   <Project Path="PlayFabSDKEditor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Cloud.csproj" />
+  <Project Path="Editor.csproj" />
 </Solution>

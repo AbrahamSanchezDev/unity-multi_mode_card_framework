@@ -319,6 +319,38 @@ namespace CardFramework.Tests.EditMode.Presentation {
             Assert.IsFalse(_mockView.InteractionState, "UI interaction controls must not be re-enabled upon menu closure if the table is currently sitting on a Showdown screen display.");
         }
 
+        [Test]
+        public void Controller_OnEvaluateMatchOutcome_AnnouncesDealerWin_WhenDealerValueIsGreater() {
+            // 1. Arrange: Initialize round sequence and commit a standard wager track
+            _controller.Start();
+            SimulateModalBetConfirmation(100);
+
+            // 2. Force the engine state to Showdown to trigger match evaluation mechanics
+            var stateField = typeof(BlackjackEngine).GetField("<CurrentState>k__BackingField",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (stateField != null) {
+                stateField.SetValue(_engine, BlackjackEngine.GameState.Showdown);
+            }
+
+            // 3. Clear existing hand objects and seed hand values where Dealer > Player (e.g., 20 vs 18)
+            var playerHand = _engine.GetPlayerHand();
+            playerHand.Cards.Clear();
+            playerHand.Cards.Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Ten));
+            playerHand.Cards.Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Eight)); // 18
+
+            var dealerHand = _engine.GetDealerHand();
+            dealerHand.Cards.Clear();
+            dealerHand.Cards.Add(new CardData(CardData.Suit.Hearts, CardData.Rank.Ten));
+            dealerHand.Cards.Add(new CardData(CardData.Suit.Hearts, CardData.Rank.King)); // 20
+
+            // 4. Act: Simulate a Stand request to drop execution directly into the Evaluate tracking loops
+            _mockView.SimulateStandRequest();
+
+            // 5. Assert: Verify the view panel renders loss alerts and the economy structure withholds payouts
+            Assert.AreEqual("Dealer Wins!", _mockView.WinnerMessage, "The view failed to display the proper string announcing the dealer's victory layout.");
+            Assert.AreEqual(0, _mockEconomy.CreditCalledWithAmount, "No gold should be credited back to the player asset wallet when the dealer wins a hand cleanly.");
+        }
+
         /// <summary>
         /// Stub engine specifically designed to force a Showdown state for initialization edge-case coverage.
         /// </summary>

@@ -12,9 +12,13 @@ namespace CardFramework.Cloud {
         public int CurrentGold { get; private set; }
 
         private const string CurrencyCodeGold = "GD"; // Our global Gold Code assigned in PlayFab
-
+        public bool BypassAuthCheckForTesting { get; set; } = false;
+        
         public void RefreshBalance() {
-            if (!PlayFabClientAPI.IsClientLoggedIn()) {
+            // Check the runtime testing bypass OR the native SDK state
+            bool isLoggedIn = BypassAuthCheckForTesting || PlayFabClientAPI.IsClientLoggedIn();
+
+            if (!isLoggedIn) {
                 OnEconomyError?.Invoke("Cannot fetch balance: Client is not authenticated via PlayFab.");
                 return;
             }
