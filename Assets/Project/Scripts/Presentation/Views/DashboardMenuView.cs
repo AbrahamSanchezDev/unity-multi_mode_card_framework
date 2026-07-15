@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Core.Interfaces;
@@ -101,8 +102,9 @@ namespace CardFramework.Presentation.Views {
             else Debug.LogWarning("[Sync] btn-submit-pin not found in the visual tree.");
 
             // Clear visual error alerts when the user types or alters the text contents
+            // Handle advanced validation and entry sanitation routines dynamically
             if (_txtInputPin != null) {
-                _txtInputPin.RegisterValueChangedCallback(evt => ResetInputVisualState());
+                _txtInputPin.RegisterValueChangedCallback(evt => OnInputPinValueChanged(evt));
             }
         }
 
@@ -120,7 +122,11 @@ namespace CardFramework.Presentation.Views {
             _linkingModalOverlay.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
 
             // Clean interface layout context values when opening/closing the overlay
-            if (open) ResetInputVisualState();
+            if (open) {
+                ResetInputVisualState();
+                if (_txtInputPin != null) _txtInputPin.value = string.Empty;
+            }
+
         }
 
         private async void OnGeneratePinClicked() {
@@ -149,7 +155,7 @@ namespace CardFramework.Presentation.Views {
             ResetInputVisualState();
             string rawPin = _txtInputPin.value?.Trim().ToUpper();
 
-            // Task-4.3 UX Validation: Guard check against structural token length anomalies
+            //  Guard check against structural token length anomalies
             if (string.IsNullOrEmpty(rawPin) || rawPin.Length != 6) {
                 ApplyInputVisualError("INVALID LENGTH");
                 Debug.LogWarning("[Sync] PIN validation aborted: string must be exactly 6 characters.");
@@ -180,6 +186,27 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
+        /// <summary>
+        /// Task-4.3 Option 3: Sanitizes user entry by forcing upper-case transformation 
+        /// and matching incoming keys against alphanumeric restrictions dynamically.
+        /// </summary>
+        private void OnInputPinValueChanged(ChangeEvent<string> evt) {
+            if (evt.newValue == null) return;
+
+            ResetInputVisualState();
+
+            // Strip any character that isn't a letter or a number using Regex
+            string cleanedText = Regex.Replace(evt.newValue, @"[^a-zA-Z0-9]", "");
+
+            // Force strict upper-case alignment mapping rules
+            cleanedText = cleanedText.ToUpper();
+
+            // If changes were made by the filter, update the value without re-triggering recursive events loop
+            if (evt.newValue != cleanedText) {
+                _txtInputPin.SetValueWithoutNotify(cleanedText);
+            }
+        }
+        
         /// <summary>
         /// Visually alerts the player to configuration errors by coloring input borders 
         /// and updating action buttons with clear textual descriptions.

@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
-    <Style src="project://database/Assets/Project/UI/DashboardMenu.uss" />
+    <Style src="project://database/Assets/Project/UI/DashboardMenu.uss?fileID=7433441132597879392&amp;guid=dc42de5be2c288a42a03b8d7c57bfe27&amp;type=3#DashboardMenu"/>
     <ui:VisualElement class="dash-backdrop">
-        
         <ui:VisualElement class="dash-panel">
-            
             <ui:VisualElement class="dash-header">
                 <ui:Label text="CASINO DASHBOARD" class="dash-title"/>
                 <ui:Button name="btn-close-dash" text="✕" class="btn-close-generic"/>
             </ui:VisualElement>
-            
             <ui:VisualElement class="dash-body-content">
                 <ui:Label text="SELECT EXPERIENCE" class="dash-section-subtitle"/>
                 <ui:VisualElement class="dash-game-grid">
@@ -17,7 +13,6 @@
                     <ui:Button name="btn-game-solitaire" text="SOLITAIRE" class="btn-game-card game-locked"/>
                     <ui:Button name="btn-game-texasholdem" text="TEXAS HOLD&apos;EM" class="btn-game-card game-locked"/>
                 </ui:VisualElement>
-                
                 <ui:Label text="CROSS-PLATFORM SYNC" class="dash-section-subtitle margin-top-md"/>
                 <ui:VisualElement class="dash-account-container">
                     <ui:VisualElement class="dash-account-status">
@@ -27,23 +22,17 @@
                     <ui:Button name="btn-open-linking" text="LINK META QUEST 3 / WEBGL ACCOUNT" class="btn-action-premium"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            
             <ui:VisualElement class="dash-footer-container">
                 <ui:Button name="btn-exit-app" text="EXIT GAME APPLICATION" class="btn-action-danger"/>
             </ui:VisualElement>
-            
         </ui:VisualElement>
-
         <ui:VisualElement name="linking-modal-overlay" class="dash-modal-overlay" style="display: none;">
             <ui:VisualElement class="dash-modal-window">
-                
                 <ui:VisualElement class="dash-header">
                     <ui:Label text="DEVICE LINK CENTER" class="dash-title text-gold"/>
                     <ui:Button name="btn-close-modal" text="✕" class="btn-close-generic"/>
                 </ui:VisualElement>
-                
                 <ui:Label text="SYNCHRONIZE PROFILES USING A 6-DIGIT SECURITY PIN" class="dash-section-subtitle"/>
-                
                 <ui:VisualElement class="dash-modal-body">
                     <ui:VisualElement class="linking-action-block">
                         <ui:Label text="OPTION A: GENERATE PAIRING CODE FROM THIS DEVICE" class="dash-mini-title"/>
@@ -52,18 +41,15 @@
                             <ui:Label name="lbl-generated-pin" text="------" class="text-pin-display"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    
                     <ui:VisualElement class="linking-action-block margin-top-sm">
                         <ui:Label text="OPTION B: ENTER CODE FROM EXTERNAL INSTANCE" class="dash-mini-title"/>
                         <ui:VisualElement class="linking-row-flow">
-                            <ui:TextField name="txt-input-pin" max-length="6" class="pin-input-field fluid-input"/>
+                            <ui:TextField name="txt-input-pin" max-length="6" placeholder-text="ENTER PIN DIGIT CODE" hide-placeholder-on-focus="true" class="pin-input-field fluid-input"/>
                             <ui:Button name="btn-submit-pin" text="LINK DEVICE" class="btn-sub-action btn-sub-action-gold fluid-btn"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-
             </ui:VisualElement>
         </ui:VisualElement>
-
     </ui:VisualElement>
 </ui:UXML>
