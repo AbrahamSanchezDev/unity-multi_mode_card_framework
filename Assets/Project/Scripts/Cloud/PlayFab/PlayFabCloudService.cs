@@ -5,7 +5,7 @@ using PlayFab.ClientModels;
 using CardFramework.Core.Interfaces;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using VContainer;
 
 using ClientAPI = PlayFab.PlayFabClientAPI;
 using CreateRequest = PlayFab.ClientModels.CreateSharedGroupRequest;
@@ -20,6 +20,17 @@ namespace CardFramework.Cloud {
 
         public bool IsAuthenticated { get; private set; }
         public string PlayerId { get; private set; }
+
+        // Reference to the economy service to execute synchronization refreshes post-linking
+        private readonly IEconomyService _economyService;
+
+        /// <summary>
+        /// Using VContainer dependency injection constructor to safely obtain the shared economy context.
+        /// </summary>
+        [Inject]
+        public PlayFabCloudService(IEconomyService economyService) {
+            _economyService = economyService;
+        }
 
         public void AuthenticateSilently() {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -48,6 +59,10 @@ namespace CardFramework.Cloud {
             IsAuthenticated = true;
             PlayerId = result.PlayFabId;
             Debug.Log($"[CloudService] PlayFab Silent Login Successful! PlayerID: {PlayerId}");
+
+            // Re-sync balance records on initial login completion
+            _economyService?.RefreshBalance();
+
             OnAuthenticationSuccess?.Invoke();
         }
 
@@ -119,6 +134,16 @@ namespace CardFramework.Cloud {
                     ClientAPI.LinkCustomID(linkRequest,
                         linkResult => {
                             Debug.Log("[PlayFabService] Cross-platform device link completed successfully via PIN validation loop!");
+
+                            // Task-4.3 Option 2 Sync: Instantly execute economy balance data re-fetch from the newly paired profile context
+                            if (_economyService != null) {
+                                Debug.Log("[PlayFabService] Syncing economy balance modules post account unification link...");
+                                _economyService.RefreshBalance();
+                            }
+                            
+                            // Trigger general authentication update routines to notify upper presentation boundaries
+                            OnAuthenticationSuccess?.Invoke();
+
                             completionSource.SetResult(true);
                         },
                         linkError => {

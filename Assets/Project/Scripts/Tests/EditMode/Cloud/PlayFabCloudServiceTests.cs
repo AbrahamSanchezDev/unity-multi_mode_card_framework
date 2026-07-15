@@ -5,15 +5,17 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using CardFramework.Cloud;
+using CardFramework.Core.Interfaces;
 
 namespace CardFramework.Tests.EditMode.Cloud {
     [TestFixture]
     public class PlayFabCloudServiceTests {
         private PlayFabCloudService _cloudService;
-
+        private MockEconomyService _mockCloudService;
         [SetUp]
         public void Setup() {
-            _cloudService = new PlayFabCloudService();
+            _mockCloudService = new MockEconomyService();
+            _cloudService = new PlayFabCloudService(_mockCloudService);
             PlayFabClientAPI.ForgetAllCredentials();
         }
 
@@ -116,6 +118,26 @@ namespace CardFramework.Tests.EditMode.Cloud {
 
             Assert.IsTrue(mockRequest.CreateAccount, "Line 27 validation check: CreateAccount must always default to true to provision fresh database entries.");
             Assert.AreEqual(SystemInfo.deviceUniqueIdentifier, mockRequest.CustomId, "Line 35 validation check: The request CustomId parameter must seamlessly map the device's unique platform identity context.");
+        }
+
+        public class MockEconomyService : IEconomyService {
+            public bool RefreshBalanceCalled { get; private set; }
+
+            public int CurrentGold => 0;
+
+            public event Action<int> OnBalanceUpdated;
+            public event Action<string> OnEconomyError;
+
+            public void RefreshBalance() {
+                RefreshBalanceCalled = true;
+                OnBalanceUpdated?.Invoke(CurrentGold);
+            }
+
+            public void CreditGold(int amount) {
+                OnEconomyError?.Invoke("CreditGold called in mock service. No actual crediting performed.");
+
+            }
+            public void DebitGold(int amount) { }
         }
     }
 }
