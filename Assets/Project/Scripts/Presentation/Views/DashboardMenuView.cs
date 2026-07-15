@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -25,6 +26,20 @@ namespace CardFramework.Presentation.Views {
         private VisualElement _linkingModalOverlay;
         private Button _btnCloseModal;
 
+        // Visual collection mapping game name signatures straight to their button instances
+        private Dictionary<string, Button> _gameButtonsMap;
+        
+        // Track clean default base text values to safely reconstruct labels during visual update shifts
+        private readonly Dictionary<string, string> _gameBaseLabels = new Dictionary<string, string> {
+            { "Blackjack", "BLACKJACK" },
+            { "Solitaire", "SOLITAIRE" },
+            { "TexasHoldem", "TEXAS HOLD'EM" }
+        };
+
+        // Style class constants from your USS stylesheets
+        private const string ActiveClassName = "game-active";
+        private const string LockedClassName = "game-locked";
+
         private ICloudService _cloudService;
 
         private void OnEnable() {
@@ -40,16 +55,69 @@ namespace CardFramework.Presentation.Views {
             _root = uiDocument.rootVisualElement;
             _lblAccountStatus = _root.Q<Label>("lbl-account-status");
 
+            // Query game select buttons from visual tree
+            var btnBlackjack = _root.Q<Button>("btn-game-blackjack");
+            var btnSolitaire = _root.Q<Button>("btn-game-solitaire");
+            var btnTexasHoldem = _root.Q<Button>("btn-game-texasholdem");
+
+            // Initialize structural map coupling signatures to reference elements
+            _gameButtonsMap = new Dictionary<string, Button>(StringComparer.OrdinalIgnoreCase) {
+                { "Blackjack", btnBlackjack },
+                { "Solitaire", btnSolitaire },
+                { "TexasHoldem", btnTexasHoldem }
+            };
+
             // Wire UI Toolkit Interactions straight to architecture events
+            if (btnBlackjack != null) btnBlackjack.clicked += () => OnGameSwitchRequested?.Invoke("Blackjack");
+            if (btnSolitaire != null) btnSolitaire.clicked += () => OnGameSwitchRequested?.Invoke("Solitaire");
+            if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => OnGameSwitchRequested?.Invoke("TexasHoldem");
+
             _root.Q<Button>("btn-close-dash").clicked += () => OnCloseRequested?.Invoke();
             _root.Q<Button>("btn-open-linking").clicked += () => OnLinkAccountRequested?.Invoke();
             _root.Q<Button>("btn-exit-app").clicked += () => OnExitApplicationRequested?.Invoke();
 
-            _root.Q<Button>("btn-game-blackjack").clicked += () => OnGameSwitchRequested?.Invoke("Blackjack");
-            _root.Q<Button>("btn-game-solitaire").clicked += () => OnGameSwitchRequested?.Invoke("Solitaire");
-            _root.Q<Button>("btn-game-texasholdem").clicked += () => OnGameSwitchRequested?.Invoke("TexasHoldem");
+            // Set default runtime visual highlighting state
+            UpdateActiveGameVisuals("Blackjack");
 
             _root.style.display = DisplayStyle.None;
+        }
+
+        /// <summary>
+        /// Task-4.3.1 Carousel Polish: Iterates over the cached buttons map to apply 
+        /// the active and locked USS style classes reactively.
+        /// </summary>
+        public void UpdateActiveGameVisuals(string activeGameKey) {
+            if (_gameButtonsMap == null) return;
+
+            foreach (var kvp in _gameButtonsMap) {
+                Button targetButton = kvp.Value;
+                if (targetButton == null) continue;
+
+                bool isActive = kvp.Key.Equals(activeGameKey, StringComparison.OrdinalIgnoreCase);
+                
+                // Fetch the clean default text layout signature
+                _gameBaseLabels.TryGetValue(kvp.Key, out string baseLabel);
+                if (string.IsNullOrEmpty(baseLabel)) baseLabel = kvp.Key.ToUpper();
+
+                if (isActive) {
+                    targetButton.text = $"{baseLabel} (ACTIVE)";
+                    
+                    // Manage style classes natively
+                    if (!targetButton.ClassListContains(ActiveClassName)) {
+                        targetButton.AddToClassList(ActiveClassName);
+                    }
+                    targetButton.RemoveFromClassList(LockedClassName);
+                }
+                else {
+                    targetButton.text = baseLabel;
+                    
+                    // Manage style classes natively
+                    if (!targetButton.ClassListContains(LockedClassName)) {
+                        targetButton.AddToClassList(LockedClassName);
+                    }
+                    targetButton.RemoveFromClassList(ActiveClassName);
+                }
+            }
         }
 
         public void ShowDashboard(string statusText) {
@@ -68,7 +136,6 @@ namespace CardFramework.Presentation.Views {
             _cloudService = cloudService;
 
             var uiDocument = GetComponent<UIDocument>();
-            uiDocument.enabled = true;
             if (uiDocument == null || uiDocument.rootVisualElement == null) {
                 Debug.LogWarning("[Sync] UIDocument or rootVisualElement not found.");
                 return;
@@ -101,8 +168,6 @@ namespace CardFramework.Presentation.Views {
             if (_btnSubmitPin != null) _btnSubmitPin.clicked += OnSubmitPinClicked;
             else Debug.LogWarning("[Sync] btn-submit-pin not found in the visual tree.");
 
-            // Clear visual error alerts when the user types or alters the text contents
-            // Handle advanced validation and entry sanitation routines dynamically
             if (_txtInputPin != null) {
                 _txtInputPin.RegisterValueChangedCallback(evt => OnInputPinValueChanged(evt));
             }
@@ -121,12 +186,10 @@ namespace CardFramework.Presentation.Views {
             if (_linkingModalOverlay == null) return;
             _linkingModalOverlay.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
 
-            // Clean interface layout context values when opening/closing the overlay
             if (open) {
                 ResetInputVisualState();
                 if (_txtInputPin != null) _txtInputPin.value = string.Empty;
             }
-
         }
 
         private async void OnGeneratePinClicked() {
@@ -155,7 +218,6 @@ namespace CardFramework.Presentation.Views {
             ResetInputVisualState();
             string rawPin = _txtInputPin.value?.Trim().ToUpper();
 
-            //  Guard check against structural token length anomalies
             if (string.IsNullOrEmpty(rawPin) || rawPin.Length != 6) {
                 ApplyInputVisualError("INVALID LENGTH");
                 Debug.LogWarning("[Sync] PIN validation aborted: string must be exactly 6 characters.");
@@ -173,7 +235,6 @@ namespace CardFramework.Presentation.Views {
                     _btnOpenLinking.SetEnabled(false);
                 }
                 else {
-                    // Task-4.3 UX Validation: Apply server validation rejection alert context
                     ApplyInputVisualError("PIN NOT FOUND");
                 }
             }
@@ -186,35 +247,22 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        /// <summary>
-        /// Task-4.3 Option 3: Sanitizes user entry by forcing upper-case transformation 
-        /// and matching incoming keys against alphanumeric restrictions dynamically.
-        /// </summary>
         private void OnInputPinValueChanged(ChangeEvent<string> evt) {
             if (evt.newValue == null) return;
 
             ResetInputVisualState();
 
-            // Strip any character that isn't a letter or a number using Regex
             string cleanedText = Regex.Replace(evt.newValue, @"[^a-zA-Z0-9]", "");
-
-            // Force strict upper-case alignment mapping rules
             cleanedText = cleanedText.ToUpper();
 
-            // If changes were made by the filter, update the value without re-triggering recursive events loop
             if (evt.newValue != cleanedText) {
                 _txtInputPin.SetValueWithoutNotify(cleanedText);
             }
         }
         
-        /// <summary>
-        /// Visually alerts the player to configuration errors by coloring input borders 
-        /// and updating action buttons with clear textual descriptions.
-        /// </summary>
         private void ApplyInputVisualError(string errorMessage) {
             if (_txtInputPin == null || _btnSubmitPin == null) return;
 
-            // Highlight the textfield element using native red styling overrides
             _txtInputPin.style.borderTopColor = Color.red;
             _txtInputPin.style.borderBottomColor = Color.red;
             _txtInputPin.style.borderLeftColor = Color.red;
@@ -224,18 +272,13 @@ namespace CardFramework.Presentation.Views {
             _txtInputPin.style.borderLeftWidth = 1.5f;
             _txtInputPin.style.borderRightWidth = 1.5f;
 
-            // Print error metadata directly on the button block
             _btnSubmitPin.text = $"✕ {errorMessage}";
-            _btnSubmitPin.style.backgroundColor = new Color(0.75f, 0.22f, 0.17f); // Native error crimson look
+            _btnSubmitPin.style.backgroundColor = new Color(0.75f, 0.22f, 0.17f); 
         }
 
-        /// <summary>
-        /// Restores standard layout parameters when a player attempts a new submission cycle.
-        /// </summary>
         private void ResetInputVisualState() {
             if (_txtInputPin == null || _btnSubmitPin == null) return;
 
-            // Clear absolute border definitions to restore original USS rules
             _txtInputPin.style.borderTopColor = StyleKeyword.Null;
             _txtInputPin.style.borderBottomColor = StyleKeyword.Null;
             _txtInputPin.style.borderLeftColor = StyleKeyword.Null;
@@ -245,9 +288,8 @@ namespace CardFramework.Presentation.Views {
             _txtInputPin.style.borderLeftWidth = StyleKeyword.Null;
             _txtInputPin.style.borderRightWidth = StyleKeyword.Null;
 
-            // Reset submission button defaults
             _btnSubmitPin.text = "LINK DEVICE";
-            _btnSubmitPin.style.backgroundColor = StyleKeyword.Null; // Cascapes back cleanly to your casino green USS style
+            _btnSubmitPin.style.backgroundColor = StyleKeyword.Null; 
         }
 
         #endregion

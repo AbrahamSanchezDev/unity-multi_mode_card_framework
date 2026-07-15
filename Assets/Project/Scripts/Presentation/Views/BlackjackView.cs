@@ -142,8 +142,11 @@ namespace CardFramework.Presentation.Views {
                 Debug.LogWarning($"[{name}]: _screenContainer is null. Cannot set interaction state.");
                 return;
             }
-            _screenContainer.SetEnabled(canInteract);
+
+            // _screenContainer.SetEnabled(canInteract); // If we set enabled to false we won't be able to click in Deal New Hand, so we need to use pickingMode instead
             _screenContainer.pickingMode = canInteract ? PickingMode.Position : PickingMode.Ignore;
+
+            Debug.Log($"[{name}]: Interaction state set to {(canInteract ? "Enabled" : "Disabled")} for the entire Blackjack canvas.");
         }
 
         private void ValidateVisualTreeBindings() {

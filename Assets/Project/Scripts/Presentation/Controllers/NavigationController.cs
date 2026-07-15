@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer.Unity;
 using CardFramework.Presentation.Views;
+using VContainer;
 
 namespace CardFramework.Presentation.Controllers {
     /// <summary>
@@ -10,7 +11,12 @@ namespace CardFramework.Presentation.Controllers {
     /// application shutdown hooks, and high-performance cross-platform input processing.
     /// </summary>
     public class NavigationController : IStartable, IDisposable, ITickable {
-        private readonly DashboardMenuView _dashboardView;
+
+        public Action<string> OnSwitchGameRequested;
+        public Action<string> OnSwitchGameCompleted;
+        private DashboardMenuView _dashboardView;
+        private GameTableManager _tableManager;
+
         private readonly InputActionReference _toggleMenuAction;
 
         private bool _isMenuOpen = false;
@@ -24,9 +30,10 @@ namespace CardFramework.Presentation.Controllers {
         /// <summary>
         /// Constructor injected via VContainer containing localized view architecture and mapped action assets.
         /// </summary>
-        public NavigationController(DashboardMenuView dashboardView, InputActionReference toggleMenuAction = null) {
+        public NavigationController(DashboardMenuView dashboardView, GameTableManager tableManager, InputActionReference toggleMenuAction = null) {
             _dashboardView = dashboardView;
             _toggleMenuAction = toggleMenuAction;
+            _tableManager = tableManager;
         }
 
         public void Start() {
@@ -105,9 +112,19 @@ namespace CardFramework.Presentation.Controllers {
 
         private void HandleGameSwitchTriggered(string targetGameKey) {
             Debug.Log($"[Navigation] Context Switch requested! Target Game Engine Signature: {targetGameKey}");
-            if (targetGameKey != "Blackjack") {
-                Debug.LogWarning($"[Navigation] Engine for {targetGameKey} is currently stubbed out inside TASK-4.5.");
-            }
+
+            OnSwitchGameRequested?.Invoke(targetGameKey);
+            HandleCloseDashboard();
+            
+            // Move the player spatially to the requested table setup
+            _tableManager?.SwitchTable(targetGameKey);
+            _dashboardView.UpdateActiveGameVisuals(targetGameKey);
+
+            // Hide the dashboard menu overlay once the switch execution concludes
+            _dashboardView.HideDashboard();
+
+
+            OnSwitchGameCompleted?.Invoke(targetGameKey);
         }
 
         private void HandleExitApplicationTriggered() {

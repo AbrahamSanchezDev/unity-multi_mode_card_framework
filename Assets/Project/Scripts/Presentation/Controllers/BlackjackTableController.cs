@@ -49,15 +49,17 @@ namespace CardFramework.Presentation.Controllers {
             _navigationController.OnMenuOpened += HandleMenuOpened;
             _navigationController.OnMenuClosed += HandleMenuClosed;
 
+            _navigationController.OnSwitchGameCompleted += HandleGameSwitchCompleted;
+
             // Initialize the UI with the cached starting balance right away
             _uiView.UpdateWalletBalance(_economyService.CurrentGold);
 
+            // Subscribe to the open and close of the menu
+            // _navigationController.OnMenuOpened += HandleMenuOpened;
+            // _navigationController.OnMenuClosed += HandleMenuClosed;
+
             // Subscribe to the event for when the menu gets open
             _uiView.OnMenuRequested += HandleMenuToggleRequested;
-
-            // Subscribe to the open and close of the menu
-            _navigationController.OnMenuOpened += HandleMenuOpened;
-            _navigationController.OnMenuClosed += HandleMenuClosed;
 
             // Trigger the initial match setup by requesting a wager first
             HandleRestart();
@@ -79,6 +81,7 @@ namespace CardFramework.Presentation.Controllers {
             // Clean up navigation listeners
             _navigationController.OnMenuOpened -= HandleMenuOpened;
             _navigationController.OnMenuClosed -= HandleMenuClosed;
+            _navigationController.OnSwitchGameCompleted -= HandleGameSwitchCompleted;
         }
 
         private void HandleRestart() {
@@ -102,8 +105,17 @@ namespace CardFramework.Presentation.Controllers {
         private void HandleMenuClosed() {
             Debug.Log("[Blackjack Controller] Menu closed. Restoring game layout context.");
             // Only restore interaction state if the game is currently active and not awaiting a wager confirmation
-            if (_gameEngine.CurrentState != BlackjackEngine.GameState.Showdown) {
-                _uiView.SetInteractionState(true);
+            switch (_gameEngine.CurrentState) {
+                case BlackjackEngine.GameState.PlayerTurn:
+                case BlackjackEngine.GameState.DealerTurn:
+                    _uiView.SetInteractionState(true);
+                    break;
+                case BlackjackEngine.GameState.PlayerBust:
+                case BlackjackEngine.GameState.DealerBust:
+                case BlackjackEngine.GameState.Showdown:
+                case BlackjackEngine.GameState.GameOver:
+                    _uiView.SetInteractionState(false);
+                    break;
             }
         }
 
@@ -121,6 +133,18 @@ namespace CardFramework.Presentation.Controllers {
 
             // Once economy state is locked on the cloud, proceed to spawn physical game assets
             InitializeTable();
+        }
+
+        private void HandleGameSwitchCompleted(string targetGameKey) {
+            Debug.Log($"[Blackjack Controller] Game switch completed to: {targetGameKey}. Resetting table state.");
+            if (targetGameKey.Equals("Blackjack", StringComparison.OrdinalIgnoreCase)) {
+                HandleRestart();
+            }
+            else {
+                Debug.Log($"[Blackjack Controller] Detected switch to a different game engine: {targetGameKey}. Cleaning up Blackjack state.");
+                _uiView.ClearTable();
+                _uiView.SetInteractionState(false);
+            }
         }
 
         private void InitializeTable() {

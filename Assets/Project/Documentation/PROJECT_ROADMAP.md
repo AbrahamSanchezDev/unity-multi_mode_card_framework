@@ -87,7 +87,7 @@ Expanding the framework to support persistence, cross-platform linking, and econ
       - Extend `IBlackjackView` contract to handle real-time cash flow signatures.
       - Bind reactive event subscriptions between `IEconomyService` and the main UI Toolkit canvas.
       - Secure clean data updates across round transitions (debits, standard payouts, natural blackjacks, and push resolutions).
-- [ ] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
+- [x] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
   - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
     - [ ] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
       - Design the central dashboard canvas in UXML/USS featuring a multi-game selection carousel and account status views.

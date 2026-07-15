@@ -28,6 +28,8 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private InputActionReference menuActionReference;
         [SerializeField] private DashboardMenuView dashboardMenuView;
 
+        [SerializeField] private GameTableManager tableManager;
+
         protected override void Configure(IContainerBuilder builder) {
 
             // Core Data Models & Decks (Transient so each engine gets a unique stack)
@@ -72,10 +74,12 @@ namespace CardFramework.Architecture.DI {
             // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
             builder.RegisterEntryPoint<CloudInitializationController>();
+            
 
             // Navigation Controller registered as EntryPoint for ITickable loops with custom parameter mapping
             builder.RegisterEntryPoint<NavigationController>()
                 .WithParameter(menuActionReference)
+                .WithParameter(tableManager)
                 .AsSelf();
 
             // Component Views

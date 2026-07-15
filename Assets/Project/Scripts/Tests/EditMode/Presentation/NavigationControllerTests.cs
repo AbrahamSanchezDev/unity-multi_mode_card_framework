@@ -37,7 +37,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _actionReference = InputActionReference.Create(targetAction);
 
             // Instantiate our system under test passing our isolated mock components
-            _controller = new NavigationController(_mockView, _actionReference);
+            _controller = new NavigationController(_mockView, null, _actionReference);
             _controller.Start();
         }
 
@@ -158,7 +158,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 "The application shutdown body execution sequence must compile and trace successfully.");
         }
 
-       [Test]
+        [Test]
         public void Controller_Tick_WhenActionIsSimulatedPressed_EntersBranchForCoverage() {
             // Simulate a physical keyboard Escape press so the controller's Tick() branch runs
             var action = _actionReference.action;

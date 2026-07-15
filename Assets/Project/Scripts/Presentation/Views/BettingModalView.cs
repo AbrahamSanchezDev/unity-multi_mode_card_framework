@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Core.Interfaces;
 using VContainer;
+using CardFramework.Presentation.Controllers;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -15,18 +16,22 @@ namespace CardFramework.Presentation.Views {
         private Button _btnConfirm;
 
         private IEconomyService _economyService;
+        private NavigationController _navigationController;
         private int _currentBetAmount = 10;
         private const int MinBet = 10;
 
         [Inject]
-        public void Construct(IEconomyService economyService) {
+        public void Construct(IEconomyService economyService, NavigationController navigationController) {
             _economyService = economyService;
+            _navigationController = navigationController;
         }
 
         private void OnEnable() {
             SetupUiReferences();
+            if (_navigationController != null)
+                _navigationController.OnSwitchGameRequested += HandleGameSwitch;
         }
-        
+
         public void SetupUiReferences() {
 
             if (_root != null) return;
@@ -59,11 +64,13 @@ namespace CardFramework.Presentation.Views {
             }
 
             // Start state hidden
-            _root.style.display = DisplayStyle.None;
+            HideModal();
         }
 
         private void OnDisable() {
             RemoveUiReferences();
+            if (_navigationController != null)
+                _navigationController.OnSwitchGameRequested -= HandleGameSwitch;
         }
 
         private void RemoveUiReferences() {
@@ -84,7 +91,6 @@ namespace CardFramework.Presentation.Views {
 
         [ContextMenu("Show Betting Modal")]
         public void ShowModal() {
-
             _currentBetAmount = MinBet;
             if (_root != null)
                 _root.style.display = DisplayStyle.Flex;
@@ -128,9 +134,17 @@ namespace CardFramework.Presentation.Views {
         private void ConfirmBet() {
             if (_currentBetAmount >= MinBet && _currentBetAmount <= _economyService.CurrentGold) {
                 OnBetConfirmed?.Invoke(_currentBetAmount);
-                if (_root != null)
-                    _root.style.display = DisplayStyle.None;
+                HideModal();
             }
+        }
+        private void HideModal() {
+            if (_root != null)
+                _root.style.display = DisplayStyle.None;
+        }
+
+        private void HandleGameSwitch(string targetGameKey) {
+            Debug.Log($"[BettingModalView] Detected game switch to: {targetGameKey}. Closing betting modal if open.");
+            HideModal();
         }
     }
 }

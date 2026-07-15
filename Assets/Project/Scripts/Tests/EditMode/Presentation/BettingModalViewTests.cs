@@ -62,7 +62,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _view = _testGo.AddComponent<BettingModalView>();
 
             _mockEconomy = new MockEconomyService();
-            _view.Construct(_mockEconomy);
+            _view.Construct(_mockEconomy, null); // Passing null for NavigationController in this test context
 
             var mockAsset = ScriptableObject.CreateInstance<VisualTreeAsset>();
             _uiDocument.visualTreeAsset = mockAsset;

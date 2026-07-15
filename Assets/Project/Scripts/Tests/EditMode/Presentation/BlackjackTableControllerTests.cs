@@ -30,7 +30,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             var uiDoc = _modalContainer.AddComponent<UIDocument>();
             _bettingModalView = _modalContainer.AddComponent<BettingModalView>();
 
-            _bettingModalView.Construct(_mockEconomy);
+            _bettingModalView.Construct(_mockEconomy,_navigationController);
 
             // Force reflection setup to assign a simulated empty VisualElement root for EditMode
             var rootField = typeof(BettingModalView).GetField("_root",
@@ -41,7 +41,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
             // Setup the clean isolated navigation stack required by the constructor
             var mockDashView = _modalContainer.AddComponent<DashboardMenuView>();
-            _navigationController = new NavigationController(mockDashView);
+            _navigationController = new NavigationController(mockDashView, null);
 
             _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _bettingModalView, _navigationController);
         }
