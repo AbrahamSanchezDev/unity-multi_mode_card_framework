@@ -1,0 +1,112 @@
+/* ========================================== */
+/* SIDEBAR DRAWER LAYOUT                      */
+/* ========================================== */
+#sidebar-container {
+    position: absolute;
+    right: 0;
+    top: 10%;
+    bottom: 10%;
+    width: 300px;
+    border-left-width: 2px;
+    border-left-color: rgb(212, 175, 87);
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    transition: translate 0.25s ease-in-out;
+}
+
+/* Off-screen position when closed */
+.sidebar-collapsed {
+    translate: 300px 0;
+}
+
+/* On-screen position when expanded */
+.sidebar-expanded {
+    translate: 0 0;
+}
+
+/* ========================================== */
+/* FLOATING TOGGLE HANDLE BUTTON              */
+/* ========================================== */
+.sidebar-toggle-trigger {
+    position: absolute;
+    left: -42px; 
+    top: 0;
+    width: 40px;
+    height: 40px;
+    background-color: rgb(26, 34, 29);
+    border-width: 2px;
+    border-color: rgb(212, 175, 87);
+    border-right-width: 0;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    color: rgb(212, 175, 87);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
+.sidebar-toggle-trigger:hover {
+    background-color: rgb(35, 46, 39);
+    color: rgb(255, 255, 255);
+}
+
+/* ========================================== */
+/* NOTIFICATION LIST ROWS                     */
+/* ========================================== */
+.casino-panel-header {
+    padding: 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(212, 175, 87, 0.3);
+    align-items: center;
+}
+
+.casino-header-text {
+    color: rgb(212, 175, 87);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.notifications-list-viewport {
+    padding: 8px;
+}
+
+.notification-item-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(40, 53, 45, 0.6);
+    border-width: 1px;
+    border-color: rgba(212, 175, 87, 0.15);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    padding: 8px;
+}
+
+.notification-item-row:hover {
+    background-color: rgba(53, 71, 60, 0.8);
+    border-color: rgb(212, 175, 87);
+}
+
+.notification-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    background-color: rgba(212, 175, 87, 0.2);
+    border-radius: 3px;
+}
+
+.notification-text-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.notification-item-title {
+    color: rgb(255, 255, 255);
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+.notification-item-subtitle {
+    color: rgb(160, 160, 160);
+    font-size: 10px;
+    margin-top: 2px;
+}

@@ -89,7 +89,7 @@ Expanding the framework to support persistence, cross-platform linking, and econ
       - Secure clean data updates across round transitions (debits, standard payouts, natural blackjacks, and push resolutions).
 - [x] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
   - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
-    - [ ] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
+    - [x] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
       - Design the central dashboard canvas in UXML/USS featuring a multi-game selection carousel and account status views.
       - Handle active scene context switching routines to seamlessly transition between Blackjack and secondary game slots.
 - [ ] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**

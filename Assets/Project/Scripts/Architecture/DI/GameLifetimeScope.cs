@@ -12,6 +12,7 @@ using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Views;
 using CardFramework.Presentation.Input;
+using CardFramework.Core.Managers;
 
 namespace CardFramework.Architecture.DI {
     /// <summary>
@@ -29,6 +30,7 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private DashboardMenuView dashboardMenuView;
 
         [SerializeField] private GameTableManager tableManager;
+        [SerializeField] private NotificationSidebarView notificationSidebarViewInstance;
 
         protected override void Configure(IContainerBuilder builder) {
 
@@ -61,6 +63,8 @@ namespace CardFramework.Architecture.DI {
             // Multi-Platform Input Architecture Adapter
             builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
 
+            builder.Register<ITimeService, PlayFabTimeService>(Lifetime.Singleton);
+            builder.Register<CloudMailboxManager>(Lifetime.Singleton);
             // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
 
             // Registering the view instance present inside the active Unity Scene Hierarchy to satisfy both contracts
@@ -69,12 +73,13 @@ namespace CardFramework.Architecture.DI {
 
             builder.RegisterComponent(dashboardMenuView);
 
+            builder.RegisterComponent(notificationSidebarViewInstance);
 
             // VContainer automatically detects 'IInitializable' on entry points registered as EntryPoints
             // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
             builder.RegisterEntryPoint<CloudInitializationController>();
-            
+
 
             // Navigation Controller registered as EntryPoint for ITickable loops with custom parameter mapping
             builder.RegisterEntryPoint<NavigationController>()

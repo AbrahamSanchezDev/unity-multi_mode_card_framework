@@ -2,6 +2,7 @@ using UnityEngine;
 using CardFramework.Core.Interfaces;
 using VContainer;
 using VContainer.Unity;
+using CardFramework.Cloud.Interfaces;
 
 namespace CardFramework.Presentation.Controllers {
     // IInitializable tells VContainer to invoke the 'Initialize' method automatically once injection finishes

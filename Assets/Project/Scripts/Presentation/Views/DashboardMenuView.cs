@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
-using CardFramework.Core.Interfaces;
+using CardFramework.Cloud.Interfaces;
 using VContainer;
 
 namespace CardFramework.Presentation.Views {

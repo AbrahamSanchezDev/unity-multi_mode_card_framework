@@ -3,6 +3,7 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using CardFramework.Core.Interfaces;
+using CardFramework.Cloud.Interfaces;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using VContainer;

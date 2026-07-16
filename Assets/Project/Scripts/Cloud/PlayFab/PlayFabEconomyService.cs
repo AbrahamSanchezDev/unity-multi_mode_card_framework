@@ -66,7 +66,6 @@ namespace CardFramework.Cloud {
 
         private void OnModifyCurrencySuccess(ModifyUserVirtualCurrencyResult result) {
             CurrentGold = result.Balance;
-            Debug.Log($"[Economy] Server Transaction Complete. New Balance: {CurrentGold} GD");
             OnBalanceUpdated?.Invoke(CurrentGold);
         }
 

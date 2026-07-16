@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace CardFramework.Core.Interfaces {
+namespace CardFramework.Cloud.Interfaces {
     public interface ICloudService {
         // Triggers when the silent authentication loop completes successfully
         event Action OnAuthenticationSuccess;

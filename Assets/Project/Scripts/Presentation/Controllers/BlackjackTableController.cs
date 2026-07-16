@@ -120,7 +120,6 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleWalletBalanceChanged(int freshBalance) {
-            Debug.Log($"[Wallet Sync] Pushing updated balance to main HUD layout: {freshBalance} GD");
             _uiView.UpdateWalletBalance(freshBalance);
         }
 
