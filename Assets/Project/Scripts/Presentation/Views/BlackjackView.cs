@@ -4,11 +4,9 @@ using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Core.Models;
 using System.Collections.Generic;
+using DG.Tweening; // Import DOTween namespace
 
 namespace CardFramework.Presentation.Views {
-    /// <summary>
-    /// UI Toolkit implementation mapping UXML VisualElements to the IBlackjackView architectural boundary.
-    /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public class BlackjackView : MonoBehaviour, IBlackjackView {
 
@@ -25,12 +23,12 @@ namespace CardFramework.Presentation.Views {
 
         private Label _lblWalletBalance;
 
-        // Implementation of the architectural view contract events
         public event Action OnHitRequested;
         public event Action OnStandRequested;
         public event Action OnRestartRequested;
         public event Action OnMenuRequested;
-        #region 3D Spawning
+
+        #region 3D Spawning & Animation Architecture
 
         [Header("3D Spawning Architecture")]
         [SerializeField] private CardsGraphics cardsGraphics;
@@ -38,28 +36,31 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private Transform playerSpawnAnchor;
         [SerializeField] private Transform dealerSpawnAnchor;
 
-        // 6cm card width + 1cm margin gap
-        private const float CardOffsetHorizontal = 0.07f;
+        [Header("Deck Setup & Motion Polish")]
+        [SerializeField] private Transform deckSpawnAnchor; // Assign your physical shoe/deck location in Editor
+        [SerializeField] private float dealDuration = 0.45f;
+        [SerializeField] private Ease dealEase = Ease.OutQuad;
 
-        // Track active runtime card instances to dynamically recalculate hand centers
+        // 6cm card width + 1cm margin gap
+        private const float CardOffsetHorizontal = 0.075f;
+        // Define a tiny depth step between cards (e.g., 3mm or 0.003f)
+        private const float CardOffsetDepth = 0.002f;
+
         private readonly List<Transform> _playerCardTransforms = new();
         private readonly List<Transform> _dealerCardTransforms = new();
 
         #endregion
 
         private void OnEnable() {
-            // Acquire the root visual element from the native UIDocument component
             var uiDocument = GetComponent<UIDocument>();
             _root = uiDocument.rootVisualElement;
             _screenContainer = _root.Q<VisualElement>(className: "screen-container");
-            // Query elements using standard UXML naming conventions
             _hitButton = _root.Q<Button>("hit-button");
             _standButton = _root.Q<Button>("stand-button");
             _restartButton = _root.Q<Button>("restart-button");
             _playerScoreLabel = _root.Q<Label>("player-score-label");
             _dealerScoreLabel = _root.Q<Label>("dealer-score-label");
             _outcomeMessageVisualElement = _root.Q<VisualElement>("outcome-message-label");
-            // Fetch the new wallet element text label
             _lblWalletBalance = _root.Q<Label>("lbl-wallet-balance");
 
             var btnHamburger = _root.Q<Button>("btn-hamburger-menu");
@@ -78,15 +79,13 @@ namespace CardFramework.Presentation.Views {
             else {
                 HasAll = false;
             }
-            // Sanity check for UI Toolkit bindings
+
             ValidateVisualTreeBindings();
 
-            // Register callbacks into the UI Toolkit architecture loop
             _hitButton.clicked += () => OnHitRequested?.Invoke();
             _standButton.clicked += () => OnStandRequested?.Invoke();
             _restartButton.clicked += () => OnRestartRequested?.Invoke();
 
-            // Set an initial placeholder text safely text forced white for contrast
             if (_lblWalletBalance != null) {
                 _lblWalletBalance.text = "Balance: -- GD";
                 _lblWalletBalance.style.color = Color.white;
@@ -94,19 +93,13 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void OnDisable() {
-            // Clean up callbacks to prevent memory fragmentation
             if (_hitButton != null) _hitButton.clicked -= () => OnHitRequested?.Invoke();
             if (_standButton != null) _standButton.clicked -= () => OnStandRequested?.Invoke();
             if (_restartButton != null) _restartButton.clicked -= () => OnRestartRequested?.Invoke();
         }
 
-        public void UpdatePlayerScore(int score) {
-            _playerScoreLabel.text = $"Player: {score}";
-        }
-
-        public void UpdateDealerScore(int score) {
-            _dealerScoreLabel.text = $"Dealer: {score}";
-        }
+        public void UpdatePlayerScore(int score) => _playerScoreLabel.text = $"Player: {score}";
+        public void UpdateDealerScore(int score) => _dealerScoreLabel.text = $"Dealer: {score}";
 
         public void UpdateWalletBalance(int freshBalance) {
             if (_lblWalletBalance != null) {
@@ -123,18 +116,24 @@ namespace CardFramework.Presentation.Views {
             _outcomeMessageLabel.text = string.Empty;
             _outcomeMessageVisualElement.style.display = DisplayStyle.None;
 
-            // Clear Player visual objects
-            foreach (var t in _playerCardTransforms) { if (t != null) Destroy(t.gameObject); }
+            // Kill active tweens on cards before destroying them to avoid memory warnings
+            foreach (var t in _playerCardTransforms) {
+                if (t != null) {
+                    t.DOKill();
+                    Destroy(t.gameObject);
+                }
+            }
             _playerCardTransforms.Clear();
 
-            // Clear Dealer visual objects
-            foreach (var t in _dealerCardTransforms) { if (t != null) Destroy(t.gameObject); }
+            foreach (var t in _dealerCardTransforms) {
+                if (t != null) {
+                    t.DOKill();
+                    Destroy(t.gameObject);
+                }
+            }
             _dealerCardTransforms.Clear();
         }
 
-        /// <summary>
-        /// Toggles the entire gameplay visual canvas interaction state cleanly.
-        /// </summary>
         public void SetInteractionState(bool canInteract) {
             _hitButton.SetEnabled(canInteract);
             _standButton.SetEnabled(canInteract);
@@ -143,10 +142,7 @@ namespace CardFramework.Presentation.Views {
                 return;
             }
 
-            // _screenContainer.SetEnabled(canInteract); // If we set enabled to false we won't be able to click in Deal New Hand, so we need to use pickingMode instead
             _screenContainer.pickingMode = canInteract ? PickingMode.Position : PickingMode.Ignore;
-
-            Debug.Log($"[{name}]: Interaction state set to {(canInteract ? "Enabled" : "Disabled")} for the entire Blackjack canvas.");
         }
 
         private void ValidateVisualTreeBindings() {
@@ -154,54 +150,78 @@ namespace CardFramework.Presentation.Views {
                 _playerScoreLabel == null || _dealerScoreLabel == null || _outcomeMessageLabel == null) {
                 Debug.LogError($"[{name}]: Missing critical VisualElements inside the UXML tree hierarchy. Verify element Names.");
             }
-            if (_hitButton == null) Debug.LogError($"[{name}]: Missing 'hit-button' VisualElement.");
-            if (_standButton == null) Debug.LogError($"[{name}]: Missing 'stand-button' VisualElement.");
-            if (_restartButton == null) Debug.LogError($"[{name}]: Missing 'restart-button' VisualElement.");
-            if (_playerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'player-score-label' VisualElement.");
-            if (_dealerScoreLabel == null) Debug.LogError($"[{name}]: Missing 'dealer-score-label' VisualElement.");
-            if (_outcomeMessageLabel == null) Debug.LogError($"[{name}]: Missing 'outcome-message-label' VisualElement.");
         }
 
         public void SpawnPhysicalCard(CardData card, bool isPlayer) {
-            Transform anchor = isPlayer ? playerSpawnAnchor : dealerSpawnAnchor;
-            System.Collections.Generic.List<Transform> activeList = isPlayer ? _playerCardTransforms : _dealerCardTransforms;
+            Transform targetAnchor = isPlayer ? playerSpawnAnchor : dealerSpawnAnchor;
+            List<Transform> activeList = isPlayer ? _playerCardTransforms : _dealerCardTransforms;
 
-            // Instantiate the physical asset as a direct child of its target spatial anchor
-            GameObject spawnedCard = Instantiate(cardPrefab, anchor);
+            Transform startPoint = deckSpawnAnchor != null ? deckSpawnAnchor : targetAnchor;
 
+            // 1. Instantiate new card at deck position
+            GameObject spawnedCard = Instantiate(cardPrefab, startPoint.position, startPoint.rotation, targetAnchor);
 
-            // Invoke your custom runtime card shader/atlas binder parameters
+            // 2. Configure card face graphics
             var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
             if (faceGenerator != null) {
                 CardData.Rank rank = card.CardRank;
                 bool isBlack = card.CardSuit == CardData.Suit.Spades || card.CardSuit == CardData.Suit.Clubs;
-                // Fetch your Suit icon from your asset database/cache as needed
                 Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(card.CardSuit) : null;
                 Sprite faceSprite = null;
                 if (card.CardRank == CardData.Rank.Jack || card.CardRank == CardData.Rank.Queen || card.CardRank == CardData.Rank.King) {
-                    // Fetch the face card sprite for Jack, Queen, King
                     faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(card) : null;
                 }
 
                 faceGenerator.GenerateCard(suitIcon, rank, faceSprite, isBlack);
             }
 
-
             activeList.Add(spawnedCard.transform);
 
-            // Dynamic auto-centering calculation for the entire hand layout
             int totalCards = activeList.Count;
-            float totalWidth = (totalCards - 1) * CardOffsetHorizontal;
+            int cardIndex = totalCards - 1;
+
+            // 3. Apply Z depth offset ONLY for player cards; dealer cards remain flat at Z = 0f
+            float depthOffset = isPlayer ? (cardIndex * CardOffsetDepth) : 0f;
+
+            float newCardTargetX = cardIndex * CardOffsetHorizontal - ((totalCards - 1) * CardOffsetHorizontal / 2f);
+            Vector3 flightTargetPos = new Vector3(newCardTargetX, 0f, depthOffset);
+
+            // 4. Phase 1: Animate ONLY the newly spawned card from deck to target anchor
+            spawnedCard.transform.DOKill();
+
+            Sequence dealSequence = DOTween.Sequence();
+            dealSequence.Join(spawnedCard.transform.DOLocalMove(flightTargetPos, dealDuration).SetEase(dealEase));
+            dealSequence.Join(spawnedCard.transform.DOLocalRotate(Vector3.zero, dealDuration).SetEase(dealEase));
+
+            // 5. Phase 2: Re-center hand on complete, passing isPlayer flag
+            dealSequence.OnComplete(() => {
+                ReCenterHand(activeList, isPlayer);
+            });
+        }
+
+        private void ReCenterHand(List<Transform> handTransforms, bool isPlayer) {
+            int count = handTransforms.Count;
+            if (count == 0) return;
+
+            float totalWidth = (count - 1) * CardOffsetHorizontal;
             float startX = -totalWidth / 2f;
 
-            // Reposition all existing cards in this hand relative to the local origin
-            for (int i = 0; i < totalCards; i++) {
-                float localX = startX + (i * CardOffsetHorizontal);
+            Sequence centerSequence = DOTween.Sequence();
 
-                // Keep local Y and Z at 0 so they respect the Anchor's native transform layout orientation
-                activeList[i].localPosition = new Vector3(localX, 0f, 0f);
-                activeList[i].localRotation = Quaternion.identity;
+            for (int i = 0; i < count; i++) {
+                Transform cardTransform = handTransforms[i];
+                if (cardTransform == null) continue;
+
+                float targetLocalX = startX + (i * CardOffsetHorizontal);
+                float targetLocalZ = isPlayer ? (i * CardOffsetDepth) : 0f;
+
+                Vector3 finalPos = new Vector3(targetLocalX, 0f, targetLocalZ);
+
+                cardTransform.DOKill();
+                centerSequence.Join(cardTransform.DOLocalMove(finalPos, 0.25f).SetEase(Ease.OutCubic));
+                centerSequence.Join(cardTransform.DOLocalRotate(Vector3.zero, 0.25f));
             }
         }
+
     }
 }

@@ -92,10 +92,13 @@ Expanding the framework to support persistence, cross-platform linking, and econ
     - [x] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
       - Design the central dashboard canvas in UXML/USS featuring a multi-game selection carousel and account status views.
       - Handle active scene context switching routines to seamlessly transition between Blackjack and secondary game slots.
-- [ ] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
+- [x] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
   - Integrate server-verified rewards and prevent device-clock tampering via PlayFab Time/Title Data.
 - [ ] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
   - Table and drag-and-drop controllers for secondary game states.
+  - [x] **TASK-4.5.1: 3D Physical Table Presentation & DOTween Motion**
+    - Implement two-phase card dealing pipeline (Fly-to-Hand + Auto Re-Center Sequence via DOTween).
+    - Prevent Z-fighting depth overlap through role-based incremental local Z-offset logic (player vs. dealer).
 ---
 
 ## 🥽 Epic 5: XR Integration & Deployment
