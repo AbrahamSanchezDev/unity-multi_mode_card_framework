@@ -19,6 +19,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly NavigationController _navigationController;
 
         private int _currentActiveWager = 0;
+        private bool _isBlackjackActive = true; // Default true or sync via switch event
 
         public BlackjackTableController(
             BlackjackEngine gameEngine,
@@ -124,6 +125,9 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleWagerConfirmed(int confirmedBet) {
+            // Guard clause: ignore bet confirmations if Blackjack is not active
+            if (!_isBlackjackActive) return;
+            
             _currentActiveWager = confirmedBet;
             Debug.Log($"[Match Flow] Wager verified: {_currentActiveWager} GD. Processing cloud debit transaction...");
 
@@ -135,12 +139,14 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleGameSwitchCompleted(string targetGameKey) {
-            Debug.Log($"[Blackjack Controller] Game switch completed to: {targetGameKey}. Resetting table state.");
-            if (targetGameKey.Equals("Blackjack", StringComparison.OrdinalIgnoreCase)) {
+            _isBlackjackActive = targetGameKey.Equals("Blackjack", StringComparison.OrdinalIgnoreCase);
+
+            if (_isBlackjackActive) {
+                Debug.Log("[Blackjack Controller] Switching to Blackjack.");
                 HandleRestart();
             }
             else {
-                Debug.Log($"[Blackjack Controller] Detected switch to a different game engine: {targetGameKey}. Cleaning up Blackjack state.");
+                Debug.Log($"[Blackjack Controller] Disabling Blackjack state for {targetGameKey}.");
                 _uiView.ClearTable();
                 _uiView.SetInteractionState(false);
             }

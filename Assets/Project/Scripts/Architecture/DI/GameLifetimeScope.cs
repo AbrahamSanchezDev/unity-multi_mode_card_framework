@@ -22,6 +22,8 @@ namespace CardFramework.Architecture.DI {
     public class GameLifetimeScope : LifetimeScope {
         [Header("UI Presentation Hierarchy References")]
         [SerializeField] private BlackjackView blackjackViewInstance;
+        [SerializeField] private SolitaireView solitaireView;
+
         [Header("Global Infrastructure UI References")]
         [SerializeField] private ModalServiceView modalServiceViewInstance;
         [SerializeField] private BettingModalView bettingModalView;
@@ -34,63 +36,57 @@ namespace CardFramework.Architecture.DI {
 
         protected override void Configure(IContainerBuilder builder) {
 
-            // Core Data Models & Decks (Transient so each engine gets a unique stack)
+            // ---- CORE DATA MODELS & ENGINES ----
+            // Decks & Game Engines registered as Transient/Scoped for isolated state
             builder.Register<Deck>(Lifetime.Transient);
-
-            // Register Core Game Engines as Transients.
-            // This ensures every time a new game scene or table is loaded, 
-            // a fresh, isolated logic instance is provided without cross-contamination.
             builder.Register<BlackjackEngine>(Lifetime.Transient);
             builder.Register<TexasHoldemEngine>(Lifetime.Transient);
+            builder.Register<SolitaireEngine>(Lifetime.Scoped);
 
-            // Note: If SolitaireEngine is implemented as a non-static engine, 
-            // register it here matching the same lifecycle.
-            builder.Register<SolitaireEngine>(Lifetime.Transient);
-
-            // [Extension Point] Future Cloud & Network Services will be registered here.
-            // e.g., builder.Register<IAuthenticationService, CloudAuthService>(Lifetime.Singleton);
-
-            // Cloud Infrastructure Contracts (Singletons)
-            // Binding contracts directly to PlayFab concrete services seamlessly
-            // PlayFab Cloud Service Infrastructure Injection
+            // ---- CLOUD & INFRASTRUCTURE SERVICES (SINGLETONS) ----
             builder.Register<ICloudService, PlayFabCloudService>(Lifetime.Singleton);
             builder.Register<IAuthenticationService, PlayFabAuthService>(Lifetime.Singleton);
             builder.Register<ICloudSaveService, PlayFabDataService>(Lifetime.Singleton);
-
-            // Registering our new server-authoritative Gold Economy System
             builder.Register<IEconomyService, PlayFabEconomyService>(Lifetime.Singleton);
-
-            // Multi-Platform Input Architecture Adapter
             builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
-
             builder.Register<ITimeService, PlayFabTimeService>(Lifetime.Singleton);
             builder.Register<CloudMailboxManager>(Lifetime.Singleton);
+
             // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
+            if (blackjackViewInstance != null) {
+                builder.RegisterComponent(blackjackViewInstance).As<IBlackjackView>();
+            }
 
-            // Registering the view instance present inside the active Unity Scene Hierarchy to satisfy both contracts
-            builder.RegisterInstance<IBlackjackView>(blackjackViewInstance);
-            builder.RegisterInstance<IModalService>(modalServiceViewInstance);
+            if (modalServiceViewInstance != null) {
+                builder.RegisterComponent(modalServiceViewInstance).As<IModalService>();
+            }
 
-            builder.RegisterComponent(dashboardMenuView);
+            if (solitaireView != null) {
+                builder.RegisterComponent(solitaireView).As<ISolitaireView>();
+            }
 
-            builder.RegisterComponent(notificationSidebarViewInstance);
+            if (dashboardMenuView != null) {
+                builder.RegisterComponent(dashboardMenuView);
+            }
 
-            // VContainer automatically detects 'IInitializable' on entry points registered as EntryPoints
-            // Registering the POCO entry point controller to bind into the Unity Engine lifecycle automatically
-            builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<CloudInitializationController>();
+            if (notificationSidebarViewInstance != null) {
+                builder.RegisterComponent(notificationSidebarViewInstance);
+            }
 
+            if (bettingModalView != null) {
+                builder.RegisterComponent(bettingModalView);
+            }
 
-            // Navigation Controller registered as EntryPoint for ITickable loops with custom parameter mapping
+            // ---- ENTRY POINT CONTROLLERS ----
+            builder.RegisterEntryPoint<CloudInitializationController>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<SolitaireTableController>(Lifetime.Scoped);
+
+            // Navigation Controller registered as EntryPoint for ITickable loops
             builder.RegisterEntryPoint<NavigationController>()
                 .WithParameter(menuActionReference)
                 .WithParameter(tableManager)
                 .AsSelf();
-
-            // Component Views
-            builder.RegisterComponent(bettingModalView);
-
-
         }
     }
 }

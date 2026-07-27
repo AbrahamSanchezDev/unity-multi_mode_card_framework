@@ -53,6 +53,7 @@ namespace CardFramework.Presentation.Views {
 
         private void OnEnable() {
             var uiDocument = GetComponent<UIDocument>();
+            uiDocument.enabled = true;
             _root = uiDocument.rootVisualElement;
             _screenContainer = _root.Q<VisualElement>(className: "screen-container");
             _hitButton = _root.Q<Button>("hit-button");
@@ -164,15 +165,7 @@ namespace CardFramework.Presentation.Views {
             // 2. Configure card face graphics
             var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
             if (faceGenerator != null) {
-                CardData.Rank rank = card.CardRank;
-                bool isBlack = card.CardSuit == CardData.Suit.Spades || card.CardSuit == CardData.Suit.Clubs;
-                Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(card.CardSuit) : null;
-                Sprite faceSprite = null;
-                if (card.CardRank == CardData.Rank.Jack || card.CardRank == CardData.Rank.Queen || card.CardRank == CardData.Rank.King) {
-                    faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(card) : null;
-                }
-
-                faceGenerator.GenerateCard(suitIcon, rank, faceSprite, isBlack);
+                faceGenerator.GenerateCard(card,cardsGraphics);
             }
 
             activeList.Add(spawnedCard.transform);

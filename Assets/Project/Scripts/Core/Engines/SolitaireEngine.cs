@@ -45,6 +45,23 @@ namespace CardFramework.Core.Engines {
             }
         }
 
+        /// <summary>
+        /// Draws a card from stock into waste, or recycles waste back into stock if empty.
+        /// </summary>
+        public void DrawCard() {
+            if (stock.Count > 0) {
+                CardData drawnCard = stock[^1];
+                stock.RemoveAt(stock.Count - 1);
+                waste.Add(drawnCard);
+            } else if (waste.Count > 0) {
+                // Recycle waste back to stock
+                for (int i = waste.Count - 1; i >= 0; i--) {
+                    stock.Add(waste[i]);
+                }
+                waste.Clear();
+            }
+        }
+
         public bool CanPlaceOnTableau(CardData card, int column) {
             if (column < 0 || column >= 7)
                 return false;
@@ -81,12 +98,13 @@ namespace CardFramework.Core.Engines {
 
         private int GetColor(CardData.Suit suit) {
             // Red: Diamonds, Hearts; Black: Clubs, Spades
-            // Red: 0 (Diamonds, Hearts) | Black: 1 (Clubs, Spades)
             return suit == CardData.Suit.Diamonds || suit == CardData.Suit.Hearts ? 0 : 1;
         }
 
-        // getters exposed for the unit testing suite and view controllers
+        // Getters exposed for unit tests, controllers, and view rendering
         public List<CardData>[] GetTableau() => tableau;
         public List<CardData>[] GetFoundation() => foundation;
+        public List<CardData> GetStock() => stock;
+        public List<CardData> GetWaste() => waste;
     }
 }

@@ -217,6 +217,18 @@ namespace CardFramework.Presentation.Views {
             GenerateAndApplyTexture();
         }
 
+        public void GenerateCard(CardData cardData, CardsGraphics cardsGraphics) {
+            // Configure card face graphics
+            CardData.Rank rank = cardData.CardRank;
+            bool isBlack = cardData.CardSuit == CardData.Suit.Spades || cardData.CardSuit == CardData.Suit.Clubs;
+            Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(cardData.CardSuit) : null;
+            Sprite faceSprite = null;
+            if (cardData.CardRank == CardData.Rank.Jack || cardData.CardRank == CardData.Rank.Queen || cardData.CardRank == CardData.Rank.King) {
+                faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(cardData) : null;
+            }
+            GenerateCard(suitIcon, rank, faceSprite, isBlack);
+        }
+
         [ContextMenu("Preview Card On Target Renderer")]
         public void PreviewCard() {
             GenerateAndApplyTexture();

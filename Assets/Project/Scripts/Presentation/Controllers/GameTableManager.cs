@@ -12,6 +12,8 @@ namespace CardFramework.Presentation.Controllers {
             public Transform PlayerSpawnPoint;       // Position and rotation where the player/VR rig will move
             public GameObject TableVisualsRoot;      // Physical table assets, chairs, lights to toggle
 
+            public GameObject[] VisualObjsForGame;
+
             public UIDocument TableUiDocument;        // Optional VR world-space UI linked to this specific table
         }
 
@@ -63,6 +65,11 @@ namespace CardFramework.Presentation.Controllers {
 
                 if (table.TableVisualsRoot != null) {
                     table.TableVisualsRoot.SetActive(isActiveTarget);
+                }
+                if (table.VisualObjsForGame != null) {
+                    for (int i = 0; i < table.VisualObjsForGame.Length; i++) {
+                        table.VisualObjsForGame[i].SetActive(isActiveTarget);
+                    }
                 }
 
                 if (table.TableUiDocument != null) {
