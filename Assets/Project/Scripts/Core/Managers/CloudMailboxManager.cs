@@ -129,5 +129,17 @@ namespace CardFramework.Core.Managers {
 
             return tcs.Task;
         }
+    
+        public async Task<TimeSpan> GetRemainingCooldownAsync() {
+            // Pull authoritative server time from ITimeService
+            DateTime serverTime = await _timeService.GetServerTimeUtcAsync();
+            
+            // Assuming daily reset occurs at 00:00 UTC (Midnight)
+            DateTime nextResetUtc = serverTime.Date.AddDays(1);
+            
+            TimeSpan remaining = nextResetUtc - serverTime;
+            return remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
+        }
+    
     }
 }

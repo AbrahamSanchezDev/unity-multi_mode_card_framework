@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -30,7 +31,7 @@ namespace CardFramework.Presentation.Views {
         private NotificationItem _selectedActiveItem;
         private CloudMailboxManager _mailboxManager;
         private ICloudService _authService; // Swapped to Interface contract
-
+        private Coroutine _cooldownTimerCoroutine;
         private bool _isSidebarOpen = false;
         private bool _isInitialized = false;
 
@@ -49,6 +50,13 @@ namespace CardFramework.Presentation.Views {
 
         private void OnEnable() {
             InitUi();
+        }
+
+        private void OnDisable() {
+            if (_authService != null) {
+                _authService.OnAuthenticationSuccess -= OnLoginSuccess;
+            }
+            StopCooldownTimer();
         }
 
         private void OnLoginSuccess() {
@@ -186,18 +194,77 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private void OnNotificationItemClicked(NotificationItem item) {
+        private async void OnNotificationItemClicked(NotificationItem item) {
             _selectedActiveItem = item;
 
             if (_lblModalTitle != null) _lblModalTitle.text = item.Title;
             if (_lblModalBody != null) _lblModalBody.text = item.Description;
 
-            if (_btnClaimReward != null) {
-                _btnClaimReward.style.display = (item.RewardAmount > 0 && !item.IsClaimed) ? DisplayStyle.Flex : DisplayStyle.None;
+            StopCooldownTimer();
+
+            if (item.IsClaimed && item.RewardAmount > 0) {
+                // Item is already claimed — trigger the live server countdown loop
+                _btnClaimReward.style.display = DisplayStyle.Flex;
+                _btnClaimReward.SetEnabled(false);
+
+                if (_mailboxManager != null) {
+                    TimeSpan initialCooldown = await _mailboxManager.GetRemainingCooldownAsync();
+                    _cooldownTimerCoroutine = StartCoroutine(RunCooldownTimerRoutine(initialCooldown));
+                }
+            }
+            else if (item.RewardAmount > 0 && !item.IsClaimed) {
+                // Item is ready to be claimed
+                _btnClaimReward.style.display = DisplayStyle.Flex;
+                _btnClaimReward.SetEnabled(true);
                 _btnClaimReward.text = $"CLAIM {item.RewardAmount} GOLD";
+            }
+            else {
+                _btnClaimReward.style.display = DisplayStyle.None;
             }
 
             OpenMailModal(true);
+        }
+
+        private IEnumerator RunCooldownTimerRoutine(TimeSpan initialCooldown) {
+            TimeSpan remaining = initialCooldown;
+
+            // Direct C# style overrides to fix low contrast on disabled state
+            _btnClaimReward.style.color = new StyleColor(new Color(0.9f, 0.75f, 0.3f)); // Gold/Yellow tint to match header
+            _btnClaimReward.style.backgroundColor = new StyleColor(new Color(0.12f, 0.12f, 0.12f, 0.9f)); // Dark background container
+
+            while (remaining.TotalSeconds > 0) {
+                _btnClaimReward.text = $"NEXT CLAIM IN: {FormatTimeSpan(remaining)}";
+                yield return new WaitForSecondsRealtime(1.0f);
+                remaining = remaining.Subtract(TimeSpan.FromSeconds(1));
+            }
+            
+            // Reset styles back when available again
+            _btnClaimReward.style.color = StyleKeyword.Null;
+            _btnClaimReward.style.backgroundColor = StyleKeyword.Null;
+
+            // Cooldown finished while modal was open
+            _btnClaimReward.text = "REFRESHING...";
+            _ = LoadNotificationsAsync();
+
+            if (_selectedActiveItem != null) {
+                _selectedActiveItem.IsClaimed = false;
+                _btnClaimReward.SetEnabled(true);
+                _btnClaimReward.text = $"CLAIM {_selectedActiveItem.RewardAmount} GOLD";
+            }
+        }
+
+        private string FormatTimeSpan(TimeSpan span) {
+            if (span.TotalHours >= 1) {
+                return $"{span.Hours:D2}h {span.Minutes:D2}m {span.Seconds:D2}s";
+            }
+            return $"{span.Minutes:D2}m {span.Seconds:D2}s";
+        }
+
+        private void StopCooldownTimer() {
+            if (_cooldownTimerCoroutine != null) {
+                StopCoroutine(_cooldownTimerCoroutine);
+                _cooldownTimerCoroutine = null;
+            }
         }
 
         private async void HandleClaimClicked() {
@@ -206,28 +273,27 @@ namespace CardFramework.Presentation.Views {
 
             _btnClaimReward.SetEnabled(false);
             _btnClaimReward.text = "PROCESSING...";
-            _btnClaimReward.style.backgroundColor = Color.white;
 
             bool success = await _mailboxManager.TryClaimDailyRewardAsync(_selectedActiveItem.RewardAmount);
 
             if (success) {
                 _selectedActiveItem.IsClaimed = true;
-                _btnClaimReward.text = "CLAIMED ✔";
-                OpenMailModal(false);
-
                 OnClaimRewardCompleted?.Invoke(_selectedActiveItem);
                 await LoadNotificationsAsync();
+
+                // Immediately switch over to the live countdown timer upon successful claim
+                TimeSpan initialCooldown = await _mailboxManager.GetRemainingCooldownAsync();
+                _cooldownTimerCoroutine = StartCoroutine(RunCooldownTimerRoutine(initialCooldown));
             }
             else {
-                _btnClaimReward.text = "COOLDOWN ACTIVE!";
-                _btnClaimReward.style.backgroundColor = Color.red;
+                _btnClaimReward.text = "CLAIM FAILED";
+                _btnClaimReward.SetEnabled(true);
             }
-
-            _btnClaimReward.SetEnabled(true);
         }
 
         private void OpenMailModal(bool open) {
             if (_mailModalOverlay == null) return;
+            if (!open) StopCooldownTimer();
             _mailModalOverlay.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
         }
 

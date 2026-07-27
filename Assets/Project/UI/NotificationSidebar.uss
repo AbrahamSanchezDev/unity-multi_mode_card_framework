@@ -110,3 +110,20 @@
     font-size: 10px;
     margin-top: 2px;
 }
+
+/* Base style for the modal claim button */
+#btn-claim-reward {
+    background-color: #d4af37;
+    color: #0d0d0d;
+    font-size: 14px;
+    -unity-font-style: bold;
+    border-radius: 4px;
+    padding: 10px 20px;
+}
+
+/* Override UI Toolkit default opacity reduction when disabled */
+#btn-claim-reward:disabled {
+    background-color: #2a2d2f;
+    color: #e0e0e0; /* High-contrast off-white/light gray text */
+    opacity: 1;    /* Prevents default UI Toolkit opacity dimming */
+}
