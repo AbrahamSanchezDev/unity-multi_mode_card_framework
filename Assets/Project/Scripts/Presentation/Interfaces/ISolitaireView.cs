@@ -13,6 +13,9 @@ namespace CardFramework.Presentation.Interfaces {
         void ClearTable();
         void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste);
         void UpdateWalletBalance(int balance);
+        void UpdateFoundationScore(int foundationCount, int totalCards);
+        void DisplayOutcome(string message);
+        void ClearOutcome();
         void SetInteractionState(bool canInteract);
     }
 }

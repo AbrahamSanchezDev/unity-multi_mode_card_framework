@@ -125,16 +125,30 @@ namespace CardFramework.Presentation.Controllers {
             _solitaireView?.RenderLayout(
                 _engine.GetTableau(),
                 _engine.GetFoundation(),
-                // Note: Expose stock and waste getters in SolitaireEngine if not already available
                 _engine.GetStock(),
                 _engine.GetWaste()
             );
+
+            _solitaireView?.UpdateFoundationScore(GetFoundationCount(), 52);
+            _solitaireView?.ClearOutcome();
         }
 
         private void HandleBalanceUpdated(int newBalance) {
             if (_isSolitaireActive) {
                 _solitaireView?.UpdateWalletBalance(newBalance);
             }
+        }
+
+        private int GetFoundationCount() {
+            int total = 0;
+            var foundation = _engine.GetFoundation();
+            if (foundation == null) return total;
+
+            for (int i = 0; i < foundation.Length; i++) {
+                if (foundation[i] != null) total += foundation[i].Count;
+            }
+
+            return total;
         }
 
         private void HandleStockTapped() {
@@ -197,6 +211,8 @@ namespace CardFramework.Presentation.Controllers {
                     int payout = _currentWager * 5;
                     _economyService.CreditGold(payout);
                 }
+
+                _solitaireView?.DisplayOutcome("SOLITAIRE CLEARED!");
             }
         }
     }

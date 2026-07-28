@@ -418,6 +418,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 250664966}
+  - component: {fileID: 250664967}
+  - component: {fileID: 250664968}
   m_Layer: 0
   m_Name: Tableau (5)
   m_TagString: Untagged
@@ -441,6 +443,42 @@ Transform:
   - {fileID: 563694801}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &250664967
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250664965}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &250664968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250664965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 4
+  visuals:
+  - {fileID: 563694800}
 --- !u!1 &309467040
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,14 +734,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 375430656}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0.52, y: 0, z: -0.073}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1229393003}
   m_Father: {fileID: 1868630775}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 180}
 --- !u!114 &375430658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -962,19 +1000,19 @@ MonoBehaviour:
   cardPrefab: {fileID: 3061051009987425311, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
   stockAnchor: {fileID: 1308137157}
   wasteAnchor: {fileID: 1601864630}
-  foundationAnchors:
-  - {fileID: 1489124751}
-  - {fileID: 944148543}
-  - {fileID: 375430657}
-  - {fileID: 1898893882}
-  tableauAnchors:
-  - {fileID: 1536654967}
-  - {fileID: 1404024055}
-  - {fileID: 1907544952}
-  - {fileID: 829651978}
-  - {fileID: 250664966}
-  - {fileID: 1087131250}
-  - {fileID: 1396865129}
+  foundationDropTargets:
+  - {fileID: 1489124752}
+  - {fileID: 944148544}
+  - {fileID: 375430658}
+  - {fileID: 1898893883}
+  tableauDropTargets:
+  - {fileID: 1536654969}
+  - {fileID: 1404024057}
+  - {fileID: 1907544954}
+  - {fileID: 829651980}
+  - {fileID: 250664968}
+  - {fileID: 1087131252}
+  - {fileID: 1396865130}
   tableauCascadeOffset: {x: 0, y: 0, z: -0.035}
   cardThicknessOffset: 0.0002
   dropDetectionRadius: 0.15
@@ -1121,6 +1159,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 829651978}
+  - component: {fileID: 829651979}
+  - component: {fileID: 829651980}
   m_Layer: 0
   m_Name: Tableau (4)
   m_TagString: Untagged
@@ -1144,6 +1184,42 @@ Transform:
   - {fileID: 109209352}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &829651979
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829651977}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &829651980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829651977}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 3
+  visuals:
+  - {fileID: 109209351}
 --- !u!1 &829759083
 GameObject:
   m_ObjectHideFlags: 0
@@ -1394,14 +1470,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 944148542}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0.424, y: 0, z: -0.073}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 532923641}
   m_Father: {fileID: 1868630775}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 180}
 --- !u!114 &944148544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1563,7 +1639,7 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 32.580635
+  m_FocalLength: 20.97749
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
@@ -1578,7 +1654,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 47.968197
+  field of view: 69.2873
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1681,6 +1757,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1087131250}
+  - component: {fileID: 1087131251}
+  - component: {fileID: 1087131252}
   m_Layer: 0
   m_Name: Tableau (6)
   m_TagString: Untagged
@@ -1704,6 +1782,42 @@ Transform:
   - {fileID: 867354682}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &1087131251
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087131249}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1087131252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087131249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 5
+  visuals:
+  - {fileID: 867354681}
 --- !u!1 &1114632459
 GameObject:
   m_ObjectHideFlags: 0
@@ -2039,7 +2153,7 @@ Transform:
   m_GameObject: {fileID: 1256187644}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7084962, y: -0, z: -0, w: 0.7057147}
-  m_LocalPosition: {x: 0.4, y: 0.58, z: -0.375}
+  m_LocalPosition: {x: 0.4, y: 0.58, z: -0.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2198,6 +2312,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1396865129}
+  - component: {fileID: 1396865131}
+  - component: {fileID: 1396865130}
   m_Layer: 0
   m_Name: Tableau (7)
   m_TagString: Untagged
@@ -2221,6 +2337,42 @@ Transform:
   - {fileID: 24234275}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!114 &1396865130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396865128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 6
+  visuals:
+  - {fileID: 24234274}
+--- !u!65 &1396865131
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396865128}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1404024054
 GameObject:
   m_ObjectHideFlags: 0
@@ -2230,6 +2382,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1404024055}
+  - component: {fileID: 1404024056}
+  - component: {fileID: 1404024057}
   m_Layer: 0
   m_Name: Tableau (2)
   m_TagString: Untagged
@@ -2253,6 +2407,42 @@ Transform:
   - {fileID: 618331422}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &1404024056
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1404024054}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1404024057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1404024054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 1
+  visuals:
+  - {fileID: 618331421}
 --- !u!1 &1489124750
 GameObject:
   m_ObjectHideFlags: 0
@@ -2279,14 +2469,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1489124750}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0.333, y: 0, z: -0.073}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1836004279}
   m_Father: {fileID: 1868630775}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 180}
 --- !u!114 &1489124752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2330,6 +2520,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1536654967}
+  - component: {fileID: 1536654968}
+  - component: {fileID: 1536654969}
   m_Layer: 0
   m_Name: Tableau (1)
   m_TagString: Untagged
@@ -2353,6 +2545,42 @@ Transform:
   - {fileID: 1849810725}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &1536654968
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1536654966}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1536654969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1536654966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 0
+  visuals:
+  - {fileID: 1849810724}
 --- !u!1 &1537347077
 GameObject:
   m_ObjectHideFlags: 0
@@ -2957,14 +3185,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1898893881}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0.616, y: 0, z: -0.073}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 61987710}
   m_Father: {fileID: 1868630775}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 180}
 --- !u!114 &1898893883
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3076,6 +3304,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1907544952}
+  - component: {fileID: 1907544953}
+  - component: {fileID: 1907544954}
   m_Layer: 0
   m_Name: Tableau (3)
   m_TagString: Untagged
@@ -3099,6 +3329,42 @@ Transform:
   - {fileID: 908390092}
   m_Father: {fileID: 956844177}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!65 &1907544953
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907544951}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07, y: 0.1, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1907544954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907544951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cde17d9c3a7446a4d07863741865c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.TableauDropTarget
+  columnIndex: 2
+  visuals:
+  - {fileID: 908390091}
 --- !u!1 &1984778155
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ namespace CardFramework.Presentation.Views {
         private Button _btnRestart;
         private Button _btnMenu;
         private Button _btnDraw;
+        private Label _lblFoundationScore;
+        private VisualElement _outcomeMessageVisualElement;
 
         public event Action OnStockTapped;
         public event Action OnRestartRequested;
@@ -32,8 +34,8 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private GameObject cardPrefab;
         [SerializeField] private Transform stockAnchor;
         [SerializeField] private Transform wasteAnchor;
-        [SerializeField] private Transform[] foundationAnchors = new Transform[4];
-        [SerializeField] private Transform[] tableauAnchors = new Transform[7];
+        [SerializeField] private FoundationDropTarget[] foundationDropTargets = new FoundationDropTarget[4];
+        [SerializeField] private TableauDropTarget[] tableauDropTargets = new TableauDropTarget[7];
 
         [Header("Cascade Offsets")]
         [SerializeField] private Vector3 tableauCascadeOffset = new Vector3(0f, 0f, -0.035f);
@@ -62,6 +64,8 @@ namespace CardFramework.Presentation.Views {
                     _btnRestart = _root.Q<Button>("btn-restart");
                     _btnMenu = _root.Q<Button>("btn-hamburger-menu");
                     _btnDraw = _root.Q<Button>("btn-draw");
+                    _lblFoundationScore = _root.Q<Label>("foundation-score-label");
+                    _outcomeMessageVisualElement = _root.Q<VisualElement>("outcome-message-label");
 
                     if (_btnRestart != null) _btnRestart.clicked += HandleRestartClicked;
                     if (_btnMenu != null) _btnMenu.clicked += HandleMenuClicked;
@@ -76,6 +80,19 @@ namespace CardFramework.Presentation.Views {
                 pointerPressAction.action.Enable();
                 pointerPressAction.action.started += HandlePointerPressed;
                 pointerPressAction.action.canceled += HandlePointerReleased;
+            }
+
+            for (int i = 0; i < tableauDropTargets.Length; i++) {
+                if (tableauDropTargets[i] != null) {
+                    var theIndex = i;
+                    tableauDropTargets[i].SetColumnIndex(theIndex);
+                }
+            }
+            for (int i = 0; i < foundationDropTargets.Length; i++) {
+                if (foundationDropTargets[i] != null) {
+                    var theIndex = i;
+                    foundationDropTargets[i].SetFoundationIndex(theIndex);
+                }
             }
         }
 
@@ -282,10 +299,10 @@ namespace CardFramework.Presentation.Views {
                 }
             }
 
-            for (int f = 0; f < foundationAnchors.Length; f++) {
-                if (foundationAnchors[f] != null) {
-                    var target = foundationAnchors[f].GetComponent<FoundationDropTarget>();
-                    if (target != null && Vector3.Distance(_currentDragWorldPosition, foundationAnchors[f].position) <= dropDetectionRadius) {
+            for (int f = 0; f < foundationDropTargets.Length; f++) {
+                if (foundationDropTargets[f] != null) {
+                    var target = foundationDropTargets[f].GetComponent<FoundationDropTarget>();
+                    if (target != null && Vector3.Distance(_currentDragWorldPosition, foundationDropTargets[f].transform.position) <= dropDetectionRadius) {
                         return target.FoundationIndex;
                     }
                 }
@@ -304,10 +321,21 @@ namespace CardFramework.Presentation.Views {
                 if (interactable != null && interactable.SourceColumnIndex >= 0) {
                     return interactable.SourceColumnIndex;
                 }
+
+                var tableauTarget = hit.collider.GetComponent<TableauDropTarget>() ?? hit.collider.GetComponentInParent<TableauDropTarget>();
+                if (tableauTarget != null) {
+                    return tableauTarget.ColumnIndex;
+                }
             }
 
-            for (int col = 0; col < tableauAnchors.Length; col++) {
-                if (tableauAnchors[col] != null && Vector3.Distance(_currentDragWorldPosition, tableauAnchors[col].position) <= dropDetectionRadius) {
+            for (int col = 0; col < tableauDropTargets.Length; col++) {
+                if (tableauDropTargets[col] != null && Vector3.Distance(_currentDragWorldPosition, tableauDropTargets[col].transform.position) <= dropDetectionRadius) {
+                    return tableauDropTargets[col].ColumnIndex;
+                }
+            }
+
+            for (int col = 0; col < tableauDropTargets.Length; col++) {
+                if (tableauDropTargets[col] != null && Vector3.Distance(_currentDragWorldPosition, tableauDropTargets[col].transform.position) <= dropDetectionRadius) {
                     return col;
                 }
             }
@@ -318,10 +346,20 @@ namespace CardFramework.Presentation.Views {
         public void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste) {
             ClearTable();
 
+            if (tableauDropTargets != null) {
+                for (int i = 0; i < tableauDropTargets.Length && i < tableau.Length; i++) {
+                    var target = tableauDropTargets[i];
+                    if (target != null) {
+                        bool enableTarget = tableau[i] == null || tableau[i].Count == 0;
+                        target.SetEnabled(enableTarget);
+                    }
+                }
+            }
+
             // 1. Render Tableau Columns
-            for (int col = 0; col < tableau.Length && col < tableauAnchors.Length; col++) {
+            for (int col = 0; col < tableau.Length && col < tableauDropTargets.Length; col++) {
                 var columnCards = tableau[col];
-                Transform anchor = tableauAnchors[col];
+                Transform anchor = tableauDropTargets[col].transform;
                 if (anchor == null) continue;
 
                 for (int i = 0; i < columnCards.Count; i++) {
@@ -352,9 +390,9 @@ namespace CardFramework.Presentation.Views {
             }
 
             // 4. Render Foundations
-            for (int f = 0; f < foundation.Length && f < foundationAnchors.Length; f++) {
+            for (int f = 0; f < foundation.Length && f < foundationDropTargets.Length; f++) {
                 var fCards = foundation[f];
-                Transform anchor = foundationAnchors[f];
+                Transform anchor = foundationDropTargets[f].transform;
                 if (anchor == null) continue;
 
                 if (fCards.Count > 0) {
@@ -406,6 +444,24 @@ namespace CardFramework.Presentation.Views {
                 _lblWalletBalance.text = $"Balance: {balance} GD";
         }
 
+        public void UpdateFoundationScore(int foundationCount, int totalCards) {
+            if (_lblFoundationScore != null)
+                _lblFoundationScore.text = $"Foundation: {foundationCount}/{totalCards}";
+        }
+
+        public void DisplayOutcome(string message) {
+            if (_outcomeMessageVisualElement != null) {
+                _outcomeMessageVisualElement.style.display = DisplayStyle.Flex;
+                var label = _outcomeMessageVisualElement.Q<Label>();
+                if (label != null) label.text = message;
+            }
+        }
+
+        public void ClearOutcome() {
+            if (_outcomeMessageVisualElement != null)
+                _outcomeMessageVisualElement.style.display = DisplayStyle.None;
+        }
+
         public void SetInteractionState(bool canInteract) {
             if (_btnRestart != null) _btnRestart.SetEnabled(canInteract);
         }
@@ -416,6 +472,13 @@ namespace CardFramework.Presentation.Views {
             }
             _spawnedCards.Clear();
             _spawnedInteractables.Clear();
+            ClearOutcome();
+
+            if (tableauDropTargets != null) {
+                foreach (var target in tableauDropTargets) {
+                    target?.SetEnabled(false);
+                }
+            }
         }
     }
 }

@@ -6,5 +6,9 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private int foundationIndex;
 
         public int FoundationIndex => foundationIndex;
+
+        public void SetFoundationIndex(int index) {
+            foundationIndex = index;
+        }
     }
 }
