@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
 using CardFramework.Core.Engines;
@@ -143,28 +144,46 @@ namespace CardFramework.Presentation.Controllers {
             RefreshTableLayout();
         }
 
-        private void HandleTableauDrop(CardData card, int targetColumn) {
+        private void HandleTableauDrop(List<CardData> cards, int sourceColumn, int startIndex, int targetColumn) {
             if (!_isSolitaireActive) return;
-            TryMoveToTableau(card, targetColumn);
+            if (!TryMoveToTableau(cards, sourceColumn, startIndex, targetColumn)) {
+                RefreshTableLayout(); // Resets positions if move rejected by rules
+            }
         }
 
-        private void HandleFoundationDrop(CardData card, int suitIndex) {
+        private void HandleFoundationDrop(List<CardData> cards, int suitIndex) {
             if (!_isSolitaireActive) return;
-            TryMoveToFoundation(card, suitIndex);
+            if (cards == null || cards.Count == 0) {
+                RefreshTableLayout();
+                return;
+            }
+
+            if (!TryMoveToFoundation(cards, suitIndex)) {
+                RefreshTableLayout(); // Resets positions if move rejected by rules
+            }
         }
 
-        public bool TryMoveToTableau(CardData card, int targetColumn) {
-            if (_engine.CanPlaceOnTableau(card, targetColumn)) {
-                _engine.GetTableau()[targetColumn].Add(card);
+        public bool TryMoveToTableau(List<CardData> cards, int sourceColumn, int startIndex, int targetColumn) {
+            if (cards == null || cards.Count == 0) return false;
+            if (sourceColumn == targetColumn) return false;
+
+            var landingCard = cards[0];
+            if (_engine.CanPlaceOnTableau(landingCard, targetColumn)) {
+                _engine.MoveCardsToTableau(cards, sourceColumn, startIndex, targetColumn);
+                RefreshTableLayout();
                 CheckVictoryCondition();
                 return true;
             }
             return false;
         }
 
-        public bool TryMoveToFoundation(CardData card, int suitIndex) {
-            if (_engine.CanPlaceOnFoundation(card, suitIndex)) {
-                _engine.GetFoundation()[suitIndex].Add(card);
+        public bool TryMoveToFoundation(List<CardData> cards, int suitIndex) {
+            if (cards == null || cards.Count == 0) return false;
+
+            var topCard = cards[^1];
+            if (_engine.CanPlaceOnFoundation(topCard, suitIndex)) {
+                _engine.MoveCardsToFoundation(cards, suitIndex);
+                RefreshTableLayout();
                 CheckVictoryCondition();
                 return true;
             }

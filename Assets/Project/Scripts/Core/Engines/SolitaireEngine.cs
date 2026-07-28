@@ -39,6 +39,14 @@ namespace CardFramework.Core.Engines {
                 }
             }
 
+            // Only the top card in each tableau column starts face up.
+            for (int col = 0; col < 7; col++) {
+                if (tableau[col].Count > 0) {
+                    var topCard = tableau[col][^1];
+                    tableau[col][^1] = new CardData(topCard.CardSuit, topCard.CardRank, true);
+                }
+            }
+
             // Remaining cards go to stock draw pile
             while (!deck.IsEmpty) {
                 stock.Add(deck.Draw());
@@ -83,12 +91,103 @@ namespace CardFramework.Core.Engines {
             if (suitIndex < 0 || suitIndex >= 4)
                 return false;
 
-            // Empty foundations can only accept Aces
+            // Empty foundations can only accept Aces, and the Ace determines the suit for that pile.
             if (foundation[suitIndex].Count == 0)
                 return card.CardRank == CardData.Rank.Ace;
 
             var topCard = foundation[suitIndex][foundation[suitIndex].Count - 1];
-            return (int)card.CardSuit == suitIndex && card.CardRank == topCard.CardRank + 1;
+            return card.CardSuit == topCard.CardSuit && card.CardRank == topCard.CardRank + 1;
+        }
+
+        public void MoveCardToTableau(CardData card, int column) {
+            if (column < 0 || column >= 7)
+                return;
+
+            RemoveCardFromTableau(card);
+            waste.Remove(card);
+            tableau[column].Add(new CardData(card.CardSuit, card.CardRank, isFaceUp: true));
+
+            if (tableau[column].Count > 0) {
+                var topCard = tableau[column][^1];
+                tableau[column][^1] = new CardData(topCard.CardSuit, topCard.CardRank, true);
+            }
+        }
+
+        public bool MoveCardsToTableau(List<CardData> cards, int sourceColumn, int startIndex, int targetColumn) {
+            if (cards == null || cards.Count == 0 || targetColumn < 0 || targetColumn >= 7)
+                return false;
+
+            if (!CanPlaceOnTableau(cards[0], targetColumn))
+                return false;
+
+            var movedCards = new List<CardData>(cards.Count);
+            for (int i = 0; i < cards.Count; i++) {
+                movedCards.Add(new CardData(cards[i].CardSuit, cards[i].CardRank, true));
+            }
+
+            if (sourceColumn >= 0 && sourceColumn < 7) {
+                if (sourceColumn == targetColumn)
+                    return false;
+
+                if (startIndex < 0 || startIndex >= tableau[sourceColumn].Count)
+                    return false;
+
+                var sourceColumnCards = tableau[sourceColumn];
+                int removeCount = sourceColumnCards.Count - startIndex;
+                sourceColumnCards.RemoveRange(startIndex, removeCount);
+                if (sourceColumnCards.Count > 0) {
+                    var revealedCard = sourceColumnCards[^1];
+                    sourceColumnCards[^1] = new CardData(revealedCard.CardSuit, revealedCard.CardRank, true);
+                }
+            }
+            else {
+                // Waste-originated cards are not removed from a tableau column; they are simply removed from the waste pile.
+                for (int i = 0; i < cards.Count; i++) {
+                    waste.Remove(cards[i]);
+                }
+            }
+
+            tableau[targetColumn].AddRange(movedCards);
+            return true;
+        }
+
+        public void MoveCardToFoundation(CardData card, int suitIndex) {
+            if (suitIndex < 0 || suitIndex >= 4)
+                return;
+
+            RemoveCardFromTableau(card);
+            waste.Remove(card);
+            foundation[suitIndex].Add(new CardData(card.CardSuit, card.CardRank, isFaceUp: true));
+        }
+
+        public bool MoveCardsToFoundation(List<CardData> cards, int suitIndex) {
+            if (cards == null || cards.Count == 0 || suitIndex < 0 || suitIndex >= 4)
+                return false;
+
+            if (!CanPlaceOnFoundation(cards[^1], suitIndex))
+                return false;
+
+            var movedCard = cards[^1];
+            RemoveCardFromTableau(movedCard);
+            waste.Remove(movedCard);
+            foundation[suitIndex].Add(new CardData(movedCard.CardSuit, movedCard.CardRank, isFaceUp: true));
+            return true;
+        }
+
+        private void RemoveCardFromTableau(CardData card) {
+            for (int i = 0; i < 7; i++) {
+                var column = tableau[i];
+                for (int j = 0; j < column.Count; j++) {
+                    if (column[j].Equals(card)) {
+                        column.RemoveAt(j);
+                        if (column.Count > 0) {
+                            var revealedCard = column[^1];
+                            column[^1] = new CardData(revealedCard.CardSuit, revealedCard.CardRank, true);
+                        }
+                        return;
+                    }
+                }
+            }
         }
 
         public bool HasWon() {

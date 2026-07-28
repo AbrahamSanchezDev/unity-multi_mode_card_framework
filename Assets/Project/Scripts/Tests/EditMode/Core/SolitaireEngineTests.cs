@@ -174,9 +174,138 @@ namespace CardFramework.Tests.EditMode.Core {
                 "Should allow Black 10 on Red Jack in sequence.");
         }
 
+        [Test]
+        public void MoveCardsToTableau_AllowsMultiCardRunWhenBottomCardMatchesTarget() {
+            // Arrange
+            engine.GetTableau()[0].Clear();
+            engine.GetTableau()[0].Add(new CardData(CardData.Suit.Hearts, CardData.Rank.Six, isFaceUp: true));
+            engine.GetTableau()[0].Add(new CardData(CardData.Suit.Spades, CardData.Rank.Five, isFaceUp: true));
+
+            engine.GetTableau()[1].Clear();
+            engine.GetTableau()[1].Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Seven, isFaceUp: true));
+
+            var draggedCards = new List<CardData> {
+                engine.GetTableau()[0][0],
+                engine.GetTableau()[0][1]
+            };
+
+            // Act
+            bool moved = engine.MoveCardsToTableau(draggedCards, 0, 0, 1);
+
+            // Assert
+            Assert.IsTrue(moved, "A multi-card run should be allowed when the bottom card of the run can legally land on the target column.");
+            Assert.AreEqual(2, engine.GetTableau()[1].Count, "The target column should receive the moved run.");
+        }
+
+        [Test]
+        public void MoveCardsToTableau_FromWaste_AllowsValidDropOntoTableauColumn() {
+            // Arrange
+            engine.Initialize();
+
+            var threeOfClubs = new CardData(CardData.Suit.Clubs, CardData.Rank.Three, isFaceUp: true);
+            engine.GetWaste().Clear();
+            engine.GetWaste().Add(threeOfClubs);
+
+            engine.GetTableau()[2].Clear();
+            engine.GetTableau()[2].Add(new CardData(CardData.Suit.Diamonds, CardData.Rank.Four, isFaceUp: true));
+
+            // Act
+            bool moved = engine.MoveCardsToTableau(new List<CardData> { threeOfClubs }, -1, -1, 2);
+
+            // Assert
+            Assert.IsTrue(moved, "A card from the waste pile should be allowed onto a valid tableau column.");
+            Assert.AreEqual(0, engine.GetWaste().Count, "The moved waste card should be removed from the waste pile.");
+            Assert.AreEqual(2, engine.GetTableau()[2].Count, "The target tableau column should contain the moved card.");
+            Assert.AreEqual(CardData.Rank.Three, engine.GetTableau()[2][^1].CardRank, "The moved card should be placed on top of the target column.");
+        }
+
+        [Test]
+        public void MoveCardsToFoundation_FromWaste_AllowsValidFoundationDrop() {
+            // Arrange
+            var twoOfSpades = new CardData(CardData.Suit.Spades, CardData.Rank.Two, isFaceUp: true);
+            engine.GetWaste().Clear();
+            engine.GetWaste().Add(twoOfSpades);
+
+            var spadesIndex = (int)CardData.Suit.Spades;
+            engine.GetFoundation()[spadesIndex].Clear();
+            engine.GetFoundation()[spadesIndex].Add(new CardData(CardData.Suit.Spades, CardData.Rank.Ace, isFaceUp: true));
+
+            // Act
+            bool moved = engine.MoveCardsToFoundation(new List<CardData> { twoOfSpades }, spadesIndex);
+
+            // Assert
+            Assert.IsTrue(moved, "A 2 of Spades from the waste pile should be allowed onto an Ace of Spades foundation.");
+            Assert.AreEqual(0, engine.GetWaste().Count, "The moved waste card should be removed from the waste pile.");
+            Assert.AreEqual(2, engine.GetFoundation()[spadesIndex].Count, "The foundation should contain the moved card.");
+        }
+
+        [Test]
+        public void MoveCardsToTableau_FromInteriorIndex_RemovesOnlyTheSelectedRun() {
+            // Arrange
+            engine.Initialize();
+            var sourceColumn = 0;
+            engine.GetTableau()[sourceColumn].Clear();
+            engine.GetTableau()[sourceColumn].Add(new CardData(CardData.Suit.Spades, CardData.Rank.King, isFaceUp: true));
+            engine.GetTableau()[sourceColumn].Add(new CardData(CardData.Suit.Hearts, CardData.Rank.Queen, isFaceUp: true));
+            engine.GetTableau()[sourceColumn].Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Jack, isFaceUp: true));
+
+            var targetColumn = 1;
+            engine.GetTableau()[targetColumn].Clear();
+
+            // Act
+            bool moved = engine.MoveCardsToTableau(new List<CardData> {
+                engine.GetTableau()[sourceColumn][1],
+                engine.GetTableau()[sourceColumn][2]
+            }, sourceColumn, 1, targetColumn);
+
+            // Assert
+            Assert.IsTrue(moved, "A run starting from an interior index should move correctly.");
+            Assert.AreEqual(1, engine.GetTableau()[sourceColumn].Count, "Only the cards from the selected index onward should be removed from the source column.");
+            Assert.AreEqual(2, engine.GetTableau()[targetColumn].Count, "The target column should receive the moved run.");
+        }
+
+        [Test]
+        public void MoveCardToTableau_PreservesFaceUpStateForMovedCardAndRevealsHiddenCard() {
+            // Arrange
+            var sourceColumn = 0;
+            var targetColumn = 1;
+
+            var hiddenCard = new CardData(CardData.Suit.Spades, CardData.Rank.Queen, isFaceUp: false);
+            var movedCard = new CardData(CardData.Suit.Hearts, CardData.Rank.King, isFaceUp: true);
+
+            engine.GetTableau()[sourceColumn].Clear();
+            engine.GetTableau()[sourceColumn].Add(hiddenCard);
+            engine.GetTableau()[sourceColumn].Add(movedCard);
+
+            engine.GetTableau()[targetColumn].Clear();
+            engine.GetTableau()[targetColumn].Add(new CardData(CardData.Suit.Clubs, CardData.Rank.Ten, isFaceUp: true));
+
+            // Act
+            engine.MoveCardToTableau(movedCard, targetColumn);
+
+            // Assert
+            Assert.IsTrue(engine.GetTableau()[targetColumn][^1].IsFaceUp, "The moved card should remain face up after a valid tableau move.");
+            Assert.IsTrue(engine.GetTableau()[sourceColumn][^1].IsFaceUp, "The newly revealed card should flip face up after the move.");
+        }
+
         #endregion
 
         #region Foundation Placement Tests
+
+        [Test]
+        public void CanPlaceOnFoundation_AllowsSameSuitSequenceAfterInitialAce() {
+            // Arrange
+            int foundationIndex = 0;
+            var foundation = engine.GetFoundation();
+            foundation[foundationIndex].Clear();
+
+            foundation[foundationIndex].Add(new CardData(CardData.Suit.Spades, CardData.Rank.Ace));
+            var twoOfSpades = new CardData(CardData.Suit.Spades, CardData.Rank.Two);
+
+            // Act & Assert
+            Assert.IsTrue(engine.CanPlaceOnFoundation(twoOfSpades, foundationIndex),
+                "A foundation pile should accept the next card of the same suit after an Ace has started it.");
+        }
 
         [Test]
         public void CanPlaceOnFoundation_AllowsAceOnEmptyFoundation() {

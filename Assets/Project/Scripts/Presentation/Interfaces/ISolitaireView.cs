@@ -7,8 +7,8 @@ namespace CardFramework.Presentation.Interfaces {
         event Action OnStockTapped;
         event Action OnRestartRequested;
         event Action OnMenuRequested;
-        event Action<CardData, int> OnTableauDropRequested;
-        event Action<CardData, int> OnFoundationDropRequested;
+        event Action<List<CardData>, int, int, int> OnTableauDropRequested;
+        event Action<List<CardData>, int> OnFoundationDropRequested;
 
         void ClearTable();
         void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste);

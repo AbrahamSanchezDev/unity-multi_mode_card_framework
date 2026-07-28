@@ -15,10 +15,12 @@ namespace CardFramework.Core.Models {
 
         public readonly Suit CardSuit;
         public readonly Rank CardRank;
+        public readonly bool IsFaceUp;
 
-        public CardData(Suit suit, Rank rank) {
+        public CardData(Suit suit, Rank rank, bool isFaceUp = false) {
             CardSuit = suit;
             CardRank = rank;
+            IsFaceUp = isFaceUp;
         }
 
         public override bool Equals(object obj) => obj is CardData card && Equals(card);
