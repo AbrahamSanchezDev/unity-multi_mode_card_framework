@@ -165,7 +165,7 @@ namespace CardFramework.Presentation.Views {
             // 2. Configure card face graphics
             var faceGenerator = spawnedCard.GetComponent<CardFaceGenerator>();
             if (faceGenerator != null) {
-                faceGenerator.GenerateCard(card,cardsGraphics);
+                faceGenerator.GenerateCard(card, cardsGraphics);
             }
 
             activeList.Add(spawnedCard.transform);
@@ -213,6 +213,12 @@ namespace CardFramework.Presentation.Views {
                 cardTransform.DOKill();
                 centerSequence.Join(cardTransform.DOLocalMove(finalPos, 0.25f).SetEase(Ease.OutCubic));
                 centerSequence.Join(cardTransform.DOLocalRotate(Vector3.zero, 0.25f));
+            }
+        }
+
+        public void ShowUi(bool show) {
+            if (_root != null) {
+                _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

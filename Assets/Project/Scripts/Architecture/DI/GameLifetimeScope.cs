@@ -35,6 +35,8 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private NotificationSidebarView notificationSidebarViewInstance;
 
         protected override void Configure(IContainerBuilder builder) {
+            // Check if we already have the texture version stored in PlayerPrefs
+            CardFaceGenerator.CheckTexturesVersion();
 
             // ---- CORE DATA MODELS & ENGINES ----
             // Decks & Game Engines registered as Transient/Scoped for isolated state

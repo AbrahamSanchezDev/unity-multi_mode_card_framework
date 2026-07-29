@@ -7,7 +7,12 @@ using CardFramework.Core.Models;
 
 namespace CardFramework.Presentation.Views {
 
-
+    [System.Serializable]
+    public enum CardDisplayType {
+        None = -1,
+        FullCard = 0,
+        EasyRead = 1,
+    }
     /// <summary>
     /// Procedurally generates a playing card's front-face texture (corner rank labels,
     /// center pips for 1-10, or center art for J/Q/K) and can either:
@@ -66,6 +71,8 @@ namespace CardFramework.Presentation.Views {
         }
 
 
+
+
         public CardSetupData setupData = new CardSetupData();
 
         [Header("Card Data")]
@@ -74,6 +81,8 @@ namespace CardFramework.Presentation.Views {
 
         [Tooltip("Card rank. 1-10 draw pips; J/Q/K draw faceCardArt instead.")]
         public CardData.Rank rank = CardData.Rank.Ace;
+
+        public CardDisplayType DisplayType = CardDisplayType.None;
 
         [Tooltip("Only used when rank is Jack, Queen or King. Drawn in the center area.")]
         public Sprite faceCardArt;
@@ -139,16 +148,25 @@ namespace CardFramework.Presentation.Views {
         private TMP_Text _labelBR;
         private Image _iconTL;
         private Image _iconBR;
+        private TMP_Text _easyReadRankLabel;
+        private Image _easyReadSuitIcon;
         private readonly List<GameObject> _pipInstances = new List<GameObject>();
 
         private float _cardWorldWidth = 1f;
         private float _cardWorldHeight = 1f;
 
-        public string CardKey => $"Card_{(suitIcon != null ? suitIcon.name : "NoSuit")}_{rank}";
+        public string CardKey => $"Card_{(suitIcon != null ? suitIcon.name : "NoSuit")}_{rank}_{DisplayType}";
+
+        public static string GetCardFileFolder() {
+            return Path.Combine(Application.persistentDataPath, "CardTextures");
+        }
+
+        public string CardFileFullPath => $"{Path.Combine(GetCardFileFolder(), CardKey + ".png")}";
 
         private void OnDestroy() {
             DestroyOrphanRigs();
             if (_rt != null) _rt.Release();
+            ClearCache();
         }
 
         /// <summary>
@@ -170,26 +188,63 @@ namespace CardFramework.Presentation.Views {
         }
 
         public Texture2D GetCardTextureFromCache() {
-            if (_textureCache.TryGetValue(CardKey, out var cached) && cached != null)
+
+            Texture2D cached;
+            if (_textureCache.TryGetValue(CardKey, out cached) && cached != null)
                 return cached;
+            // Load it from persistantDataPath if it exists, otherwise generate and save it.
+            if (File.Exists(CardFileFullPath)) {
+                var bytes = File.ReadAllBytes(CardFileFullPath);
+                var tex = new Texture2D(2, 2);
+                tex.LoadImage(bytes);
+                _textureCache[CardKey] = tex;
+                return tex;
+            }
 
             var generated = GenerateTexture();
             _textureCache[CardKey] = generated;
+            // Save to persistentDataPath to save time on future runs (e.g. for Play Mode testing)
+            // Keep track of what version of cards we have stored and if its different from the current version, clear the cache and regenerate.
+            SaveTextureToFolder(GetCardFileFolder(), generated);
             return generated;
         }
 
-        private Texture2D GetCardTexture(string cacheKey) {
-            if (_textureCache.TryGetValue(cacheKey, out var cached) && cached != null)
-                return cached;
+        public const string CURRENT_TEXTURE_VERSION = "1.0"; // Increment this whenever the card generation logic changes in a way that invalidates previously cached textures.
 
-            var generated = GenerateTexture();
-            _textureCache[cacheKey] = generated;
-            return generated;
+        public static void CheckTexturesVersion() {
+
+            if (!PlayerPrefs.HasKey("CardTexturesVersion")) {
+                PlayerPrefs.SetString("CardTexturesVersion", CURRENT_TEXTURE_VERSION);
+                return;
+            }
+            string curVersion = "";
+            if (PlayerPrefs.HasKey("CardTexturesVersion")) {
+                curVersion = PlayerPrefs.GetString("CardTexturesVersion");
+            }
+
+            if (curVersion != CURRENT_TEXTURE_VERSION) {
+                Debug.Log($"CardFaceGenerator: Detected card texture version change from {curVersion} to {CURRENT_TEXTURE_VERSION}. Clearing cached textures.");
+                ClearCache();
+                //Delete all cached textures from persistentDataPath
+                string folder = GetCardFileFolder();
+                if (Directory.Exists(folder)) {
+                    DirectoryInfo di = new DirectoryInfo(folder);
+                    foreach (FileInfo file in di.GetFiles()) {
+                        file.Delete();
+                    }
+                    Directory.Delete(folder);
+                    Directory.CreateDirectory(folder);
+                }
+                PlayerPrefs.SetString("CardTexturesVersion", CURRENT_TEXTURE_VERSION);
+            }
+
         }
+
 
         /// <summary>Clears the play-mode texture cache. Call this e.g. when reloading a scene or theme.</summary>
         public static void ClearCache() {
-            _textureCache.Clear();
+            if (_textureCache != null)
+                _textureCache.Clear();
         }
 
         private Texture2D GenerateTexture() {
@@ -274,12 +329,16 @@ namespace CardFramework.Presentation.Views {
 
         public virtual void SaveTextureToFolder(string folder) {
             if (string.IsNullOrEmpty(folder)) return;
-
-            Directory.CreateDirectory(folder);
             var tex = GenerateTexture();
+            SaveTextureToFolder(folder, tex);
+        }
+        public virtual void SaveTextureToFolder(string folder, Texture2D tex) {
+            if (string.IsNullOrEmpty(folder)) return;
+            Directory.CreateDirectory(folder);
             string fullPath = Path.Combine(folder, CardKey + ".png");
             SaveTextureToFile(tex, fullPath);
         }
+
 
         public void SaveTextureToFile(Texture2D tex, string fullPath) {
             byte[] png = tex.EncodeToPNG();
@@ -326,14 +385,192 @@ namespace CardFramework.Presentation.Views {
             _labelBR = null;
             _iconTL = null;
             _iconBR = null;
+            _easyReadRankLabel = null;
+            _easyReadSuitIcon = null;
             _pipInstances.Clear();
         }
 
-        private void RebuildRig() {
+        #region Rig Building that controls how the card is displayed
+        private void RebuildRig(CardDisplayType displayType = CardDisplayType.EasyRead) {
             DestroyOrphanRigs();
-            BuildRig();
+            DisplayType = displayType;
+            switch (displayType) {
+                case CardDisplayType.FullCard:
+                default:
+                    BuildFullCardRig();
+                    break;
+                case CardDisplayType.EasyRead:
+                    BuildEasyReadRig();
+                    break;
+            }
         }
 
+        /// <summary>
+        /// Builds the full card view as in real live
+        /// </summary>
+        private void BuildFullCardRig() {
+            _rigRoot = new GameObject(RIG_NAME);
+            _rigRoot.hideFlags = HideFlags.DontSave;
+            _rigRoot.layer = GEN_LAYER;
+            _rigRoot.transform.SetParent(transform, false);
+
+            var canvasGO = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            canvasGO.layer = GEN_LAYER;
+            canvasGO.transform.SetParent(_rigRoot.transform, false);
+
+            _canvas = canvasGO.GetComponent<Canvas>();
+            _canvas.renderMode = RenderMode.WorldSpace;
+
+            var scaler = canvasGO.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            scaler.scaleFactor = 1f;
+
+            var camGO = new GameObject("RenderCam", typeof(Camera));
+            camGO.layer = GEN_LAYER;
+            camGO.transform.SetParent(_rigRoot.transform, false);
+
+            _renderCam = camGO.GetComponent<Camera>();
+            _renderCam.clearFlags = CameraClearFlags.SolidColor;
+            _renderCam.backgroundColor = setupData.backgroundColor;
+            _renderCam.cullingMask = 1 << GEN_LAYER;
+            _renderCam.orthographic = true;
+            _renderCam.nearClipPlane = 0.01f;
+            _renderCam.farClipPlane = 10f;
+
+            // Background
+            var bgGO = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            bgGO.layer = GEN_LAYER;
+            bgGO.transform.SetParent(canvasGO.transform, false);
+            var bgRect = bgGO.GetComponent<RectTransform>();
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
+            bgGO.GetComponent<Image>().color = setupData.backgroundColor;
+
+            // Center area (pips live here for 1-10)
+            var centerGO = new GameObject("CenterArea", typeof(RectTransform));
+            centerGO.layer = GEN_LAYER;
+            centerGO.transform.SetParent(canvasGO.transform, false);
+            _centerArea = centerGO.GetComponent<RectTransform>();
+            _centerArea.anchorMin = setupData.centerAreaMargin;
+            _centerArea.anchorMax = Vector2.one - setupData.centerAreaMargin;
+            _centerArea.offsetMin = Vector2.zero;
+            _centerArea.offsetMax = Vector2.zero;
+
+            // Center face art (J/Q/K)
+            var faceGO = new GameObject("CenterFace", typeof(RectTransform), typeof(Image));
+            faceGO.layer = GEN_LAYER;
+            faceGO.transform.SetParent(canvasGO.transform, false);
+            _centerFace = faceGO.GetComponent<Image>();
+            _centerFace.preserveAspect = true;
+
+            _centerFace.raycastTarget = false;
+            var faceRect = faceGO.GetComponent<RectTransform>();
+            faceRect.anchorMin = setupData.centerAreaMargin;
+            faceRect.anchorMax = Vector2.one - setupData.centerAreaMargin;
+            faceRect.offsetMin = Vector2.zero;
+            faceRect.offsetMax = Vector2.zero;
+
+            if (rank == CardData.Rank.Jack || rank == CardData.Rank.Queen || rank == CardData.Rank.King) {
+                _centerFace.preserveAspect = false;
+
+                faceRect.anchorMin = setupData.centerBigImageAreaMargin;
+                faceRect.anchorMax = Vector2.one - setupData.centerBigImageAreaMargin;
+                faceRect.offsetMin = Vector2.zero;
+                faceRect.offsetMax = Vector2.zero;
+
+                var outline = faceGO.AddComponent<Outline>();
+                outline.effectColor = Color.black;
+                outline.effectDistance = new Vector2(5f, -5f);
+            }
+
+            // Corners - position/rotation are applied afterwards in PositionCorners(),
+            // driven by topCornerAnchor / bottomCornerAnchor.
+            _labelTL = CreateCornerLabel(canvasGO.transform, "LabelTopLeft");
+            _iconTL = CreateCornerIcon(canvasGO.transform, "IconTopLeft");
+            _labelBR = CreateCornerLabel(canvasGO.transform, "LabelBottomRight");
+            _iconBR = CreateCornerIcon(canvasGO.transform, "IconBottomRight");
+        }
+
+        /// <summary>
+        /// Builds a simplified "easy read" view of the card, with a single large rank in the center,
+        /// and the suit icon in the top-left corner. This is useful for testing or accessibility,
+        /// where the full card layout may be too small or complex to read easily.
+        /// </summary>
+        private void BuildEasyReadRig() {
+            _rigRoot = new GameObject(RIG_NAME);
+            _rigRoot.hideFlags = HideFlags.DontSave;
+            _rigRoot.layer = GEN_LAYER;
+            _rigRoot.transform.SetParent(transform, false);
+
+            var canvasGO = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            canvasGO.layer = GEN_LAYER;
+            canvasGO.transform.SetParent(_rigRoot.transform, false);
+
+            _canvas = canvasGO.GetComponent<Canvas>();
+            _canvas.renderMode = RenderMode.WorldSpace;
+
+            var scaler = canvasGO.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            scaler.scaleFactor = 1f;
+
+            var camGO = new GameObject("RenderCam", typeof(Camera));
+            camGO.layer = GEN_LAYER;
+            camGO.transform.SetParent(_rigRoot.transform, false);
+
+            _renderCam = camGO.GetComponent<Camera>();
+            _renderCam.clearFlags = CameraClearFlags.SolidColor;
+            _renderCam.backgroundColor = setupData.backgroundColor;
+            _renderCam.cullingMask = 1 << GEN_LAYER;
+            _renderCam.orthographic = true;
+            _renderCam.nearClipPlane = 0.01f;
+            _renderCam.farClipPlane = 10f;
+
+            var bgGO = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            bgGO.layer = GEN_LAYER;
+            bgGO.transform.SetParent(canvasGO.transform, false);
+            var bgRect = bgGO.GetComponent<RectTransform>();
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
+            bgGO.GetComponent<Image>().color = setupData.backgroundColor;
+
+            _easyReadSuitIcon = CreateCornerIcon(canvasGO.transform, "EasyReadSuitIcon");
+            _easyReadRankLabel = CreateCornerLabel(canvasGO.transform, "EasyReadRankLabel");
+
+            SetTopLeftObj(_easyReadRankLabel.rectTransform, false);
+            SetMainObj(_easyReadSuitIcon.rectTransform, true);
+            SetupTextObj(_easyReadRankLabel);
+        }
+
+        private void SetupTextObj(TMP_Text theText) {
+            theText.enableAutoSizing = true;
+            theText.fontSizeMin = 10;
+            theText.fontSizeMax = 1800;
+            theText.alignment = TextAlignmentOptions.Center;
+        }
+        private void SetTopLeftObj(RectTransform theRect, bool smaller = true) {
+            theRect.anchorMin = new Vector2(smaller ? 0.07f : 0.02f, 0.69f);
+            theRect.anchorMax = new Vector2(smaller ? 0.4f : 0.5f, smaller ? 0.93f : 0.98f);
+            theRect.offsetMin = new Vector2(0f, 0f);
+            theRect.offsetMax = new Vector2(0f, 0f);
+            theRect.pivot = new Vector2(0f, 1f);
+
+            theRect.localScale = Vector3.one;
+        }
+
+        private void SetMainObj(RectTransform theRect, bool smaller = false) {
+            theRect.anchorMin = new Vector2(0f, 0f);
+            theRect.anchorMax = new Vector2(1f, smaller ? 0.65f : 0.8f);
+            theRect.offsetMin = new Vector2(0f, 100f);
+            theRect.offsetMax = new Vector2(0f, 0f);
+            theRect.pivot = new Vector2(0.5f, 0.5f);
+            theRect.localScale = Vector3.one;
+        }
+
+        #endregion
         // --- Collider-driven sizing ---------------------------------------------
 
         private void ResolveCardCollider() {
@@ -430,10 +667,35 @@ namespace CardFramework.Presentation.Views {
 
             _pipInstances.Clear();
         }
+
         private void BuildLayout() {
             int rankValue = (int)rank;
             string label = RankToLabel(rankValue);
             bool isFaceCard = rankValue >= 11 && rankValue <= 13;
+
+            DestroyPreviewsPips();
+
+            if (DisplayType == CardDisplayType.EasyRead) {
+                if (_easyReadRankLabel != null) {
+                    _easyReadRankLabel.text = label;
+                    _easyReadRankLabel.color = setupData.labelColor;
+                    _easyReadRankLabel.gameObject.SetActive(true);
+                }
+
+                if (_easyReadSuitIcon != null) {
+                    _easyReadSuitIcon.sprite = suitIcon;
+                    _easyReadSuitIcon.color = Color.white;
+                    _easyReadSuitIcon.gameObject.SetActive(true);
+                }
+
+                if (_centerFace != null) _centerFace.gameObject.SetActive(false);
+                if (_centerArea != null) _centerArea.gameObject.SetActive(false);
+                if (_labelTL != null) _labelTL.gameObject.SetActive(false);
+                if (_labelBR != null) _labelBR.gameObject.SetActive(false);
+                if (_iconTL != null) _iconTL.gameObject.SetActive(false);
+                if (_iconBR != null) _iconBR.gameObject.SetActive(false);
+                return;
+            }
 
             _labelTL.text = label;
             _labelBR.text = label;
@@ -443,10 +705,11 @@ namespace CardFramework.Presentation.Views {
             if (_iconTL != null) _iconTL.sprite = suitIcon;
             if (_iconBR != null) _iconBR.sprite = suitIcon;
 
-            DestroyPreviewsPips();
+            if (_easyReadRankLabel != null) _easyReadRankLabel.gameObject.SetActive(false);
+            if (_easyReadSuitIcon != null) _easyReadSuitIcon.gameObject.SetActive(false);
 
-            _centerFace.gameObject.SetActive(isFaceCard);
-            _centerArea.gameObject.SetActive(!isFaceCard);
+            if (_centerFace != null) _centerFace.gameObject.SetActive(isFaceCard);
+            if (_centerArea != null) _centerArea.gameObject.SetActive(!isFaceCard);
 
             if (isFaceCard) {
                 _centerFace.sprite = faceCardArt;
@@ -489,6 +752,8 @@ namespace CardFramework.Presentation.Views {
         /// (top = -180, bottom = 0).
         /// </summary>
         private void PositionCorners() {
+            if (DisplayType == CardDisplayType.EasyRead) return;
+
             PositionCornerElement(_labelTL, _iconTL, topCornerAnchor, -180f, true);
             PositionCornerElement(_labelBR, _iconBR, bottomCornerAnchor, 0f, false);
         }
@@ -529,91 +794,6 @@ namespace CardFramework.Presentation.Views {
             _renderCam.targetTexture = null;
 
             return tex;
-        }
-
-        private void BuildRig() {
-            _rigRoot = new GameObject(RIG_NAME);
-            _rigRoot.hideFlags = HideFlags.DontSave;
-            _rigRoot.layer = GEN_LAYER;
-            _rigRoot.transform.SetParent(transform, false);
-
-            var canvasGO = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvasGO.layer = GEN_LAYER;
-            canvasGO.transform.SetParent(_rigRoot.transform, false);
-
-            _canvas = canvasGO.GetComponent<Canvas>();
-            _canvas.renderMode = RenderMode.WorldSpace;
-
-            var scaler = canvasGO.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            scaler.scaleFactor = 1f;
-
-            var camGO = new GameObject("RenderCam", typeof(Camera));
-            camGO.layer = GEN_LAYER;
-            camGO.transform.SetParent(_rigRoot.transform, false);
-
-            _renderCam = camGO.GetComponent<Camera>();
-            _renderCam.clearFlags = CameraClearFlags.SolidColor;
-            _renderCam.backgroundColor = setupData.backgroundColor;
-            _renderCam.cullingMask = 1 << GEN_LAYER;
-            _renderCam.orthographic = true;
-            _renderCam.nearClipPlane = 0.01f;
-            _renderCam.farClipPlane = 10f;
-
-            // Background
-            var bgGO = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            bgGO.layer = GEN_LAYER;
-            bgGO.transform.SetParent(canvasGO.transform, false);
-            var bgRect = bgGO.GetComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.offsetMin = Vector2.zero;
-            bgRect.offsetMax = Vector2.zero;
-            bgGO.GetComponent<Image>().color = setupData.backgroundColor;
-
-            // Center area (pips live here for 1-10)
-            var centerGO = new GameObject("CenterArea", typeof(RectTransform));
-            centerGO.layer = GEN_LAYER;
-            centerGO.transform.SetParent(canvasGO.transform, false);
-            _centerArea = centerGO.GetComponent<RectTransform>();
-            _centerArea.anchorMin = setupData.centerAreaMargin;
-            _centerArea.anchorMax = Vector2.one - setupData.centerAreaMargin;
-            _centerArea.offsetMin = Vector2.zero;
-            _centerArea.offsetMax = Vector2.zero;
-
-            // Center face art (J/Q/K)
-            var faceGO = new GameObject("CenterFace", typeof(RectTransform), typeof(Image));
-            faceGO.layer = GEN_LAYER;
-            faceGO.transform.SetParent(canvasGO.transform, false);
-            _centerFace = faceGO.GetComponent<Image>();
-            _centerFace.preserveAspect = true;
-
-            _centerFace.raycastTarget = false;
-            var faceRect = faceGO.GetComponent<RectTransform>();
-            faceRect.anchorMin = setupData.centerAreaMargin;
-            faceRect.anchorMax = Vector2.one - setupData.centerAreaMargin;
-            faceRect.offsetMin = Vector2.zero;
-            faceRect.offsetMax = Vector2.zero;
-
-            if (rank == CardData.Rank.Jack || rank == CardData.Rank.Queen || rank == CardData.Rank.King) {
-                _centerFace.preserveAspect = false;
-
-                faceRect.anchorMin = setupData.centerBigImageAreaMargin;
-                faceRect.anchorMax = Vector2.one - setupData.centerBigImageAreaMargin;
-                faceRect.offsetMin = Vector2.zero;
-                faceRect.offsetMax = Vector2.zero;
-
-                var outline = faceGO.AddComponent<Outline>();
-                outline.effectColor = Color.black;
-                outline.effectDistance = new Vector2(5f, -5f);
-            }
-
-            // Corners - position/rotation are applied afterwards in PositionCorners(),
-            // driven by topCornerAnchor / bottomCornerAnchor.
-            _labelTL = CreateCornerLabel(canvasGO.transform, "LabelTopLeft");
-            _iconTL = CreateCornerIcon(canvasGO.transform, "IconTopLeft");
-            _labelBR = CreateCornerLabel(canvasGO.transform, "LabelBottomRight");
-            _iconBR = CreateCornerIcon(canvasGO.transform, "IconBottomRight");
         }
 
         private TMP_Text CreateCornerLabel(Transform parent, string name) {

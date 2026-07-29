@@ -17,5 +17,7 @@ namespace CardFramework.Presentation.Interfaces {
         void DisplayOutcome(string message);
         void ClearOutcome();
         void SetInteractionState(bool canInteract);
+
+        void ShowUi(bool show);
     }
 }

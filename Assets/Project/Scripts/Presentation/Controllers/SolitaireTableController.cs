@@ -11,7 +11,7 @@ using CardFramework.Presentation.Views;
 namespace CardFramework.Presentation.Controllers {
     public class SolitaireTableController : IStartable, IDisposable {
         private readonly SolitaireEngine _engine;
-        private readonly ISolitaireView _solitaireView;
+        private readonly ISolitaireView _uiView;
         private readonly IEconomyService _economyService;
         private readonly BettingModalView _bettingModalView;
         private readonly NavigationController _navigationController;
@@ -27,7 +27,7 @@ namespace CardFramework.Presentation.Controllers {
             BettingModalView bettingModalView,
             NavigationController navigationController) {
             _engine = engine;
-            _solitaireView = solitaireView;
+            _uiView = solitaireView;
             _economyService = economyService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
@@ -42,14 +42,14 @@ namespace CardFramework.Presentation.Controllers {
 
             if (_economyService != null) {
                 _economyService.OnBalanceUpdated += HandleBalanceUpdated;
-                _solitaireView?.UpdateWalletBalance(_economyService.CurrentGold);
+                _uiView?.UpdateWalletBalance(_economyService.CurrentGold);
             }
 
-            if (_solitaireView != null) {
-                _solitaireView.OnStockTapped += HandleStockTapped;
-                _solitaireView.OnRestartRequested += RequestNewGame;
-                _solitaireView.OnTableauDropRequested += HandleTableauDrop;
-                _solitaireView.OnFoundationDropRequested += HandleFoundationDrop;
+            if (_uiView != null) {
+                _uiView.OnStockTapped += HandleStockTapped;
+                _uiView.OnRestartRequested += RequestNewGame;
+                _uiView.OnTableauDropRequested += HandleTableauDrop;
+                _uiView.OnFoundationDropRequested += HandleFoundationDrop;
             }
 
             if (_navigationController != null) {
@@ -70,11 +70,11 @@ namespace CardFramework.Presentation.Controllers {
                 _economyService.OnBalanceUpdated -= HandleBalanceUpdated;
             }
 
-            if (_solitaireView != null) {
-                _solitaireView.OnStockTapped -= HandleStockTapped;
-                _solitaireView.OnRestartRequested -= RequestNewGame;
-                _solitaireView.OnTableauDropRequested -= HandleTableauDrop;
-                _solitaireView.OnFoundationDropRequested -= HandleFoundationDrop;
+            if (_uiView != null) {
+                _uiView.OnStockTapped -= HandleStockTapped;
+                _uiView.OnRestartRequested -= RequestNewGame;
+                _uiView.OnTableauDropRequested -= HandleTableauDrop;
+                _uiView.OnFoundationDropRequested -= HandleFoundationDrop;
             }
 
             if (_navigationController != null) {
@@ -85,12 +85,13 @@ namespace CardFramework.Presentation.Controllers {
         private void HandleGameSwitchCompleted(string targetGameKey) {
             _isSolitaireActive = targetGameKey.Equals("Solitaire", StringComparison.OrdinalIgnoreCase);
 
+            _uiView.ShowUi(_isSolitaireActive);
             if (_isSolitaireActive) {
                 Debug.Log("[Solitaire Controller] Solitaire mode activated.");
                 RequestNewGame();
             }
             else {
-                _solitaireView?.ClearTable();
+                _uiView?.ClearTable();
             }
         }
 
@@ -98,7 +99,7 @@ namespace CardFramework.Presentation.Controllers {
             if (!_isSolitaireActive) return;
 
             _currentWager = 0;
-            _solitaireView?.ClearTable();
+            _uiView?.ClearTable();
             _bettingModalView?.ShowModalWithCap(minBet: 0, maxBet: MaxSolitaireWager);
         }
 
@@ -122,20 +123,20 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void RefreshTableLayout() {
-            _solitaireView?.RenderLayout(
+            _uiView?.RenderLayout(
                 _engine.GetTableau(),
                 _engine.GetFoundation(),
                 _engine.GetStock(),
                 _engine.GetWaste()
             );
 
-            _solitaireView?.UpdateFoundationScore(GetFoundationCount(), 52);
-            _solitaireView?.ClearOutcome();
+            _uiView?.UpdateFoundationScore(GetFoundationCount(), 52);
+            _uiView?.ClearOutcome();
         }
 
         private void HandleBalanceUpdated(int newBalance) {
             if (_isSolitaireActive) {
-                _solitaireView?.UpdateWalletBalance(newBalance);
+                _uiView?.UpdateWalletBalance(newBalance);
             }
         }
 
@@ -212,7 +213,7 @@ namespace CardFramework.Presentation.Controllers {
                     _economyService.CreditGold(payout);
                 }
 
-                _solitaireView?.DisplayOutcome("SOLITAIRE CLEARED!");
+                _uiView?.DisplayOutcome("SOLITAIRE CLEARED!");
             }
         }
     }

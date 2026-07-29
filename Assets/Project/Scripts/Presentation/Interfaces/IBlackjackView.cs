@@ -26,5 +26,7 @@ namespace CardFramework.Presentation.Interfaces {
         /// Updates the main HUD display with the player's current authoritative wallet balance.
         /// </summary>
         void UpdateWalletBalance(int freshBalance);
+
+        void ShowUi(bool show);
     }
 }

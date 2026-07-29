@@ -418,6 +418,9 @@ namespace CardFramework.Presentation.Views {
             var faceGenerator = cardInstance.GetComponent<CardFaceGenerator>();
             if (faceGenerator && isFaceUp) {
                 faceGenerator.GenerateCard(cardData, cardsGraphics);
+                if (faceGenerator.DisplayType == CardDisplayType.FullCard) {
+                    cardInstance.transform.Rotate(0, 0, 180f, Space.Self);
+                }
             }
 
             // Add interactable logic only for movable face-up cards
@@ -478,6 +481,12 @@ namespace CardFramework.Presentation.Views {
                 foreach (var target in tableauDropTargets) {
                     target?.SetEnabled(false);
                 }
+            }
+        }
+
+        public void ShowUi(bool show) {
+            if (_root != null) {
+                _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
     }

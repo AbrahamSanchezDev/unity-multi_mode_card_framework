@@ -13,6 +13,12 @@ namespace CardFramework.Presentation.Views {
             if (GUILayout.Button("Save Texture")) {
                 SaveTextureMenu();
             }
+              if (GUILayout.Button("Preview Texture")) {
+                var generator = target as CardFaceGenerator;
+                if (generator != null) {
+                    generator.PreviewCard();
+                }
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

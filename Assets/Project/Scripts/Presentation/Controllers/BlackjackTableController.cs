@@ -141,6 +141,7 @@ namespace CardFramework.Presentation.Controllers {
         private void HandleGameSwitchCompleted(string targetGameKey) {
             _isBlackjackActive = targetGameKey.Equals("Blackjack", StringComparison.OrdinalIgnoreCase);
 
+            _uiView.ShowUi(_isBlackjackActive);
             if (_isBlackjackActive) {
                 Debug.Log("[Blackjack Controller] Switching to Blackjack.");
                 HandleRestart();
@@ -149,7 +150,7 @@ namespace CardFramework.Presentation.Controllers {
                 Debug.Log($"[Blackjack Controller] Disabling Blackjack state for {targetGameKey}.");
                 _uiView.ClearTable();
                 _uiView.SetInteractionState(false);
-            }
+            }            
         }
 
         private void InitializeTable() {

@@ -461,6 +461,10 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public void UpdateWalletBalance(int freshBalance) {
                 MockedWalletBalance = freshBalance;
             }
+
+            public void ShowUi(bool show) {
+                // For testing purposes, we can log or track the visibility state if needed
+            }
         }
     }
 }

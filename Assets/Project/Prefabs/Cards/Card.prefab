@@ -130,6 +130,7 @@ MonoBehaviour:
     aceIconScale: 2.2
   suitIcon: {fileID: 1217900047, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
   rank: 12
+  DisplayType: -1
   faceCardArt: {fileID: -1769638026, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
   deleteRigAfterGeneration: 1
   targetRenderer: {fileID: 2491012568858957086}
@@ -149,8 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f94d5b2caf7c1164d85c171815b3c70d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.SpatialCardInteractable
-  pointerPositionAction: {fileID: -1654692200621890270, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  pointerPressAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!65 &8882240333010770981
 BoxCollider:
   m_ObjectHideFlags: 0
