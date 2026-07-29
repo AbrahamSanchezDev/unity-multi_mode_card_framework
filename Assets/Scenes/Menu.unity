@@ -998,6 +998,7 @@ MonoBehaviour:
   pointerPressAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   cardsGraphics: {fileID: 11400000, guid: 71e5b1ddce5b7a04e9e2cd3df0fd92f0, type: 2}
   cardPrefab: {fileID: 3061051009987425311, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+  cardPoolRoot: {fileID: 809846405}
   stockAnchor: {fileID: 1308137157}
   wasteAnchor: {fileID: 1601864630}
   foundationDropTargets:
@@ -1056,6 +1057,7 @@ Transform:
   - {fileID: 1601864630}
   - {fileID: 1868630775}
   - {fileID: 956844177}
+  - {fileID: 809846405}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &783198462
@@ -1150,6 +1152,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 783198462}
   m_Mesh: {fileID: 2522296471697382716, guid: 202e325228b3b584bbcb73ba251000f2, type: 3}
+--- !u!1 &809846404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 809846405}
+  m_Layer: 0
+  m_Name: CardsPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &809846405
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 809846404}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 691196382}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &829651977
 GameObject:
   m_ObjectHideFlags: 0

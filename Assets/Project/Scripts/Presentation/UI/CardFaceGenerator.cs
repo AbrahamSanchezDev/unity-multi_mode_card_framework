@@ -107,6 +107,15 @@ namespace CardFramework.Presentation.Views {
         [Header("Layout - Corner Labels")]
         public TMP_FontAsset labelFont;
 
+
+        [Header("Material References")]
+
+        private Material _generatedMaterialInstance;
+
+        [SerializeField, Tooltip("Optional material used for the card's blank face (e.g. the back of the card). If left empty, the generated texture will be applied to the same material slot as the front face.")]
+        private Material blankFaceMaterial;
+
+
         // Standard pip positions per rank, as normalized (x, y) within the center area.
         // y = 0 is the top row, y = 1 is the bottom row. Any pip with y > 0.5 is
         // automatically rotated 180 degrees (see BuildLayout), which is what produces
@@ -189,7 +198,7 @@ namespace CardFramework.Presentation.Views {
 
         public Texture2D GetCardTextureFromCache() {
 
-            Texture2D cached;
+            Texture2D cached = null;
             if (_textureCache.TryGetValue(CardKey, out cached) && cached != null)
                 return cached;
             // Load it from persistantDataPath if it exists, otherwise generate and save it.
@@ -302,29 +311,44 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void ApplyToRenderer(Texture2D tex) {
-            if (targetRenderer == null) {
-                Debug.LogWarning("CardFaceGenerator: no targetRenderer assigned, can't preview.", this);
+            Material[] mats = GetMaterials();
+            if (mats == null) {
                 return;
             }
-
-            Material[] mats = Application.isPlaying ? targetRenderer.materials : targetRenderer.sharedMaterials;
-            if (mats == null || setupData.materialIndex < 0 || setupData.materialIndex >= mats.Length) {
-                Debug.LogWarning($"CardFaceGenerator: materialIndex {setupData.materialIndex} is out of range (renderer has {(mats == null ? 0 : mats.Length)} material slot(s)).", this);
-                return;
-            }
-
             var mat = mats[setupData.materialIndex];
             if (mat == null) {
                 Debug.LogWarning($"CardFaceGenerator: material slot {setupData.materialIndex} on targetRenderer is empty.", this);
                 return;
             }
-
             if (mat.HasProperty(setupData.texturePropertyName)) {
                 mat.SetTexture(setupData.texturePropertyName, tex);
+                _generatedMaterialInstance = mat;
             }
             else {
                 Debug.LogWarning($"CardFaceGenerator: material '{mat.name}' has no texture property '{setupData.texturePropertyName}'.", this);
             }
+        }
+
+        private Material[] GetMaterials() {
+            if (targetRenderer == null) {
+                Debug.LogWarning("CardFaceGenerator: no targetRenderer assigned, can't preview.", this);
+                return null;
+            }
+
+            Material[] mats = Application.isPlaying ? targetRenderer.materials : targetRenderer.sharedMaterials;
+            if (mats == null || setupData.materialIndex < 0 || setupData.materialIndex >= mats.Length) {
+                Debug.LogWarning($"CardFaceGenerator: materialIndex {setupData.materialIndex} is out of range (renderer has {(mats == null ? 0 : mats.Length)} material slot(s)).", this);
+                return null;
+            }
+            return mats;
+        }
+
+        public void SetFaceUpMaterial(bool isFacingUp) {
+            Material[] mats = GetMaterials();
+            if (mats == null) {
+                return;
+            }
+            mats[setupData.materialIndex] = isFacingUp ? _generatedMaterialInstance : blankFaceMaterial;
         }
 
         public virtual void SaveTextureToFolder(string folder) {

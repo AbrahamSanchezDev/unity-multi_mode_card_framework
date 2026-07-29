@@ -32,6 +32,7 @@ namespace CardFramework.Presentation.Views {
         [Header("3D Spatial Table Anchors")]
         [SerializeField] private CardsGraphics cardsGraphics;
         [SerializeField] private GameObject cardPrefab;
+        [SerializeField] private Transform cardPoolRoot;
         [SerializeField] private Transform stockAnchor;
         [SerializeField] private Transform wasteAnchor;
         [SerializeField] private FoundationDropTarget[] foundationDropTargets = new FoundationDropTarget[4];
@@ -44,6 +45,7 @@ namespace CardFramework.Presentation.Views {
 
         private readonly List<GameObject> _spawnedCards = new();
         private readonly List<SpatialCardInteractable> _spawnedInteractables = new();
+        private CardsPool _cardsPool;
         private Camera _mainCamera;
         private bool _isDragging;
         private Plane _dragPlane;
@@ -74,6 +76,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             _mainCamera = Camera.main;
+            _cardsPool ??= new CardsPool(cardPrefab, cardPoolRoot);
 
             if (pointerPositionAction?.action != null) pointerPositionAction.action.Enable();
             if (pointerPressAction?.action != null) {
@@ -409,33 +412,51 @@ namespace CardFramework.Presentation.Views {
                 return null;
             }
 
-            GameObject cardInstance = Instantiate(cardPrefab, position, rotation, theParent);
+            _cardsPool ??= new CardsPool(cardPrefab, cardPoolRoot);
+            GameObject cardInstance = _cardsPool.GetCard(position, rotation, theParent);
+            if (cardInstance == null) {
+                return null;
+            }
 
             if (!isFaceUp) {
-                cardInstance.transform.Rotate(180f, 0f, 0, Space.Self);
+                cardInstance.transform.rotation = rotation * Quaternion.Euler(180f, 0f, 0f);
+            }
+            else {
+                cardInstance.transform.rotation = rotation;
             }
 
             var faceGenerator = cardInstance.GetComponent<CardFaceGenerator>();
-            if (faceGenerator && isFaceUp) {
-                faceGenerator.GenerateCard(cardData, cardsGraphics);
-                if (faceGenerator.DisplayType == CardDisplayType.FullCard) {
-                    cardInstance.transform.Rotate(0, 0, 180f, Space.Self);
+            if (faceGenerator) {
+                faceGenerator.SetFaceUpMaterial(isFaceUp);
+                if (isFaceUp) {
+                    faceGenerator.GenerateCard(cardData, cardsGraphics);
+                    if (faceGenerator.DisplayType == CardDisplayType.FullCard) {
+                        cardInstance.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+                    }
+                    faceGenerator.SetFaceUpMaterial(isFaceUp);
                 }
             }
 
-            // Add interactable logic only for movable face-up cards
+            var interactable = cardInstance.GetComponent<SpatialCardInteractable>();
             if (canInteract) {
-                var interactable = cardInstance.GetComponent<SpatialCardInteractable>();
-                interactable.enabled = true;
-                interactable.Initialize(cardData, sourceColumnIndex, cardIndexInColumn, isFromWastePile);
-                _spawnedInteractables.Add(interactable);
+                if (interactable != null) {
+                    interactable.enabled = true;
+                    interactable.Initialize(cardData, sourceColumnIndex, cardIndexInColumn, isFromWastePile);
+                    interactable.SetColliderEnabled(isFaceUp);
+                    _spawnedInteractables.Add(interactable);
+                }
             }
             else {
+                if (interactable != null) {
+                    interactable.enabled = false;
+                }
                 var collider = cardInstance.GetComponent<Collider>();
                 if (faceGenerator && collider == null) {
                     collider = faceGenerator.cardCollider;
                 }
-                if (collider != null && !isFaceUp) collider.enabled = false;
+                if (collider != null && !isFaceUp) {
+                    collider.enabled = false;
+                }
             }
 
             _spawnedCards.Add(cardInstance);
@@ -471,7 +492,18 @@ namespace CardFramework.Presentation.Views {
 
         public void ClearTable() {
             foreach (var cardObj in _spawnedCards) {
-                if (cardObj != null) Destroy(cardObj);
+                if (cardObj != null) {
+                    var faceGenerator = cardObj.GetComponent<CardFaceGenerator>();
+                    if (faceGenerator != null) {
+                        faceGenerator.SetFaceUpMaterial(false);
+                    }
+                    var interactable = cardObj.GetComponent<SpatialCardInteractable>();
+                    if (interactable != null) {
+                        interactable.enabled = false;
+                    }
+                    _cardsPool ??= new CardsPool(cardPrefab, cardPoolRoot);
+                    _cardsPool.ReturnCard(cardObj);
+                }
             }
             _spawnedCards.Clear();
             _spawnedInteractables.Clear();
