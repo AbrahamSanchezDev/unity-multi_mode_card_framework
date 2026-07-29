@@ -197,7 +197,6 @@ namespace CardFramework.Presentation.Views {
         }
 
         public Texture2D GetCardTextureFromCache() {
-
             Texture2D cached = null;
             if (_textureCache.TryGetValue(CardKey, out cached) && cached != null)
                 return cached;
@@ -209,6 +208,8 @@ namespace CardFramework.Presentation.Views {
                 _textureCache[CardKey] = tex;
                 return tex;
             }
+
+            Debug.Log($"CardFaceGenerator: generating new texture for {CardFileFullPath}.");
 
             var generated = GenerateTexture();
             _textureCache[CardKey] = generated;
@@ -290,6 +291,7 @@ namespace CardFramework.Presentation.Views {
             if (cardData.CardRank == CardData.Rank.Jack || cardData.CardRank == CardData.Rank.Queen || cardData.CardRank == CardData.Rank.King) {
                 faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(cardData) : null;
             }
+            DisplayType = CardDisplayType.EasyRead;
             GenerateCard(suitIcon, rank, faceSprite, isBlack);
         }
 
@@ -299,7 +301,7 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void GenerateAndApplyTexture() {
-            var tex = GetCardTexture();
+            var tex = GetCardTextureFromCache();
             ApplyToRenderer(tex);
             if (deleteRigAfterGeneration) {
                 if (_rigRoot) {
@@ -415,10 +417,9 @@ namespace CardFramework.Presentation.Views {
         }
 
         #region Rig Building that controls how the card is displayed
-        private void RebuildRig(CardDisplayType displayType = CardDisplayType.EasyRead) {
+        private void RebuildRig() {
             DestroyOrphanRigs();
-            DisplayType = displayType;
-            switch (displayType) {
+            switch (DisplayType) {
                 case CardDisplayType.FullCard:
                 default:
                     BuildFullCardRig();

@@ -155,7 +155,6 @@ namespace CardFramework.Presentation.Views {
                 if (interactable != null) {
                     if (interactable.IsFromWastePile) {
                         StartDragging(interactable);
-                        Debug.Log($"[SolitaireView] Started dragging card from waste pile: {interactable.CardData.CardSuit} {interactable.CardData.CardRank}");
                     }
                     else if (interactable.CardData.IsFaceUp && (interactable.SourceColumnIndex >= 0))
                         StartDragging(interactable);
