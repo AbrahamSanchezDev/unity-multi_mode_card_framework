@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer.Unity;
+using CardFramework.Core.Interfaces;
 using CardFramework.Presentation.Views;
 
 namespace CardFramework.Presentation.Controllers {
@@ -11,18 +12,21 @@ namespace CardFramework.Presentation.Controllers {
         private readonly BlackjackView _blackjackView;
         private readonly SolitaireView _solitaireView;
         private readonly DashboardMenuView _dashboardView;
+        private readonly IEconomyService _economyService;
 
-        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, BlackjackView blackjackView = null, SolitaireView solitaireView = null, DashboardMenuView dashboardView = null) {
+        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, DashboardMenuView dashboardView = null) {
             _introView = introView;
             _tableManager = tableManager;
             _blackjackView = blackjackView;
             _solitaireView = solitaireView;
             _dashboardView = dashboardView;
+            _economyService = economyService;
         }
 
         public void Start() {
             if (_introView != null) {
                 _introView.OnOptionSelected += HandleOptionSelected;
+                _introView.InjectEconomy(_economyService);
                 HideGameViews();
                 _introView.Show();
             }

@@ -113,10 +113,13 @@ namespace CardFramework.Presentation.Views {
             DoHeroAnimation(visible);
         }
 
-        public void SetData(GameRoomIntroData data, IEconomyService economyService = null) {
+        public void SetData(GameRoomIntroData data) {
             introData = data;
-            BindEconomy(economyService);
             PopulateFromData();
+        }
+
+        public void InjectEconomy(IEconomyService economyService) {
+            BindEconomy(economyService);
         }
 
         private void BuildLayout() {

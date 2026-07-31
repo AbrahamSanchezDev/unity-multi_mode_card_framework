@@ -33,6 +33,12 @@ namespace CardFramework.Presentation.Controllers {
             _economyService = economyService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
+
+            _currencyDisplayHelper?.Dispose();
+            if (_economyService != null) {
+                _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleBalanceUpdated);
+            }
+            Debug.Log("[Solitaire Controller] Initialized with SolitaireEngine and ISolitaireView.");
         }
 
         public void Start() {
@@ -42,16 +48,14 @@ namespace CardFramework.Presentation.Controllers {
                 _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
             }
 
-            _currencyDisplayHelper?.Dispose();
-            if (_economyService != null) {
-                _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleBalanceUpdated);
-            }
-
             if (_uiView != null) {
                 _uiView.OnStockTapped += HandleStockTapped;
                 _uiView.OnRestartRequested += RequestNewGame;
                 _uiView.OnTableauDropRequested += HandleTableauDrop;
                 _uiView.OnFoundationDropRequested += HandleFoundationDrop;
+
+                // Subscribe to the event for when the menu gets open
+                _uiView.OnMenuRequested += HandleMenuToggleRequested;
             }
 
             if (_navigationController != null) {
@@ -102,6 +106,7 @@ namespace CardFramework.Presentation.Controllers {
             _currentWager = 0;
             _uiView?.ClearTable();
             _bettingModalView?.ShowModalWithCap(minBet: 0, maxBet: MaxSolitaireWager);
+            HandleBalanceUpdated(_economyService.CurrentGold);
         }
 
         private void HandleWagerConfirmed(int selectedWager) {
@@ -216,6 +221,10 @@ namespace CardFramework.Presentation.Controllers {
 
                 _uiView?.DisplayOutcome("SOLITAIRE CLEARED!");
             }
+        }
+
+        private void HandleMenuToggleRequested() {
+            _navigationController.OpenMenu("PlayFab Synced Profile");
         }
     }
 }

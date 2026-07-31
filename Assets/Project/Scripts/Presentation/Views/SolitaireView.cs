@@ -37,6 +37,7 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private Transform wasteAnchor;
         [SerializeField] private FoundationDropTarget[] foundationDropTargets = new FoundationDropTarget[4];
         [SerializeField] private TableauDropTarget[] tableauDropTargets = new TableauDropTarget[7];
+        [SerializeField] private TableauColumnDropTarget[] tableauColumnDropTargets = new TableauColumnDropTarget[7];
 
         [Header("Cascade Offsets")]
         [SerializeField] private Vector3 tableauCascadeOffset = new Vector3(0f, 0f, -0.035f);
@@ -95,6 +96,13 @@ namespace CardFramework.Presentation.Views {
                 if (foundationDropTargets[i] != null) {
                     var theIndex = i;
                     foundationDropTargets[i].SetFoundationIndex(theIndex);
+                }
+            }
+            for (int i = 0; i < tableauColumnDropTargets.Length; i++) {
+                if (tableauColumnDropTargets[i] != null) {
+                    var theIndex = i;
+                    tableauColumnDropTargets[i].SetColumnIndex(theIndex);
+                    tableauColumnDropTargets[i].SetEnabled(false);
                 }
             }
         }
@@ -232,6 +240,16 @@ namespace CardFramework.Presentation.Views {
             }
 
             _isDragging = true;
+
+            AllowColumnDropTargets(true);
+        }
+
+        private void AllowColumnDropTargets(bool allow) {
+            if (tableauColumnDropTargets != null) {
+                foreach (var target in tableauColumnDropTargets) {
+                    target?.SetEnabled(allow);
+                }
+            }
         }
 
         private bool IsValidSequence(CardData lowerCard, CardData upperCard) {
@@ -287,6 +305,8 @@ namespace CardFramework.Presentation.Views {
             _draggedOriginalPositions.Clear();
             _dragSourceColumn = -1;
             _dragStartIndex = -1;
+
+            AllowColumnDropTargets(false);
         }
 
         private int GetFoundationDropTargetIndex() {
@@ -463,8 +483,11 @@ namespace CardFramework.Presentation.Views {
         }
 
         public void UpdateWalletBalance(int balance) {
-            if (_lblWalletBalance != null)
+            if (_lblWalletBalance != null) {
                 _lblWalletBalance.text = $"Balance: {balance} GD";
+                Debug.Log($"[SolitaireView] Wallet balance updated: {balance} GD");
+            }
+            else Debug.LogWarning("[SolitaireView] _lblWalletBalance is not assigned in the Inspector!");
         }
 
         public void UpdateFoundationScore(int foundationCount, int totalCards) {
