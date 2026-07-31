@@ -117,6 +117,9 @@
     border-radius: 12px;
     padding: 16px 24px;
     max-width: 90%;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .outcome-text {
@@ -124,6 +127,11 @@
     color: rgb(212, 175, 55);
     -unity-font-style: bold;
     -unity-text-align: middle-center;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .action-container {

@@ -161,7 +161,6 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void HandleGameSwitch(string targetGameKey) {
-            Debug.Log($"[BettingModalView] Detected game switch to: {targetGameKey}. Closing betting modal if open.");
             HideModal();
         }
     }

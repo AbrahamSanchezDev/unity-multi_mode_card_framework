@@ -25,18 +25,25 @@ namespace CardFramework.Presentation.Views {
         [SerializeField] private CardsGraphics cardsGraphics;
         [SerializeField] private GameObject cardPrefab;
         [SerializeField] private Transform playerSpawnAnchor;
-        [SerializeField] private Transform dealerSpawnAnchor;
+        [SerializeField] private Transform communitySpawnAnchor;
+        [SerializeField] private Transform houseSpawnAnchor;
+
+        [Header("Poker Table Layout")]
+        public bool HouseHandActive = true;
+        public bool AnimateOnlyNewCards = true;
+        [SerializeField] private float playerCardSpread = 0.11f;
+        [SerializeField] private float communityCardSpread = 0.09f;
+        [SerializeField] private float communityCardDepth = 0.003f;
 
         [Header("Deck Setup & Motion Polish")]
         [SerializeField] private Transform deckSpawnAnchor;
         [SerializeField] private float dealDuration = 0.45f;
         [SerializeField] private Ease dealEase = Ease.OutQuad;
 
-        private const float CardOffsetHorizontal = 0.075f;
-        private const float CardOffsetDepth = 0.002f;
-
+        private const float PlayerCardDepth = 0.002f;
         private readonly List<Transform> _playerCardTransforms = new();
         private readonly List<Transform> _communityCardTransforms = new();
+        private readonly List<Transform> _houseCardTransforms = new();
 
         public event Action OnDealRequested;
         public event Action OnRestartRequested;
@@ -75,6 +82,22 @@ namespace CardFramework.Presentation.Views {
 
             UpdateWalletBalance(0);
             ClearOutcome();
+
+            var handData = _root.Q<VisualElement>("hand_data");
+            var communityData = _root.Q<VisualElement>("community_data");
+            if (handData != null) {
+                handData.style.display = DisplayStyle.None;
+            }
+            else {
+                Debug.LogWarning($"[{name}]: Could not find hand data section on Texas Hold'em view.");
+            }
+
+            if (communityData != null) {
+                communityData.style.display = DisplayStyle.None;
+            }
+            else {
+                Debug.LogWarning($"[{name}]: Could not find community data section on Texas Hold'em view.");
+            }
         }
 
         private void OnDisable() {
@@ -100,6 +123,14 @@ namespace CardFramework.Presentation.Views {
             }
             _communityCardTransforms.Clear();
 
+            foreach (var t in _houseCardTransforms) {
+                if (t != null) {
+                    t.DOKill();
+                    Destroy(t.gameObject);
+                }
+            }
+            _houseCardTransforms.Clear();
+
             if (_lblPlayerHand != null) _lblPlayerHand.text = "No hand yet";
             if (_lblCommunityCards != null) _lblCommunityCards.text = "No community cards yet";
             if (_lblRoundState != null) _lblRoundState.text = "Round: Pre-Flop";
@@ -119,8 +150,47 @@ namespace CardFramework.Presentation.Views {
         }
 
         public void SpawnPhysicalCard(CardData card, bool isPlayer) {
-            Transform targetAnchor = isPlayer ? playerSpawnAnchor : dealerSpawnAnchor;
-            List<Transform> activeList = isPlayer ? _playerCardTransforms : _communityCardTransforms;
+            SpawnPhysicalCard(card, isPlayer, false);
+        }
+
+        public void SpawnHousePlaceholders(int count) {
+            if (houseSpawnAnchor == null || cardPrefab == null) {
+                Debug.LogWarning($"[{name}]: Missing house spawn anchor or card prefab for Texas Hold'em dealer placeholder rendering.");
+                return;
+            }
+            for (int i = 0; i < count; i++) {
+                GameObject placeholderCard = Instantiate(cardPrefab, houseSpawnAnchor.position, houseSpawnAnchor.rotation, houseSpawnAnchor);
+                placeholderCard.transform.localScale = Vector3.one;
+                placeholderCard.transform.localPosition = new Vector3(i * playerCardSpread - ((count - 1) * playerCardSpread / 2f), 0f, i * PlayerCardDepth);
+                placeholderCard.transform.localRotation = Quaternion.identity;
+                placeholderCard.transform.localEulerAngles = new Vector3(0f, 180f, 0f); // Face down
+                _houseCardTransforms.Add(placeholderCard.transform);
+            }
+        }
+
+        public void RevealHouseHand(List<CardData> houseCards) {
+            if (houseCards == null || houseCards.Count == 0) return;
+
+            for (int i = 0; i < _houseCardTransforms.Count && i < houseCards.Count; i++) {
+                var cardTransform = _houseCardTransforms[i];
+                if (cardTransform == null) continue;
+
+                cardTransform.localScale = Vector3.one;
+                var faceGenerator = cardTransform.GetComponent<CardFaceGenerator>();
+                if (faceGenerator != null) {
+                    faceGenerator.GenerateCard(houseCards[i], cardsGraphics);
+                }
+
+                cardTransform.DOKill();
+                cardTransform.DOLocalMove(new Vector3(i * playerCardSpread - ((_houseCardTransforms.Count - 1) * playerCardSpread / 2f), 0f, i * PlayerCardDepth), 0.25f).SetEase(Ease.OutCubic);
+                cardTransform.DOLocalRotate(Vector3.zero, 0.25f);
+            }
+        }
+
+        public void SpawnPhysicalCard(CardData card, bool isPlayer, bool isHouseHand) {
+            bool useHouseLane = isHouseHand && HouseHandActive;
+            Transform targetAnchor = isPlayer ? playerSpawnAnchor : (useHouseLane && houseSpawnAnchor != null ? houseSpawnAnchor : communitySpawnAnchor);
+            List<Transform> activeList = isPlayer ? _playerCardTransforms : (useHouseLane ? _houseCardTransforms : _communityCardTransforms);
             Transform startPoint = deckSpawnAnchor != null ? deckSpawnAnchor : targetAnchor;
 
             if (cardPrefab == null || targetAnchor == null) {
@@ -139,24 +209,33 @@ namespace CardFramework.Presentation.Views {
 
             int totalCards = activeList.Count;
             int cardIndex = totalCards - 1;
-            float depthOffset = isPlayer ? (cardIndex * CardOffsetDepth) : 0f;
-            float newCardTargetX = cardIndex * CardOffsetHorizontal - ((totalCards - 1) * CardOffsetHorizontal / 2f);
+            float spread = isPlayer || useHouseLane ? playerCardSpread : communityCardSpread;
+            float depthOffset = isPlayer || useHouseLane ? (cardIndex * PlayerCardDepth) : (cardIndex * communityCardDepth);
+            float newCardTargetX = cardIndex * spread - ((totalCards - 1) * spread / 2f);
             Vector3 flightTargetPos = new Vector3(newCardTargetX, 0f, depthOffset);
 
             spawnedCard.transform.DOKill();
+            if (!AnimateOnlyNewCards) {
+                spawnedCard.transform.localPosition = flightTargetPos;
+                spawnedCard.transform.localRotation = Quaternion.identity;
+                ReCenterHand(activeList, isPlayer || useHouseLane);
+                return;
+            }
+
             Sequence dealSequence = DOTween.Sequence();
             dealSequence.Join(spawnedCard.transform.DOLocalMove(flightTargetPos, dealDuration).SetEase(dealEase));
             dealSequence.Join(spawnedCard.transform.DOLocalRotate(Vector3.zero, dealDuration).SetEase(dealEase));
             dealSequence.OnComplete(() => {
-                ReCenterHand(activeList, isPlayer);
+                ReCenterHand(activeList, isPlayer || useHouseLane);
             });
         }
 
-        private void ReCenterHand(List<Transform> handTransforms, bool isPlayer) {
+        private void ReCenterHand(List<Transform> handTransforms, bool isPlayerLikeHand) {
             int count = handTransforms.Count;
             if (count == 0) return;
 
-            float totalWidth = (count - 1) * CardOffsetHorizontal;
+            float spread = isPlayerLikeHand ? playerCardSpread : communityCardSpread;
+            float totalWidth = (count - 1) * spread;
             float startX = -totalWidth / 2f;
             Sequence centerSequence = DOTween.Sequence();
 
@@ -164,8 +243,8 @@ namespace CardFramework.Presentation.Views {
                 Transform cardTransform = handTransforms[i];
                 if (cardTransform == null) continue;
 
-                float targetLocalX = startX + (i * CardOffsetHorizontal);
-                float targetLocalZ = isPlayer ? (i * CardOffsetDepth) : 0f;
+                float targetLocalX = startX + (i * spread);
+                float targetLocalZ = isPlayerLikeHand ? (i * PlayerCardDepth) : (i * communityCardDepth);
                 Vector3 finalPos = new Vector3(targetLocalX, 0f, targetLocalZ);
 
                 cardTransform.DOKill();
@@ -201,7 +280,19 @@ namespace CardFramework.Presentation.Views {
         public void SetInteractionState(bool canInteract) {
             if (_btnDeal != null) _btnDeal.SetEnabled(canInteract);
             if (_btnFold != null) _btnFold.SetEnabled(canInteract);
-            if (_btnRestart != null) _btnRestart.SetEnabled(canInteract);
+            AllowResetButton(canInteract);
+        }
+
+        public void AllowResetButton(bool allow) {
+            if (_btnRestart != null) {
+                _btnRestart.SetEnabled(allow);
+            }
+        }
+
+        public void SetRestartButtonEnabled(bool enabled) {
+            if (_btnRestart != null) {
+                _btnRestart.SetEnabled(enabled);
+            }
         }
 
         public void ShowUi(bool show) {

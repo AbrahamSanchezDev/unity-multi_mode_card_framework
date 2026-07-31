@@ -178,6 +178,7 @@ namespace CardFramework.Tests.EditMode.Core
             engine.StartNewHand();
 
             Assert.AreEqual(2, engine.PlayerHand.Count, "Player must receive exactly 2 hole cards.");
+            Assert.AreEqual(2, engine.HouseHand.Count, "House must receive exactly 2 hidden hole cards to imitate a second player.");
             Assert.AreEqual(0, engine.CommunityCards.Count, "Community cards must be empty at PreFlop.");
             Assert.AreEqual(TexasHoldemEngine.RoundState.PreFlop, engine.CurrentRound);
         }

@@ -100,7 +100,6 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleCloseDashboard() {
-            Debug.Log("[Navigation] Dismounting global dashboard view container.");
             _isMenuOpen = false;
             _dashboardView.HideDashboard();
             OnMenuClosed?.Invoke();
@@ -111,8 +110,6 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleGameSwitchTriggered(string targetGameKey) {
-            Debug.Log($"[Navigation] Context Switch requested! Target Game Engine Signature: {targetGameKey}");
-
             OnSwitchGameRequested?.Invoke(targetGameKey);
             HandleCloseDashboard();
             

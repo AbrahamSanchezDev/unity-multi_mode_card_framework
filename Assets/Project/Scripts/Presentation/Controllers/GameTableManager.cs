@@ -51,7 +51,6 @@ namespace CardFramework.Presentation.Controllers {
             }
 
             _activeGameName = gameName;
-            Debug.Log($"[TableManager] Shifting game room environment focus to: {_activeGameName}");
 
             // Execute actual physical spatial movements
             if (playerTransform != null && targetTable.Value.PlayerSpawnPoint != null) {
@@ -77,7 +76,6 @@ namespace CardFramework.Presentation.Controllers {
                     var root = table.TableUiDocument.rootVisualElement;
                     if (root != null) {
                         root.style.display = isActiveTarget ? DisplayStyle.Flex : DisplayStyle.None;
-                        Debug.Log($"[TableManager] UI Document for '{table.GameName}' set to {(isActiveTarget ? "Visible" : "Hidden")}.");
                     }
                 }
             }

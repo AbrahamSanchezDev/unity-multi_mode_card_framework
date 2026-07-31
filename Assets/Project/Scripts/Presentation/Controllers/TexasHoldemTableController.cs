@@ -23,6 +23,10 @@ namespace CardFramework.Presentation.Controllers {
 
         private bool _isTexasHoldemActive;
         private int _currentWager;
+        private int _spawnedPlayerCount;
+        private int _spawnedHouseCount;
+        private int _spawnedCommunityCount;
+        private bool _housePlaceholdersSpawned;
 
         public TexasHoldemTableController(
             TexasHoldemEngine engine,
@@ -123,7 +127,15 @@ namespace CardFramework.Presentation.Controllers {
             _economyService?.DebitGold(_currentWager);
 
             _engine.StartNewHand();
+            _spawnedPlayerCount = 0;
+            _spawnedHouseCount = 0;
+            _spawnedCommunityCount = 0;
+            _housePlaceholdersSpawned = false;
+            _uiView?.ClearTable();
+            _uiView?.SpawnHousePlaceholders(_engine.HouseHand.Count);
+            _housePlaceholdersSpawned = true;
             RefreshView();
+            _uiView?.SetRestartButtonEnabled(true);
             _uiView?.SetInteractionState(true);
         }
 
@@ -131,7 +143,15 @@ namespace CardFramework.Presentation.Controllers {
             if (!_isTexasHoldemActive) return;
             if (_engine.CurrentRound == TexasHoldemEngine.RoundState.Showdown) {
                 _engine.StartNewHand();
+                _spawnedPlayerCount = 0;
+                _spawnedHouseCount = 0;
+                _spawnedCommunityCount = 0;
+                _housePlaceholdersSpawned = false;
+                _uiView?.ClearTable();
+                _uiView?.SpawnHousePlaceholders(_engine.HouseHand.Count);
+                _housePlaceholdersSpawned = true;
                 RefreshView();
+                _uiView?.SetRestartButtonEnabled(true);
                 _uiView?.SetInteractionState(true);
                 return;
             }
@@ -141,14 +161,17 @@ namespace CardFramework.Presentation.Controllers {
 
             if (_engine.CurrentRound == TexasHoldemEngine.RoundState.Showdown) {
                 EvaluateAndReportBestHand();
+                _uiView?.SetRestartButtonEnabled(false);
                 _uiView?.SetInteractionState(false);
+                _uiView?.AllowResetButton(true);
             }
         }
 
         private void HandleFoldRequested() {
             if (!_isTexasHoldemActive) return;
-            _uiView?.DisplayOutcome("Folded. New hand ready.");
+            _uiView?.DisplayOutcome("Folded. Select a new hand.");
             _uiView?.SetInteractionState(false);
+            _uiView?.AllowResetButton(true);
         }
 
         private void HandleWalletBalanceChanged(int newBalance) {
@@ -156,21 +179,53 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void RefreshView() {
-            _uiView?.ClearTable();
             _uiView?.RenderRoundState(_engine.CurrentRound, _engine.PlayerHand, _engine.CommunityCards);
 
-            foreach (var card in _engine.PlayerHand) {
-                _uiView?.SpawnPhysicalCard(card, true);
+            for (int i = _spawnedPlayerCount; i < _engine.PlayerHand.Count; i++) {
+                _uiView?.SpawnPhysicalCard(_engine.PlayerHand[i], true);
+            }
+            _spawnedPlayerCount = _engine.PlayerHand.Count;
+
+            if (!_housePlaceholdersSpawned && _engine.HouseHand.Count > 0) {
+                _uiView?.SpawnHousePlaceholders(_engine.HouseHand.Count);
+                _spawnedHouseCount = _engine.HouseHand.Count;
+                _housePlaceholdersSpawned = true;
             }
 
-            foreach (var card in _engine.CommunityCards) {
-                _uiView?.SpawnPhysicalCard(card, false);
+            for (int i = _spawnedCommunityCount; i < _engine.CommunityCards.Count; i++) {
+                _uiView?.SpawnPhysicalCard(_engine.CommunityCards[i], false, false);
             }
+            _spawnedCommunityCount = _engine.CommunityCards.Count;
         }
 
         private void EvaluateAndReportBestHand() {
-            var combinedCards = new List<CardData>(_engine.PlayerHand);
-            combinedCards.AddRange(_engine.CommunityCards);
+            var playerBestResult = EvaluateBestFiveCardHand(_engine.PlayerHand, _engine.CommunityCards);
+            var houseBestResult = EvaluateBestFiveCardHand(_engine.HouseHand, _engine.CommunityCards);
+
+            string outcome;
+            if ((int)playerBestResult.Rank > (int)houseBestResult.Rank) {
+                outcome = $"Player Wins! \n  {FormatRank(playerBestResult.Rank)} with {FormatCardList(playerBestResult.Cards)}. \n House best: {FormatRank(houseBestResult.Rank)} with {FormatCardList(houseBestResult.Cards)}.";
+            }
+            else if ((int)houseBestResult.Rank > (int)playerBestResult.Rank) {
+                outcome = $"House Wins! \n  {FormatRank(houseBestResult.Rank)} with {FormatCardList(houseBestResult.Cards)}. \n Player best: {FormatRank(playerBestResult.Rank)} with {FormatCardList(playerBestResult.Cards)}.";
+            }
+            else {
+                outcome = $"Push on {FormatRank(playerBestResult.Rank)}. \n Player best: {FormatCardList(playerBestResult.Cards)}. \n House best: {FormatCardList(houseBestResult.Cards)}.";
+            }
+
+            _uiView?.RevealHouseHand(_engine.HouseHand);
+
+            if (_currentWager > 0 && _economyService != null) {
+                int payout = Mathf.FloorToInt(_currentWager * 1.5f);
+                _economyService.CreditGold(payout);
+            }
+
+            _uiView?.DisplayOutcome(outcome);
+        }
+
+        private static (HandRank Rank, List<CardData> Cards) EvaluateBestFiveCardHand(List<CardData> holeCards, List<CardData> communityCards) {
+            var combinedCards = new List<CardData>(holeCards);
+            combinedCards.AddRange(communityCards);
 
             var bestHand = new List<CardData>();
             var bestRank = HandRank.HighCard;
@@ -195,12 +250,15 @@ namespace CardFramework.Presentation.Controllers {
                 }
             }
 
-            if (_currentWager > 0 && _economyService != null) {
-                int payout = Mathf.FloorToInt(_currentWager * 1.5f);
-                _economyService.CreditGold(payout);
+            return (bestRank, bestHand);
+        }
+
+        private static string FormatCardList(List<CardData> cards) {
+            if (cards == null || cards.Count == 0) {
+                return "No cards";
             }
 
-            _uiView?.DisplayOutcome($"Best Hand: {FormatRank(bestRank)}");
+            return string.Join(", ", cards.Select(card => $"{card.CardRank} of {card.CardSuit}"));
         }
 
         private static string FormatRank(HandRank handRank) {

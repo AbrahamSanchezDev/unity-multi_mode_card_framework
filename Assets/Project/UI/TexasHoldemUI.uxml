@@ -1,39 +1,35 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/Project/UI/TexasHoldemStyle.uss" />
+    <Style src="project://database/Assets/Project/UI/TexasHoldemStyle.uss?fileID=7433441132597879392&amp;guid=7e5fafbdf0c829745ae87ff34d249cee&amp;type=3#TexasHoldemStyle"/>
     <ui:VisualElement name="screen-container" class="screen-container">
         <ui:VisualElement class="hud-header-row">
             <ui:VisualElement class="hud-left-group">
-                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger" />
-                <ui:Label text="TEXAS HOLD'EM" class="title-label" />
+                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
+                <ui:Label text="TEXAS HOLD&apos;EM" class="title-label"/>
             </ui:VisualElement>
             <ui:VisualElement class="hud-right-group">
-                <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label" />
+                <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label"/>
                 <ui:VisualElement class="score-board">
-                    <ui:Label name="lbl-round-state" text="Round: Pre-Flop" class="score-label" />
+                    <ui:Label name="lbl-round-state" text="Round: Pre-Flop" class="score-label"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <ui:VisualElement class="center-container">
-            <ui:VisualElement class="info-panel">
-                <ui:Label text="Your Hand" class="section-title" />
-                <ui:Label name="lbl-player-hand" text="No hand yet" class="hand-text" />
+        <ui:VisualElement class="center-container" style="display: flex;">
+            <ui:VisualElement name="hand_data" class="info-panel" style="flex-grow: 0; display: flex;">
+                <ui:Label text="Your Hand" class="section-title"/>
+                <ui:Label name="lbl-player-hand" text="No hand yet" class="hand-text"/>
             </ui:VisualElement>
-
-            <ui:VisualElement class="info-panel">
-                <ui:Label text="Community Cards" class="section-title" />
-                <ui:Label name="lbl-community-cards" text="No community cards yet" class="community-text" />
+            <ui:VisualElement name="community_data" class="info-panel" style="display: flex;">
+                <ui:Label text="Community Cards" class="section-title"/>
+                <ui:Label name="lbl-community-cards" text="No community cards yet" class="community-text"/>
             </ui:VisualElement>
-
-            <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: none;">
-                <ui:Label name="lbl-outcome" text="TEXAS HOLD'EM READY" class="outcome-text" />
+            <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: flex; flex-grow: initial; flex-shrink: 0; flex-wrap: wrap; width: 100%; min-width: 0; align-items: center; align-self: center;">
+                <ui:Label name="lbl-outcome" text="TEXAS HOLD&apos;EM READY" class="outcome-text" style="flex-wrap: wrap; flex-grow: 1; align-items: center; max-width: 100%; white-space: normal; min-width: 0; align-self: center;"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement class="action-container">
-            <ui:Button name="btn-deal" text="NEXT ROUND" class="btn-casino" />
-            <ui:Button name="btn-fold" text="FOLD" class="btn-casino btn-danger" />
-            <ui:Button name="btn-restart" text="NEW HAND" class="btn-casino" />
+            <ui:Button name="btn-deal" text="NEXT ROUND" class="btn-casino"/>
+            <ui:Button name="btn-fold" text="FOLD" class="btn-casino btn-danger"/>
+            <ui:Button name="btn-restart" text="NEW HAND" class="btn-casino"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

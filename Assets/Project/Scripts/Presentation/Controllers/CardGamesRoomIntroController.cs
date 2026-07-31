@@ -80,7 +80,6 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void SetViewVisible(MonoBehaviour view, bool visible) {
-            Debug.Log($"[CardGamesRoomIntroController] Set view '{view.name}' visibility to {visible}.");
             if (view == null) return;
 
             var uiDocument = view.GetComponent<UIDocument>();

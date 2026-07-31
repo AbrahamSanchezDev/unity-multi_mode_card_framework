@@ -114,8 +114,6 @@ namespace CardFramework.Presentation.Views {
                 dailyRewardClaimed = await _mailboxManager.IsDailyRewardClaimedAsync();
             }
 
-            Debug.Log($"[Mailbox] Daily reward claim status fetched from cloud: {dailyRewardClaimed}");
-
             var testItems = new List<NotificationItem>
             {
                 new NotificationItem

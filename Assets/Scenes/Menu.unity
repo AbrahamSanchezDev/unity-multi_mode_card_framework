@@ -4303,6 +4303,37 @@ MonoBehaviour:
   columnIndex: 2
   visuals:
   - {fileID: 908390091}
+--- !u!1 &1927934699
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1927934700}
+  m_Layer: 5
+  m_Name: Dealer Hand Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 2488908585195742037, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1927934700
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1927934699}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.923879, y: -0, z: -0, w: 0.3826847}
+  m_LocalPosition: {x: 0.4, y: 0.072, z: 0.032}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1974090934}
+  m_LocalEulerAnglesHint: {x: -135, y: 0, z: 0}
 --- !u!1 &1974090931
 GameObject:
   m_ObjectHideFlags: 0
@@ -4336,7 +4367,13 @@ MonoBehaviour:
   cardsGraphics: {fileID: 11400000, guid: 71e5b1ddce5b7a04e9e2cd3df0fd92f0, type: 2}
   cardPrefab: {fileID: 3061051009987425311, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
   playerSpawnAnchor: {fileID: 1848173368}
-  dealerSpawnAnchor: {fileID: 468106429}
+  communitySpawnAnchor: {fileID: 468106429}
+  houseSpawnAnchor: {fileID: 1927934700}
+  HouseHandActive: 1
+  AnimateOnlyNewCards: 1
+  playerCardSpread: 0.11
+  communityCardSpread: 0.09
+  communityCardDepth: 0.003
   deckSpawnAnchor: {fileID: 1536996566}
   dealDuration: 0.45
   dealEase: 6
@@ -4378,6 +4415,7 @@ Transform:
   m_Children:
   - {fileID: 1848173368}
   - {fileID: 468106429}
+  - {fileID: 1927934700}
   - {fileID: 1536996566}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
