@@ -1,0 +1,47 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/GameRoomIntro.uss?fileID=7433441132597879392&amp;guid=40f8133bc9e182545a1b1643b8071581&amp;type=3#GameRoomIntro"/>
+    <ui:VisualElement name="intro-root" class="intro-root">
+        <ui:VisualElement name="background-glow" picking-mode="Ignore" class="background-glow">
+            <ui:VisualElement class="glow-blob glow-blob--gold" style="background-color: rgba(245, 158, 11, 0.65);"/>
+            <ui:VisualElement class="glow-blob glow-blob--navy"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="content-wrapper" class="content-wrapper" style="max-width: 90%; max-height: 90%;">
+            <ui:VisualElement name="hero-wrapper" class="hero-wrapper" style="flex-wrap: nowrap; flex-grow: 1;">
+                <ui:Image name="hero-image" scale-mode="ScaleToFit" picking-mode="Ignore" class="hero-image" style="overflow: visible; position: absolute; top: -106px; flex-grow: 1;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="glass-modal" class="glass-modal">
+                <ui:VisualElement name="currency-badge" class="currency-badge">
+                    <ui:VisualElement class="currency-icon"/>
+                    <ui:Label name="currency-label" text="0 GD" class="currency-label"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="modal-header">
+                    <ui:Label name="title-label" text="Royal Arena" class="title-label"/>
+                    <ui:Label name="description-label" text="Step into the ultimate high-stakes card room. Your table awaits, Grandmaster." class="description-label"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="modes-grid" class="modes-grid">
+                    <ui:Button name="option-0" class="mode-card">
+                        <ui:VisualElement name="option-0-icon" class="mode-icon" style="background-image: url(&quot;project://database/Assets/Project/Art/UI/Shape_Icons.png?fileID=2800000&amp;guid=fd8f53a7cd78cce48a01a5275277d7a7&amp;type=3#Shape_Icons&quot;);"/>
+                        <ui:Label name="option-0-label" text="Texas Hold&apos;em" class="mode-label"/>
+                        <ui:Label name="option-0-sub" text="High Stakes Poker" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-1" class="mode-card">
+                        <ui:VisualElement name="option-1-icon" class="mode-icon" style="background-image: url(&quot;project://database/Assets/Project/Art/UI/Shape_Icons.png?fileID=363892402&amp;guid=fd8f53a7cd78cce48a01a5275277d7a7&amp;type=3#Diamonds&quot;);"/>
+                        <ui:Label name="option-1-label" text="Blackjack 21" class="mode-label"/>
+                        <ui:Label name="option-1-sub" text="Dealer Challenge" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-2" class="mode-card">
+                        <ui:VisualElement name="option-2-icon" class="mode-icon" style="background-image: url(&quot;project://database/Assets/Project/Art/UI/Shape_Icons.png?fileID=1816333410&amp;guid=fd8f53a7cd78cce48a01a5275277d7a7&amp;type=3#Spades&quot;);"/>
+                        <ui:Label name="option-2-label" text="Solitaire" class="mode-label"/>
+                        <ui:Label name="option-2-sub" text="Relax and Play" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-3" class="mode-card">
+                        <ui:VisualElement name="option-3-icon" class="mode-icon"/>
+                        <ui:Label name="option-3-label" text="Other" class="mode-label"/>
+                        <ui:Label name="option-3-sub" text="Other Games" class="mode-sub"/>
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:Button name="random-button" text="Random Mode" class="random-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

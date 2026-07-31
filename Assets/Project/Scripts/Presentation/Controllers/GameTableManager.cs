@@ -25,7 +25,7 @@ namespace CardFramework.Presentation.Controllers {
 
         private void Start() {
             // Initialize the default starting view configuration
-            SwitchTable(_activeGameName);
+            //SwitchTable(_activeGameName);
         }
 
         /// <summary>

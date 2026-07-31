@@ -7,6 +7,7 @@ using CardFramework.Core.Interfaces;
 using CardFramework.Core.Models;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Views;
+using CardFramework.Presentation;
 
 namespace CardFramework.Presentation.Controllers {
     public class SolitaireTableController : IStartable, IDisposable {
@@ -15,6 +16,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly IEconomyService _economyService;
         private readonly BettingModalView _bettingModalView;
         private readonly NavigationController _navigationController;
+        private CurrencyDisplayHelper _currencyDisplayHelper;
 
         public const int MaxSolitaireWager = 50;
         private int _currentWager = 0;
@@ -40,9 +42,9 @@ namespace CardFramework.Presentation.Controllers {
                 _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
             }
 
+            _currencyDisplayHelper?.Dispose();
             if (_economyService != null) {
-                _economyService.OnBalanceUpdated += HandleBalanceUpdated;
-                _uiView?.UpdateWalletBalance(_economyService.CurrentGold);
+                _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleBalanceUpdated);
             }
 
             if (_uiView != null) {
@@ -66,9 +68,8 @@ namespace CardFramework.Presentation.Controllers {
                 _bettingModalView.OnBetConfirmed -= HandleWagerConfirmed;
             }
 
-            if (_economyService != null) {
-                _economyService.OnBalanceUpdated -= HandleBalanceUpdated;
-            }
+            _currencyDisplayHelper?.Dispose();
+            _currencyDisplayHelper = null;
 
             if (_uiView != null) {
                 _uiView.OnStockTapped -= HandleStockTapped;

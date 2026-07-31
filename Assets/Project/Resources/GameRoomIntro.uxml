@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/GameRoomIntro.uss?fileID=7433441132597879392&amp;guid=40f8133bc9e182545a1b1643b8071581&amp;type=3#GameRoomIntro"/>
+    <ui:VisualElement name="intro-root" class="intro-root" style="display: flex;">
+        <ui:VisualElement name="intro-background" class="intro-background"/>
+
+        <ui:VisualElement class="hero-float">
+            <ui:Image name="hero-image" class="hero-image"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="glass-modal">
+            <ui:VisualElement class="modal-inner">
+                <ui:VisualElement class="header-block">
+                    <ui:Label name="title-label" class="modal-title"/>
+                    <ui:Label name="description-label" class="modal-description"/>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="modes-grid" class="modes-grid">
+                    <ui:Button name="option-0" class="mode-card">
+                        <ui:VisualElement name="option-0-icon" class="mode-icon"/>
+                        <ui:Label name="option-0-label" class="mode-label"/>
+                        <ui:Label name="option-0-sub" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-1" class="mode-card">
+                        <ui:VisualElement name="option-1-icon" class="mode-icon"/>
+                        <ui:Label name="option-1-label" class="mode-label"/>
+                        <ui:Label name="option-1-sub" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-2" class="mode-card">
+                        <ui:VisualElement name="option-2-icon" class="mode-icon"/>
+                        <ui:Label name="option-2-label" class="mode-label"/>
+                        <ui:Label name="option-2-sub" class="mode-sub"/>
+                    </ui:Button>
+                    <ui:Button name="option-3" class="mode-card">
+                        <ui:VisualElement name="option-3-icon" class="mode-icon"/>
+                        <ui:Label name="option-3-label" class="mode-label"/>
+                        <ui:Label name="option-3-sub" class="mode-sub"/>
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="cta-row">
+                    <ui:Button name="random-button" class="cta-button">Random Mode</ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

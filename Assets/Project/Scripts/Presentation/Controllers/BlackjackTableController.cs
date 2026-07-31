@@ -5,6 +5,7 @@ using CardFramework.Core.Engines;
 using CardFramework.Core.Interfaces;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Views;
+using CardFramework.Presentation;
 
 namespace CardFramework.Presentation.Controllers {
     /// <summary>
@@ -17,6 +18,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly IEconomyService _economyService;
         private readonly BettingModalView _bettingModalView;
         private readonly NavigationController _navigationController;
+        private CurrencyDisplayHelper _currencyDisplayHelper;
 
         private int _currentActiveWager = 0;
         private bool _isBlackjackActive = true; // Default true or sync via switch event
@@ -43,8 +45,8 @@ namespace CardFramework.Presentation.Controllers {
             // Bind Cloud Betting Modal Confirmation
             _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
 
-            // Subscribe to server balance changes to update the table HUD immediately
-            _economyService.OnBalanceUpdated += HandleWalletBalanceChanged;
+            _currencyDisplayHelper?.Dispose();
+            _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleWalletBalanceChanged);
 
             // Listen to Navigation lifecycle changes to freeze/unfreeze interactions
             _navigationController.OnMenuOpened += HandleMenuOpened;
@@ -63,7 +65,7 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.OnMenuRequested += HandleMenuToggleRequested;
 
             // Trigger the initial match setup by requesting a wager first
-            HandleRestart();
+            //HandleRestart();
         }
 
         public void Dispose() {
@@ -74,10 +76,8 @@ namespace CardFramework.Presentation.Controllers {
 
             _bettingModalView.OnBetConfirmed -= HandleWagerConfirmed;
 
-            // Clean up the event hook to protect memory management pipelines
-            if (_economyService != null) {
-                _economyService.OnBalanceUpdated -= HandleWalletBalanceChanged;
-            }
+            _currencyDisplayHelper?.Dispose();
+            _currencyDisplayHelper = null;
 
             // Clean up navigation listeners
             _navigationController.OnMenuOpened -= HandleMenuOpened;
@@ -99,12 +99,10 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleMenuOpened() {
-            Debug.Log("[Blackjack Controller] Menu opened. Disabling table interactions.");
             _uiView.SetInteractionState(false);
         }
 
         private void HandleMenuClosed() {
-            Debug.Log("[Blackjack Controller] Menu closed. Restoring game layout context.");
             // Only restore interaction state if the game is currently active and not awaiting a wager confirmation
             switch (_gameEngine.CurrentState) {
                 case BlackjackEngine.GameState.PlayerTurn:
@@ -127,7 +125,7 @@ namespace CardFramework.Presentation.Controllers {
         private void HandleWagerConfirmed(int confirmedBet) {
             // Guard clause: ignore bet confirmations if Blackjack is not active
             if (!_isBlackjackActive) return;
-            
+
             _currentActiveWager = confirmedBet;
             Debug.Log($"[Match Flow] Wager verified: {_currentActiveWager} GD. Processing cloud debit transaction...");
 
@@ -143,14 +141,12 @@ namespace CardFramework.Presentation.Controllers {
 
             _uiView.ShowUi(_isBlackjackActive);
             if (_isBlackjackActive) {
-                Debug.Log("[Blackjack Controller] Switching to Blackjack.");
                 HandleRestart();
             }
             else {
-                Debug.Log($"[Blackjack Controller] Disabling Blackjack state for {targetGameKey}.");
                 _uiView.ClearTable();
                 _uiView.SetInteractionState(false);
-            }            
+            }
         }
 
         private void InitializeTable() {

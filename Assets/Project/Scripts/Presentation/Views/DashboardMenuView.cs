@@ -68,9 +68,9 @@ namespace CardFramework.Presentation.Views {
             };
 
             // Wire UI Toolkit Interactions straight to architecture events
-            if (btnBlackjack != null) btnBlackjack.clicked += () => OnGameSwitchRequested?.Invoke("Blackjack");
-            if (btnSolitaire != null) btnSolitaire.clicked += () => OnGameSwitchRequested?.Invoke("Solitaire");
-            if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => OnGameSwitchRequested?.Invoke("TexasHoldem");
+            if (btnBlackjack != null) btnBlackjack.clicked += () => ChangeActiveGame("Blackjack");
+            if (btnSolitaire != null) btnSolitaire.clicked += () => ChangeActiveGame("Solitaire");
+            if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => ChangeActiveGame("TexasHoldem");
 
             _root.Q<Button>("btn-close-dash").clicked += () => OnCloseRequested?.Invoke();
             _root.Q<Button>("btn-open-linking").clicked += () => OnLinkAccountRequested?.Invoke();
@@ -80,6 +80,12 @@ namespace CardFramework.Presentation.Views {
             UpdateActiveGameVisuals("Blackjack");
 
             _root.style.display = DisplayStyle.None;
+        }
+
+
+        public void ChangeActiveGame(string gameId) {
+            UpdateActiveGameVisuals(gameId);
+            OnGameSwitchRequested?.Invoke(gameId);
         }
 
         /// <summary>

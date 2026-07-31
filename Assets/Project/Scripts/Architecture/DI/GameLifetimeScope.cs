@@ -13,6 +13,7 @@ using CardFramework.Presentation.Controllers;
 using CardFramework.Presentation.Views;
 using CardFramework.Presentation.Input;
 using CardFramework.Core.Managers;
+using CardFramework.Presentation;
 
 namespace CardFramework.Architecture.DI {
     /// <summary>
@@ -30,6 +31,7 @@ namespace CardFramework.Architecture.DI {
 
         [SerializeField] private InputActionReference menuActionReference;
         [SerializeField] private DashboardMenuView dashboardMenuView;
+        [SerializeField] private GameRoomIntroView gameRoomIntroView;
 
         [SerializeField] private GameTableManager tableManager;
         [SerializeField] private NotificationSidebarView notificationSidebarViewInstance;
@@ -56,7 +58,13 @@ namespace CardFramework.Architecture.DI {
 
             // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
             if (blackjackViewInstance != null) {
-                builder.RegisterComponent(blackjackViewInstance).As<IBlackjackView>();
+                builder.RegisterComponent(blackjackViewInstance).AsSelf().As<IBlackjackView>();
+            }
+            else {
+                var blackjackViewInScene = Object.FindFirstObjectByType<BlackjackView>();
+                if (blackjackViewInScene != null) {
+                    builder.RegisterComponent(blackjackViewInScene).AsSelf().As<IBlackjackView>();
+                }
             }
 
             if (modalServiceViewInstance != null) {
@@ -64,11 +72,42 @@ namespace CardFramework.Architecture.DI {
             }
 
             if (solitaireView != null) {
-                builder.RegisterComponent(solitaireView).As<ISolitaireView>();
+                builder.RegisterComponent(solitaireView).AsSelf().As<ISolitaireView>();
+            }
+            else {
+                var solitaireViewInScene = Object.FindFirstObjectByType<SolitaireView>();
+                if (solitaireViewInScene != null) {
+                    builder.RegisterComponent(solitaireViewInScene).AsSelf().As<ISolitaireView>();
+                }
             }
 
             if (dashboardMenuView != null) {
-                builder.RegisterComponent(dashboardMenuView);
+                builder.RegisterComponent(dashboardMenuView).AsSelf();
+            }
+            else {
+                var dashboardViewInScene = Object.FindFirstObjectByType<DashboardMenuView>();
+                if (dashboardViewInScene != null) {
+                    builder.RegisterComponent(dashboardViewInScene).AsSelf();
+                }
+            }
+
+            if (gameRoomIntroView != null) {
+                builder.RegisterComponent(gameRoomIntroView).AsSelf();
+            }
+            else {
+                var introViewInScene = Object.FindFirstObjectByType<GameRoomIntroView>();
+                if (introViewInScene != null) {
+                    builder.RegisterComponent(introViewInScene).AsSelf();
+                }
+                else {
+                    var introGameObject = new GameObject("GameRoomIntroView");
+                    introGameObject.transform.SetParent(transform, false);
+                    var introViewInstance = introGameObject.AddComponent<GameRoomIntroView>();
+                    if (introViewInstance != null) {
+                        introViewInstance.SetData(ScriptableObject.CreateInstance<CardGamesRoomIntroData>());
+                        builder.RegisterComponent(introViewInstance).AsSelf();
+                    }
+                }
             }
 
             if (notificationSidebarViewInstance != null) {
@@ -79,10 +118,29 @@ namespace CardFramework.Architecture.DI {
                 builder.RegisterComponent(bettingModalView);
             }
 
+            if (tableManager != null) {
+                builder.RegisterComponent(tableManager).AsSelf();
+            }
+            else {
+                var tableManagerInScene = Object.FindFirstObjectByType<GameTableManager>();
+                if (tableManagerInScene != null) {
+                    builder.RegisterComponent(tableManagerInScene).AsSelf();
+                }
+                else {
+                    var tableManagerObject = new GameObject("GameTableManager");
+                    tableManagerObject.transform.SetParent(transform, false);
+                    var tableManagerInstance = tableManagerObject.AddComponent<GameTableManager>();
+                    if (tableManagerInstance != null) {
+                        builder.RegisterComponent(tableManagerInstance).AsSelf();
+                    }
+                }
+            }
+
             // ---- ENTRY POINT CONTROLLERS ----
             builder.RegisterEntryPoint<CloudInitializationController>(Lifetime.Scoped);
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Scoped);
             builder.RegisterEntryPoint<SolitaireTableController>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<CardGamesRoomIntroController>(Lifetime.Scoped);
 
             // Navigation Controller registered as EntryPoint for ITickable loops
             builder.RegisterEntryPoint<NavigationController>()
