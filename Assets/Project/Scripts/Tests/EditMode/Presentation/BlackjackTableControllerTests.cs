@@ -15,6 +15,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         private BlackjackEngine _engine;
         private MockBlackjackView _mockView;
         private MockEconomyService _mockEconomy;
+        private MockModalService _mockModalService;
         private BettingModalView _bettingModalView;
         private NavigationController _navigationController;
         private GameObject _modalContainer;
@@ -25,6 +26,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _engine = new BlackjackEngine();
             _mockView = new MockBlackjackView();
             _mockEconomy = new MockEconomyService();
+            _mockModalService = new MockModalService();
 
             _modalContainer = new GameObject("Test_Modal_Container");
             var uiDoc = _modalContainer.AddComponent<UIDocument>();
@@ -43,7 +45,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             var mockDashView = _modalContainer.AddComponent<DashboardMenuView>();
             _navigationController = new NavigationController(mockDashView, null);
 
-            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _bettingModalView, _navigationController);
+            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _mockModalService, _bettingModalView, _navigationController);
         }
 
         [TearDown]
@@ -349,6 +351,26 @@ namespace CardFramework.Tests.EditMode.Presentation {
             // 5. Assert: Verify the view panel renders loss alerts and the economy structure withholds payouts
             Assert.AreEqual("Dealer Wins!", _mockView.WinnerMessage, "The view failed to display the proper string announcing the dealer's victory layout.");
             Assert.AreEqual(0, _mockEconomy.CreditCalledWithAmount, "No gold should be credited back to the player asset wallet when the dealer wins a hand cleanly.");
+        }
+
+        private class MockModalService : IModalService {
+            public string LastTitle { get; private set; }
+            public string LastMessage { get; private set; }
+            public Action ConfirmCallback { get; private set; }
+            public Action CancelCallback { get; private set; }
+            public bool ShowConfirmationCalled { get; private set; }
+
+            public void ShowLoading(string message) { }
+            public void ShowAlert(string title, string message, Action onConfirm = null) { }
+            public void ShowConfirmation(string title, string message, Action onConfirm, Action onCancel) {
+                ShowConfirmationCalled = true;
+                LastTitle = title;
+                LastMessage = message;
+                ConfirmCallback = onConfirm;
+                CancelCallback = onCancel;
+            }
+
+            public void HideModal() { }
         }
 
         /// <summary>

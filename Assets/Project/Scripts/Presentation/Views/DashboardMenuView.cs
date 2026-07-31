@@ -13,7 +13,6 @@ namespace CardFramework.Presentation.Views {
         public event Action OnLinkAccountRequested;
         public event Action OnExitApplicationRequested;
         public event Action<string> OnGameSwitchRequested;
-
         private VisualElement _root;
         private Label _lblAccountStatus;
 
@@ -28,7 +27,7 @@ namespace CardFramework.Presentation.Views {
 
         // Visual collection mapping game name signatures straight to their button instances
         private Dictionary<string, Button> _gameButtonsMap;
-        
+
         // Track clean default base text values to safely reconstruct labels during visual update shifts
         private readonly Dictionary<string, string> _gameBaseLabels = new Dictionary<string, string> {
             { "Blackjack", "BLACKJACK" },
@@ -100,14 +99,14 @@ namespace CardFramework.Presentation.Views {
                 if (targetButton == null) continue;
 
                 bool isActive = kvp.Key.Equals(activeGameKey, StringComparison.OrdinalIgnoreCase);
-                
+
                 // Fetch the clean default text layout signature
                 _gameBaseLabels.TryGetValue(kvp.Key, out string baseLabel);
                 if (string.IsNullOrEmpty(baseLabel)) baseLabel = kvp.Key.ToUpper();
 
                 if (isActive) {
                     targetButton.text = $"{baseLabel} (ACTIVE)";
-                    
+
                     // Manage style classes natively
                     if (!targetButton.ClassListContains(ActiveClassName)) {
                         targetButton.AddToClassList(ActiveClassName);
@@ -116,7 +115,7 @@ namespace CardFramework.Presentation.Views {
                 }
                 else {
                     targetButton.text = baseLabel;
-                    
+
                     // Manage style classes natively
                     if (!targetButton.ClassListContains(LockedClassName)) {
                         targetButton.AddToClassList(LockedClassName);
@@ -265,7 +264,7 @@ namespace CardFramework.Presentation.Views {
                 _txtInputPin.SetValueWithoutNotify(cleanedText);
             }
         }
-        
+
         private void ApplyInputVisualError(string errorMessage) {
             if (_txtInputPin == null || _btnSubmitPin == null) return;
 
@@ -279,7 +278,7 @@ namespace CardFramework.Presentation.Views {
             _txtInputPin.style.borderRightWidth = 1.5f;
 
             _btnSubmitPin.text = $"✕ {errorMessage}";
-            _btnSubmitPin.style.backgroundColor = new Color(0.75f, 0.22f, 0.17f); 
+            _btnSubmitPin.style.backgroundColor = new Color(0.75f, 0.22f, 0.17f);
         }
 
         private void ResetInputVisualState() {
@@ -295,7 +294,7 @@ namespace CardFramework.Presentation.Views {
             _txtInputPin.style.borderRightWidth = StyleKeyword.Null;
 
             _btnSubmitPin.text = "LINK DEVICE";
-            _btnSubmitPin.style.backgroundColor = StyleKeyword.Null; 
+            _btnSubmitPin.style.backgroundColor = StyleKeyword.Null;
         }
 
         #endregion

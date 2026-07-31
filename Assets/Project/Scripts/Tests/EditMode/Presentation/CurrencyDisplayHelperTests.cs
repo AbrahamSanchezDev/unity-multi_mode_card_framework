@@ -51,6 +51,10 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 CurrentGold = newBalance;
                 OnBalanceUpdated?.Invoke(newBalance);
             }
+
+            public void TriggerEconomyError(string errorMessage) {
+                OnEconomyError?.Invoke(errorMessage);
+            }
         }
     }
 }

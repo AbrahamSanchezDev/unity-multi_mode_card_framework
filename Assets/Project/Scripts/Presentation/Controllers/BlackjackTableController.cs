@@ -16,6 +16,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly BlackjackEngine _gameEngine;
         private readonly IBlackjackView _uiView;
         private readonly IEconomyService _economyService;
+        private readonly IModalService _modalService;
         private readonly BettingModalView _bettingModalView;
         private readonly NavigationController _navigationController;
         private CurrencyDisplayHelper _currencyDisplayHelper;
@@ -27,11 +28,13 @@ namespace CardFramework.Presentation.Controllers {
             BlackjackEngine gameEngine,
             IBlackjackView uiView,
             IEconomyService economyService,
+            IModalService modalService,
             BettingModalView bettingModalView,
             NavigationController navigationController) {
             _gameEngine = gameEngine;
             _uiView = uiView;
             _economyService = economyService;
+            _modalService = modalService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
         }
@@ -86,6 +89,19 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleRestart() {
+            _modalService?.ShowConfirmation(
+                "Start New Round?",
+                "This will discard the current Blackjack hand. Start a new round?",
+                BeginRestartRound,
+                OnCancelNewGame
+            );
+        }
+        
+        private void OnCancelNewGame() {
+            // Debug.Log("[Blackjack Controller] New round request canceled by user.");
+        }
+
+        private void BeginRestartRound() {
             // Intercept standard auto-deal layout loops to request a server-validated bet first
             _currentActiveWager = 0;
             _uiView.SetInteractionState(false);
@@ -93,6 +109,8 @@ namespace CardFramework.Presentation.Controllers {
 
             _bettingModalView.ShowModal();
         }
+
+
 
         private void HandleMenuToggleRequested() {
             _navigationController.OpenMenu("PlayFab Synced Profile");
@@ -141,7 +159,7 @@ namespace CardFramework.Presentation.Controllers {
 
             _uiView.ShowUi(_isBlackjackActive);
             if (_isBlackjackActive) {
-                HandleRestart();
+                BeginRestartRound();
             }
             else {
                 _uiView.ClearTable();

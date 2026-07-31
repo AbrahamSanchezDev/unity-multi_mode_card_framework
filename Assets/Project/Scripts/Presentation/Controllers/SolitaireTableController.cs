@@ -14,6 +14,7 @@ namespace CardFramework.Presentation.Controllers {
         private readonly SolitaireEngine _engine;
         private readonly ISolitaireView _uiView;
         private readonly IEconomyService _economyService;
+        private readonly IModalService _modalService;
         private readonly BettingModalView _bettingModalView;
         private readonly NavigationController _navigationController;
         private CurrencyDisplayHelper _currencyDisplayHelper;
@@ -26,11 +27,13 @@ namespace CardFramework.Presentation.Controllers {
             SolitaireEngine engine,
             ISolitaireView solitaireView,
             IEconomyService economyService,
+            IModalService modalService,
             BettingModalView bettingModalView,
             NavigationController navigationController) {
             _engine = engine;
             _uiView = solitaireView;
             _economyService = economyService;
+            _modalService = modalService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
 
@@ -93,7 +96,7 @@ namespace CardFramework.Presentation.Controllers {
             _uiView.ShowUi(_isSolitaireActive);
             if (_isSolitaireActive) {
                 Debug.Log("[Solitaire Controller] Solitaire mode activated.");
-                RequestNewGame();
+                BeginNewGame();
             }
             else {
                 _uiView?.ClearTable();
@@ -103,10 +106,23 @@ namespace CardFramework.Presentation.Controllers {
         public void RequestNewGame() {
             if (!_isSolitaireActive) return;
 
+            _modalService?.ShowConfirmation(
+                "Start New Game?",
+                "This will discard your current Solitaire progress. Start a new round?",
+                BeginNewGame,
+                OnCancelNewGame
+            );
+        }
+
+        private void OnCancelNewGame() {
+            // Debug.Log("[Solitaire Controller] New game request canceled by user.");
+        }
+
+        private void BeginNewGame() {
             _currentWager = 0;
             _uiView?.ClearTable();
             _bettingModalView?.ShowModalWithCap(minBet: 0, maxBet: MaxSolitaireWager);
-            HandleBalanceUpdated(_economyService.CurrentGold);
+            HandleBalanceUpdated(_economyService?.CurrentGold ?? 0);
         }
 
         private void HandleWagerConfirmed(int selectedWager) {
