@@ -24,6 +24,7 @@ namespace CardFramework.Architecture.DI {
         [Header("UI Presentation Hierarchy References")]
         [SerializeField] private BlackjackView blackjackViewInstance;
         [SerializeField] private SolitaireView solitaireView;
+        [SerializeField] private TexasHoldemView texasHoldemViewInstance;
 
         [Header("Global Infrastructure UI References")]
         [SerializeField] private ModalServiceView modalServiceViewInstance;
@@ -78,6 +79,16 @@ namespace CardFramework.Architecture.DI {
                 var solitaireViewInScene = Object.FindFirstObjectByType<SolitaireView>();
                 if (solitaireViewInScene != null) {
                     builder.RegisterComponent(solitaireViewInScene).AsSelf().As<ISolitaireView>();
+                }
+            }
+
+            if (texasHoldemViewInstance != null) {
+                builder.RegisterComponent(texasHoldemViewInstance).AsSelf().As<ITexasHoldemView>();
+            }
+            else {
+                var texasHoldemViewInScene = Object.FindFirstObjectByType<TexasHoldemView>();
+                if (texasHoldemViewInScene != null) {
+                    builder.RegisterComponent(texasHoldemViewInScene).AsSelf().As<ITexasHoldemView>();
                 }
             }
 
@@ -140,6 +151,7 @@ namespace CardFramework.Architecture.DI {
             builder.RegisterEntryPoint<CloudInitializationController>(Lifetime.Scoped);
             builder.RegisterEntryPoint<BlackjackTableController>(Lifetime.Scoped);
             builder.RegisterEntryPoint<SolitaireTableController>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<TexasHoldemTableController>(Lifetime.Scoped);
             builder.RegisterEntryPoint<CardGamesRoomIntroController>(Lifetime.Scoped);
 
             // Navigation Controller registered as EntryPoint for ITickable loops

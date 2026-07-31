@@ -11,14 +11,16 @@ namespace CardFramework.Presentation.Controllers {
         private readonly GameTableManager _tableManager;
         private readonly BlackjackView _blackjackView;
         private readonly SolitaireView _solitaireView;
+        private readonly TexasHoldemView _texasHoldemView;
         private readonly DashboardMenuView _dashboardView;
         private readonly IEconomyService _economyService;
 
-        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, DashboardMenuView dashboardView = null) {
+        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, TexasHoldemView texasHoldemView = null, DashboardMenuView dashboardView = null) {
             _introView = introView;
             _tableManager = tableManager;
             _blackjackView = blackjackView;
             _solitaireView = solitaireView;
+            _texasHoldemView = texasHoldemView;
             _dashboardView = dashboardView;
             _economyService = economyService;
         }
@@ -53,7 +55,7 @@ namespace CardFramework.Presentation.Controllers {
                     ChangeGameView("Solitaire");
                     break;
                 case "TexasHoldem":
-                    ShowGameView(_blackjackView);
+                    ShowGameView(_texasHoldemView);
                     ChangeGameView("TexasHoldem");
                     break;
                 default:
@@ -69,6 +71,7 @@ namespace CardFramework.Presentation.Controllers {
         private void HideGameViews() {
             _solitaireView?.ShowUi(false);
             _blackjackView?.ShowUi(false);
+            _texasHoldemView?.ShowUi(false);
         }
 
         private void ShowGameView(MonoBehaviour view) {
