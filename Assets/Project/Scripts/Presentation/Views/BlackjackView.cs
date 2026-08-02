@@ -5,6 +5,7 @@ using CardFramework.Presentation.Interfaces;
 using CardFramework.Core.Models;
 using System.Collections.Generic;
 using DG.Tweening; // Import DOTween namespace
+using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -22,6 +23,7 @@ namespace CardFramework.Presentation.Views {
         private VisualElement _screenContainer;
 
         private Label _lblWalletBalance;
+        private IAudioService _audioService;
 
         public event Action OnHitRequested;
         public event Action OnStandRequested;
@@ -51,6 +53,11 @@ namespace CardFramework.Presentation.Views {
 
         #endregion
 
+        [Inject]
+        public void Construct(IAudioService audioService) {
+            _audioService = audioService;
+        }
+
         private void OnEnable() {
             var uiDocument = GetComponent<UIDocument>();
             uiDocument.enabled = true;
@@ -66,7 +73,7 @@ namespace CardFramework.Presentation.Views {
 
             var btnHamburger = _root.Q<Button>("btn-hamburger-menu");
             if (btnHamburger != null) {
-                btnHamburger.clicked += () => OnMenuRequested?.Invoke();
+                btnHamburger.clicked += HandleMenuClicked;
             }
 
             if (_outcomeMessageVisualElement != null) {
@@ -83,9 +90,9 @@ namespace CardFramework.Presentation.Views {
 
             ValidateVisualTreeBindings();
 
-            _hitButton.clicked += () => OnHitRequested?.Invoke();
-            _standButton.clicked += () => OnStandRequested?.Invoke();
-            _restartButton.clicked += () => OnRestartRequested?.Invoke();
+            _hitButton.clicked += HandleHitClicked;
+            _standButton.clicked += HandleStandClicked;
+            _restartButton.clicked += HandleRestartClicked;
 
             if (_lblWalletBalance != null) {
                 _lblWalletBalance.text = "Balance: -- GD";
@@ -94,9 +101,33 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void OnDisable() {
-            if (_hitButton != null) _hitButton.clicked -= () => OnHitRequested?.Invoke();
-            if (_standButton != null) _standButton.clicked -= () => OnStandRequested?.Invoke();
-            if (_restartButton != null) _restartButton.clicked -= () => OnRestartRequested?.Invoke();
+            if (_hitButton != null) _hitButton.clicked -= HandleHitClicked;
+            if (_standButton != null) _standButton.clicked -= HandleStandClicked;
+            if (_restartButton != null) _restartButton.clicked -= HandleRestartClicked;
+        }
+
+        private void HandleHitClicked() {
+            PlayButtonClickSound();
+            OnHitRequested?.Invoke();
+        }
+
+        private void HandleStandClicked() {
+            PlayButtonClickSound();
+            OnStandRequested?.Invoke();
+        }
+
+        private void HandleRestartClicked() {
+            PlayButtonClickSound();
+            OnRestartRequested?.Invoke();
+        }
+
+        private void HandleMenuClicked() {
+            PlayButtonClickSound();
+            OnMenuRequested?.Invoke();
+        }
+
+        private void PlayButtonClickSound() {
+            _audioService?.PlayButtonClick();
         }
 
         public void UpdatePlayerScore(int score) => _playerScoreLabel.text = $"Player: {score}";

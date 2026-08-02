@@ -6,6 +6,7 @@ using DG.Tweening;
 using CardFramework.Core.Models;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Core.Engines;
+using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -17,6 +18,7 @@ namespace CardFramework.Presentation.Views {
         private Label _lblCommunityCards;
         private Label _lblOutcome;
         private Button _btnDeal;
+        private IAudioService _audioService;
         private Button _btnFold;
         private Button _btnRestart;
         private VisualElement _outcomeMessageVisualElement;
@@ -50,6 +52,11 @@ namespace CardFramework.Presentation.Views {
         public event Action OnFoldRequested;
         public event Action OnMenuRequested;
 
+        [Inject]
+        public void Construct(IAudioService audioService) {
+            _audioService = audioService;
+        }
+
         private void OnEnable() {
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) {
@@ -73,12 +80,12 @@ namespace CardFramework.Presentation.Views {
 
             var btnHamburger = _root.Q<Button>("btn-hamburger-menu");
             if (btnHamburger != null) {
-                btnHamburger.clicked += () => OnMenuRequested?.Invoke();
+                btnHamburger.clicked += HandleMenuClicked;
             }
 
-            if (_btnDeal != null) _btnDeal.clicked += () => OnDealRequested?.Invoke();
-            if (_btnFold != null) _btnFold.clicked += () => OnFoldRequested?.Invoke();
-            if (_btnRestart != null) _btnRestart.clicked += () => OnRestartRequested?.Invoke();
+            if (_btnDeal != null) _btnDeal.clicked += HandleDealClicked;
+            if (_btnFold != null) _btnFold.clicked += HandleFoldClicked;
+            if (_btnRestart != null) _btnRestart.clicked += HandleRestartClicked;
 
             UpdateWalletBalance(0);
             ClearOutcome();
@@ -101,9 +108,33 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void OnDisable() {
-            if (_btnDeal != null) _btnDeal.clicked -= () => OnDealRequested?.Invoke();
-            if (_btnFold != null) _btnFold.clicked -= () => OnFoldRequested?.Invoke();
-            if (_btnRestart != null) _btnRestart.clicked -= () => OnRestartRequested?.Invoke();
+            if (_btnDeal != null) _btnDeal.clicked -= HandleDealClicked;
+            if (_btnFold != null) _btnFold.clicked -= HandleFoldClicked;
+            if (_btnRestart != null) _btnRestart.clicked -= HandleRestartClicked;
+        }
+
+        private void HandleDealClicked() {
+            PlayButtonClickSound();
+            OnDealRequested?.Invoke();
+        }
+
+        private void HandleFoldClicked() {
+            PlayButtonClickSound();
+            OnFoldRequested?.Invoke();
+        }
+
+        private void HandleRestartClicked() {
+            PlayButtonClickSound();
+            OnRestartRequested?.Invoke();
+        }
+
+        private void HandleMenuClicked() {
+            PlayButtonClickSound();
+            OnMenuRequested?.Invoke();
+        }
+
+        private void PlayButtonClickSound() {
+            _audioService?.PlayButtonClick();
         }
 
         public void ClearTable() {

@@ -1,32 +1,28 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VContainer.Unity;
 using CardFramework.Core.Engines;
 using CardFramework.Core.Interfaces;
 using CardFramework.Core.Models;
 using CardFramework.Core.Utils;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Views;
-using CardFramework.Presentation;
 
 namespace CardFramework.Presentation.Controllers {
-    public class TexasHoldemTableController : IStartable, IDisposable {
+    public class TexasHoldemTableController : BaseTableController {
         private readonly TexasHoldemEngine _engine;
         private readonly ITexasHoldemView _uiView;
-        private readonly IEconomyService _economyService;
-        private readonly IModalService _modalService;
-        private readonly BettingModalView _bettingModalView;
-        private readonly NavigationController _navigationController;
-        private CurrencyDisplayHelper _currencyDisplayHelper;
 
-        private bool _isTexasHoldemActive;
-        private int _currentWager;
         private int _spawnedPlayerCount;
         private int _spawnedHouseCount;
         private int _spawnedCommunityCount;
         private bool _housePlaceholdersSpawned;
+
+        public override int MaxWager => 50;
+
+        protected override string GetGameModeKey() {
+            return "TexasHoldem";
+        }
 
         public TexasHoldemTableController(
             TexasHoldemEngine engine,
@@ -34,114 +30,84 @@ namespace CardFramework.Presentation.Controllers {
             IEconomyService economyService,
             IModalService modalService,
             BettingModalView bettingModalView,
-            NavigationController navigationController) {
+            NavigationController navigationController,
+            IAudioService audioService) {
             _engine = engine;
             _uiView = uiView;
             _economyService = economyService;
             _modalService = modalService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
+            _audioService = audioService;
         }
 
-        public void Start() {
-            UnsubscribeEvents();
-
-            if (_bettingModalView != null) {
-                _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
-            }
+        public override void Start() {
+            base.Start();
 
             if (_uiView != null) {
                 _uiView.OnDealRequested += HandleDealRequested;
-                _uiView.OnRestartRequested += RequestNewHand;
+                _uiView.OnRestartRequested += RequestNewGame;
                 _uiView.OnFoldRequested += HandleFoldRequested;
                 _uiView.OnMenuRequested += HandleMenuToggleRequested;
+
+                _uiView.UpdateWalletBalance(_economyService?.CurrentGold ?? 0);
+                _uiView.SetInteractionState(false);
             }
-
-            if (_navigationController != null) {
-                _navigationController.OnSwitchGameCompleted += HandleGameSwitchCompleted;
-            }
-
-            _currencyDisplayHelper?.Dispose();
-            _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleWalletBalanceChanged);
-
-            _uiView?.UpdateWalletBalance(_economyService?.CurrentGold ?? 0);
-            _uiView?.SetInteractionState(false);
         }
 
-        public void Dispose() {
-            UnsubscribeEvents();
-        }
-
-        private void UnsubscribeEvents() {
-            if (_bettingModalView != null) {
-                _bettingModalView.OnBetConfirmed -= HandleWagerConfirmed;
-            }
-
-            _currencyDisplayHelper?.Dispose();
-            _currencyDisplayHelper = null;
-
+        protected override void UnsubscribeEvents() {
+            base.UnsubscribeEvents();
             if (_uiView != null) {
                 _uiView.OnDealRequested -= HandleDealRequested;
-                _uiView.OnRestartRequested -= RequestNewHand;
+                _uiView.OnRestartRequested -= RequestNewGame;
                 _uiView.OnFoldRequested -= HandleFoldRequested;
                 _uiView.OnMenuRequested -= HandleMenuToggleRequested;
             }
-
-            if (_navigationController != null) {
-                _navigationController.OnSwitchGameCompleted -= HandleGameSwitchCompleted;
-            }
         }
 
-        private void HandleGameSwitchCompleted(string targetGameKey) {
-            _isTexasHoldemActive = targetGameKey.Equals("TexasHoldem", StringComparison.OrdinalIgnoreCase);
-            _uiView?.ShowUi(_isTexasHoldemActive);
 
-            if (_isTexasHoldemActive) {
-                BeginNewHandSequence();
-            }
-            else {
-                _uiView?.ClearTable();
-                _uiView?.SetInteractionState(false);
-            }
-        }
-
-        private void BeginNewHandSequence() {
+        protected override void OnGameModeDeactivated() {
+            base.OnGameModeDeactivated();
             _uiView?.ClearTable();
-            _uiView?.SetInteractionState(false);
-            _bettingModalView?.ShowModal();
+            SetInteractionState(false);
+        }
+        public override void ShowUI(bool show) {
+            _uiView?.ShowUi(show);
         }
 
-        private void HandleMenuToggleRequested() {
-            _navigationController?.OpenMenu("PlayFab Synced Profile");
+        protected override void BeginNewGame() {
+            base.BeginNewGame();
+            _uiView?.ClearTable();
+            SetInteractionState(false);
         }
 
-        private void RequestNewHand() {
-            if (!_isTexasHoldemActive) return;
-            BeginNewHandSequence();
-        }
-
-        private void HandleWagerConfirmed(int confirmedWager) {
-            if (!_isTexasHoldemActive) return;
-
-            _currentWager = confirmedWager;
-            _economyService?.DebitGold(_currentWager);
-
-            _engine.StartNewHand();
+        protected override void InitializeEngine() {
             _spawnedPlayerCount = 0;
             _spawnedHouseCount = 0;
             _spawnedCommunityCount = 0;
             _housePlaceholdersSpawned = false;
+            _housePlaceholdersSpawned = true;
+            _engine.StartNewHand();
             _uiView?.ClearTable();
             _uiView?.SpawnHousePlaceholders(_engine.HouseHand.Count);
-            _housePlaceholdersSpawned = true;
-            RefreshView();
             _uiView?.SetRestartButtonEnabled(true);
-            _uiView?.SetInteractionState(true);
+            SetInteractionState(true);
         }
 
+        protected override void RefreshTableLayout() {
+            base.RefreshTableLayout();
+            RefreshView();
+        }
+        protected override void UpdateWalletBalance(int newBalance) {
+            base.UpdateWalletBalance(newBalance);
+            _uiView?.UpdateWalletBalance(newBalance);
+        }
+
+        #region Texas Hold'em Specific Handlers
         private void HandleDealRequested() {
-            if (!_isTexasHoldemActive) return;
+            if (!_isGameModeActive) return;
             if (_engine.CurrentRound == TexasHoldemEngine.RoundState.Showdown) {
+                _audioService?.PlayShuffle();
                 _engine.StartNewHand();
                 _spawnedPlayerCount = 0;
                 _spawnedHouseCount = 0;
@@ -152,7 +118,7 @@ namespace CardFramework.Presentation.Controllers {
                 _housePlaceholdersSpawned = true;
                 RefreshView();
                 _uiView?.SetRestartButtonEnabled(true);
-                _uiView?.SetInteractionState(true);
+                SetInteractionState(true);
                 return;
             }
 
@@ -162,27 +128,32 @@ namespace CardFramework.Presentation.Controllers {
             if (_engine.CurrentRound == TexasHoldemEngine.RoundState.Showdown) {
                 EvaluateAndReportBestHand();
                 _uiView?.SetRestartButtonEnabled(false);
-                _uiView?.SetInteractionState(false);
+                SetInteractionState(false);
                 _uiView?.AllowResetButton(true);
             }
         }
 
         private void HandleFoldRequested() {
-            if (!_isTexasHoldemActive) return;
+            if (!_isGameModeActive) return;
+            _audioService?.PlayInvalidMove();
             _uiView?.DisplayOutcome("Folded. Select a new hand.");
-            _uiView?.SetInteractionState(false);
+            SetInteractionState(false);
             _uiView?.AllowResetButton(true);
         }
 
-        private void HandleWalletBalanceChanged(int newBalance) {
-            _uiView?.UpdateWalletBalance(newBalance);
+        private void SetInteractionState(bool isEnabled) {
+            _uiView?.SetInteractionState(isEnabled);
+            playButtonsAreActive = isEnabled;
         }
+
+
 
         private void RefreshView() {
             _uiView?.RenderRoundState(_engine.CurrentRound, _engine.PlayerHand, _engine.CommunityCards);
 
             for (int i = _spawnedPlayerCount; i < _engine.PlayerHand.Count; i++) {
                 _uiView?.SpawnPhysicalCard(_engine.PlayerHand[i], true);
+                PlayCardDrop();
             }
             _spawnedPlayerCount = _engine.PlayerHand.Count;
 
@@ -194,6 +165,7 @@ namespace CardFramework.Presentation.Controllers {
 
             for (int i = _spawnedCommunityCount; i < _engine.CommunityCards.Count; i++) {
                 _uiView?.SpawnPhysicalCard(_engine.CommunityCards[i], false, false);
+                PlayCardDrop();
             }
             _spawnedCommunityCount = _engine.CommunityCards.Count;
         }
@@ -222,7 +194,8 @@ namespace CardFramework.Presentation.Controllers {
 
             _uiView?.DisplayOutcome(outcome);
         }
-
+        #endregion
+        #region Utility Methods
         private static (HandRank Rank, List<CardData> Cards) EvaluateBestFiveCardHand(List<CardData> holeCards, List<CardData> communityCards) {
             var combinedCards = new List<CardData>(holeCards);
             combinedCards.AddRange(communityCards);
@@ -275,5 +248,7 @@ namespace CardFramework.Presentation.Controllers {
                 _ => "High Card"
             };
         }
+
+        #endregion
     }
 }

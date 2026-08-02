@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Cloud.Interfaces;
 using VContainer;
+using CardFramework.Presentation.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -40,6 +41,7 @@ namespace CardFramework.Presentation.Views {
         private const string LockedClassName = "game-locked";
 
         private ICloudService _cloudService;
+        private IAudioService _audioService;
 
         private void OnEnable() {
             InitUi();
@@ -67,13 +69,13 @@ namespace CardFramework.Presentation.Views {
             };
 
             // Wire UI Toolkit Interactions straight to architecture events
-            if (btnBlackjack != null) btnBlackjack.clicked += () => ChangeActiveGame("Blackjack");
-            if (btnSolitaire != null) btnSolitaire.clicked += () => ChangeActiveGame("Solitaire");
-            if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => ChangeActiveGame("TexasHoldem");
+            if (btnBlackjack != null) btnBlackjack.clicked += () => HandleGameSwitchClicked("Blackjack");
+            if (btnSolitaire != null) btnSolitaire.clicked += () => HandleGameSwitchClicked("Solitaire");
+            if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => HandleGameSwitchClicked("TexasHoldem");
 
-            _root.Q<Button>("btn-close-dash").clicked += () => OnCloseRequested?.Invoke();
-            _root.Q<Button>("btn-open-linking").clicked += () => OnLinkAccountRequested?.Invoke();
-            _root.Q<Button>("btn-exit-app").clicked += () => OnExitApplicationRequested?.Invoke();
+            _root.Q<Button>("btn-close-dash").clicked += HandleCloseDashboardClicked;
+            _root.Q<Button>("btn-open-linking").clicked += HandleOpenLinkingClicked;
+            _root.Q<Button>("btn-exit-app").clicked += HandleExitAppClicked;
 
             // Set default runtime visual highlighting state
             UpdateActiveGameVisuals("Blackjack");
@@ -82,9 +84,38 @@ namespace CardFramework.Presentation.Views {
         }
 
 
+        [Inject]
+        public void Construct(IAudioService audioService) {
+            _audioService = audioService;
+        }
+
         public void ChangeActiveGame(string gameId) {
             UpdateActiveGameVisuals(gameId);
             OnGameSwitchRequested?.Invoke(gameId);
+        }
+
+        private void HandleGameSwitchClicked(string gameId) {
+            PlayButtonClickSound();
+            ChangeActiveGame(gameId);
+        }
+
+        private void HandleCloseDashboardClicked() {
+            PlayButtonClickSound();
+            OnCloseRequested?.Invoke();
+        }
+
+        private void HandleOpenLinkingClicked() {
+            PlayButtonClickSound();
+            OnLinkAccountRequested?.Invoke();
+        }
+
+        private void HandleExitAppClicked() {
+            PlayButtonClickSound();
+            OnExitApplicationRequested?.Invoke();
+        }
+
+        private void PlayButtonClickSound() {
+            _audioService?.PlayButtonClick();
         }
 
         /// <summary>

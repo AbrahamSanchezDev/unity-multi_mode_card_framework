@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
 using CardFramework.Core.Models;
+using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -18,6 +19,7 @@ namespace CardFramework.Presentation.Views {
         private Button _btnDraw;
         private Label _lblFoundationScore;
         private VisualElement _outcomeMessageVisualElement;
+        private IAudioService _audioService;
 
         public event Action OnStockTapped;
         public event Action OnRestartRequested;
@@ -56,6 +58,11 @@ namespace CardFramework.Presentation.Views {
         private List<Vector3> _draggedOriginalPositions = new();
         private int _dragSourceColumn = -1;
         private int _dragStartIndex = -1;
+
+        [Inject]
+        public void Construct(IAudioService audioService) {
+            _audioService = audioService;
+        }
 
         private void OnEnable() {
             var uiDocument = GetComponent<UIDocument>();
@@ -120,9 +127,24 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private void HandleRestartClicked() => OnRestartRequested?.Invoke();
-        private void HandleMenuClicked() => OnMenuRequested?.Invoke();
-        private void HandleDrawClicked() => OnStockTapped?.Invoke();
+        private void HandleRestartClicked() {
+            PlayButtonClickSound();
+            OnRestartRequested?.Invoke();
+        }
+
+        private void HandleMenuClicked() {
+            PlayButtonClickSound();
+            OnMenuRequested?.Invoke();
+        }
+
+        private void HandleDrawClicked() {
+            PlayButtonClickSound();
+            OnStockTapped?.Invoke();
+        }
+
+        private void PlayButtonClickSound() {
+            _audioService?.PlayButtonClick();
+        }
 
         private void Update() {
             if (!_isDragging || _mainCamera == null) return;
@@ -240,6 +262,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             _isDragging = true;
+            interactable.NotifyGrabbed();
 
             AllowColumnDropTargets(true);
         }
@@ -291,7 +314,12 @@ namespace CardFramework.Presentation.Views {
                 }
             }
 
-            if (!handled) {
+            if (handled) {
+                foreach (var card in _draggedStack) {
+                    card.NotifyDropped();
+                }
+            }
+            else {
                 for (int i = 0; i < _draggedStack.Count; i++) {
                     _draggedStack[i].ResetToOriginalPosition();
                 }

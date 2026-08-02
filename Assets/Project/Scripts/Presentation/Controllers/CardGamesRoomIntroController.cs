@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer.Unity;
 using CardFramework.Core.Interfaces;
+using CardFramework.Presentation.Interfaces;
 using CardFramework.Presentation.Views;
 
 namespace CardFramework.Presentation.Controllers {
@@ -14,8 +15,9 @@ namespace CardFramework.Presentation.Controllers {
         private readonly TexasHoldemView _texasHoldemView;
         private readonly DashboardMenuView _dashboardView;
         private readonly IEconomyService _economyService;
+        private readonly IAudioService _audioService;
 
-        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, TexasHoldemView texasHoldemView = null, DashboardMenuView dashboardView = null) {
+        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, TexasHoldemView texasHoldemView = null, DashboardMenuView dashboardView = null, IAudioService audioService = null) {
             _introView = introView;
             _tableManager = tableManager;
             _blackjackView = blackjackView;
@@ -23,6 +25,7 @@ namespace CardFramework.Presentation.Controllers {
             _texasHoldemView = texasHoldemView;
             _dashboardView = dashboardView;
             _economyService = economyService;
+            _audioService = audioService;
         }
 
         public void Start() {
@@ -41,6 +44,8 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         private void HandleOptionSelected(string optionId) {
+            _audioService?.PlayButtonClick();
+
             if (_introView != null) {
                 _introView.Hide();
             }

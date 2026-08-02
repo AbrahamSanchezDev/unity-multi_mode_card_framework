@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
 using CardFramework.Core.Engines;
@@ -12,17 +14,16 @@ namespace CardFramework.Presentation.Controllers {
     /// Pure C# Architecture Controller driving Blackjack UI events, cloud economy wagers, 
     /// and modal state transitions into the Core Simulation Engine.
     /// </summary>
-    public class BlackjackTableController : IStartable, IDisposable {
+    public class BlackjackTableController : BaseTableController {
         private readonly BlackjackEngine _gameEngine;
         private readonly IBlackjackView _uiView;
-        private readonly IEconomyService _economyService;
-        private readonly IModalService _modalService;
-        private readonly BettingModalView _bettingModalView;
-        private readonly NavigationController _navigationController;
-        private CurrencyDisplayHelper _currencyDisplayHelper;
+        private readonly Queue<int> _pendingGoldCredits = new Queue<int>();
+        private bool _isGoldCreditQueueProcessing;
 
-        private int _currentActiveWager = 0;
-        private bool _isBlackjackActive = true; // Default true or sync via switch event
+        public override int MaxWager => MaxBlackjackWager;
+        public const int MaxBlackjackWager = 0; // Unlimited for Blackjack, but can be capped by PlayFab Economy Service
+
+        private bool _canInteractHitOrStand;
 
         public BlackjackTableController(
             BlackjackEngine gameEngine,
@@ -30,39 +31,26 @@ namespace CardFramework.Presentation.Controllers {
             IEconomyService economyService,
             IModalService modalService,
             BettingModalView bettingModalView,
-            NavigationController navigationController) {
+            NavigationController navigationController,
+            IAudioService audioService) {
             _gameEngine = gameEngine;
             _uiView = uiView;
             _economyService = economyService;
             _modalService = modalService;
             _bettingModalView = bettingModalView;
             _navigationController = navigationController;
+            _audioService = audioService;
         }
 
-        public void Start() {
+        public override void Start() {
+            base.Start();
             // Bind UI User Interactions to Controller Logic
             _uiView.OnHitRequested += HandleHit;
             _uiView.OnStandRequested += HandleStand;
-            _uiView.OnRestartRequested += HandleRestart;
-
-            // Bind Cloud Betting Modal Confirmation
-            _bettingModalView.OnBetConfirmed += HandleWagerConfirmed;
-
-            _currencyDisplayHelper?.Dispose();
-            _currencyDisplayHelper = new CurrencyDisplayHelper(_economyService, HandleWalletBalanceChanged);
-
-            // Listen to Navigation lifecycle changes to freeze/unfreeze interactions
-            _navigationController.OnMenuOpened += HandleMenuOpened;
-            _navigationController.OnMenuClosed += HandleMenuClosed;
-
-            _navigationController.OnSwitchGameCompleted += HandleGameSwitchCompleted;
+            _uiView.OnRestartRequested += RequestNewGame;
 
             // Initialize the UI with the cached starting balance right away
             _uiView.UpdateWalletBalance(_economyService.CurrentGold);
-
-            // Subscribe to the open and close of the menu
-            // _navigationController.OnMenuOpened += HandleMenuOpened;
-            // _navigationController.OnMenuClosed += HandleMenuClosed;
 
             // Subscribe to the event for when the menu gets open
             _uiView.OnMenuRequested += HandleMenuToggleRequested;
@@ -71,11 +59,12 @@ namespace CardFramework.Presentation.Controllers {
             //HandleRestart();
         }
 
-        public void Dispose() {
+        public override void Dispose() {
+            base.Dispose();
             // Unsubscribe to mitigate memory leaks upon lifecycle destruction
             _uiView.OnHitRequested -= HandleHit;
             _uiView.OnStandRequested -= HandleStand;
-            _uiView.OnRestartRequested -= HandleRestart;
+            _uiView.OnRestartRequested -= RequestNewGame;
 
             _bettingModalView.OnBetConfirmed -= HandleWagerConfirmed;
 
@@ -88,85 +77,71 @@ namespace CardFramework.Presentation.Controllers {
             _navigationController.OnSwitchGameCompleted -= HandleGameSwitchCompleted;
         }
 
-        private void HandleRestart() {
-            _modalService?.ShowConfirmation(
-                "Start New Round?",
-                "This will discard the current Blackjack hand. Start a new round?",
-                BeginRestartRound,
-                OnCancelNewGame
-            );
-        }
-        
-        private void OnCancelNewGame() {
-            // Debug.Log("[Blackjack Controller] New round request canceled by user.");
+        protected override string GetDescriptionOnNewGameText() {
+            return "This will discard the current Blackjack hand. Start a new round?";
         }
 
-        private void BeginRestartRound() {
-            // Intercept standard auto-deal layout loops to request a server-validated bet first
-            _currentActiveWager = 0;
-            _uiView.SetInteractionState(false);
+        protected override void BeginNewGame() {
+            base.BeginNewGame();
+            SetInteractionState(false);
             _uiView.ClearTable();
-
-            _bettingModalView.ShowModal();
+            _canInteractHitOrStand = true;
         }
 
-
-
-        private void HandleMenuToggleRequested() {
-            _navigationController.OpenMenu("PlayFab Synced Profile");
+        protected override void HandleMenuOpened() {
+            SetInteractionState(false);
         }
 
-        private void HandleMenuOpened() {
-            _uiView.SetInteractionState(false);
-        }
-
-        private void HandleMenuClosed() {
+        protected override void HandleMenuClosed() {
             // Only restore interaction state if the game is currently active and not awaiting a wager confirmation
             switch (_gameEngine.CurrentState) {
                 case BlackjackEngine.GameState.PlayerTurn:
                 case BlackjackEngine.GameState.DealerTurn:
-                    _uiView.SetInteractionState(true);
+                    SetInteractionState(true);
                     break;
                 case BlackjackEngine.GameState.PlayerBust:
                 case BlackjackEngine.GameState.DealerBust:
                 case BlackjackEngine.GameState.Showdown:
                 case BlackjackEngine.GameState.GameOver:
-                    _uiView.SetInteractionState(false);
+                    SetInteractionState(false);
                     break;
             }
         }
 
-        private void HandleWalletBalanceChanged(int freshBalance) {
+        private void SetInteractionState(bool isEnabled) {
+            _uiView.SetInteractionState(isEnabled);
+            _canInteractHitOrStand = isEnabled;
+        }
+
+        protected override void UpdateWalletBalance(int freshBalance) {
             _uiView.UpdateWalletBalance(freshBalance);
         }
 
-        private void HandleWagerConfirmed(int confirmedBet) {
-            // Guard clause: ignore bet confirmations if Blackjack is not active
-            if (!_isBlackjackActive) return;
-
-            _currentActiveWager = confirmedBet;
-            Debug.Log($"[Match Flow] Wager verified: {_currentActiveWager} GD. Processing cloud debit transaction...");
-
-            // Authoritative server side balance debit via PlayFab pipeline
-            _economyService.DebitGold(_currentActiveWager);
-
+        protected override void InitializeEngine() {
+            base.InitializeEngine();
             // Once economy state is locked on the cloud, proceed to spawn physical game assets
             InitializeTable();
         }
 
-        private void HandleGameSwitchCompleted(string targetGameKey) {
-            _isBlackjackActive = targetGameKey.Equals("Blackjack", StringComparison.OrdinalIgnoreCase);
-
-            _uiView.ShowUi(_isBlackjackActive);
-            if (_isBlackjackActive) {
-                BeginRestartRound();
-            }
-            else {
-                _uiView.ClearTable();
-                _uiView.SetInteractionState(false);
-            }
+        override protected string GetGameModeKey() {
+            return "Blackjack";
+        }
+        override protected void OnGameModeActivated() {
+            base.OnGameModeActivated();
+            _uiView.ShowUi(true);
         }
 
+        protected override void OnGameModeDeactivated() {
+            base.OnGameModeDeactivated();
+            _uiView.ClearTable();
+            SetInteractionState(false);
+        }
+
+        override public void ShowUI(bool show) {
+            _uiView?.ShowUi(show);
+        }
+
+        #region Blackjack Specific Handlers
         private void InitializeTable() {
             _gameEngine.ResetEngineState();
             _gameEngine.DealInitialHands();
@@ -179,9 +154,13 @@ namespace CardFramework.Presentation.Controllers {
 
             if (playerHand.Cards.Count >= 2 && dealerHand.Cards.Count >= 2) {
                 _uiView.SpawnPhysicalCard(playerHand.Cards[0], true);
+                PlayCardDrop();
                 _uiView.SpawnPhysicalCard(dealerHand.Cards[0], false);
+                PlayCardDrop();
                 _uiView.SpawnPhysicalCard(playerHand.Cards[1], true);
+                PlayCardDrop();
                 _uiView.SpawnPhysicalCard(dealerHand.Cards[1], false);
+                PlayCardDrop();
             }
 
             _uiView.UpdatePlayerScore(_gameEngine.GetPlayerValue());
@@ -189,11 +168,11 @@ namespace CardFramework.Presentation.Controllers {
 
             // Check if initial hands instantly yielded a natural Blackjack
             if (_gameEngine.CurrentState == BlackjackEngine.GameState.Showdown) {
-                _uiView.SetInteractionState(false);
-                EvaluateMatchOutcome();
+                SetInteractionState(false);
+                EvaluateMatchOutcome(true);
             }
             else {
-                _uiView.SetInteractionState(true);
+                SetInteractionState(true);
             }
         }
 
@@ -204,21 +183,23 @@ namespace CardFramework.Presentation.Controllers {
             var playerHand = _gameEngine.GetPlayerHand();
             if (playerHand.Cards.Count > 0) {
                 _uiView.SpawnPhysicalCard(playerHand.Cards[^1], true);
+                PlayCardDrop();
             }
 
             _uiView.UpdatePlayerScore(_gameEngine.GetPlayerValue());
 
             if (_gameEngine.CurrentState == BlackjackEngine.GameState.PlayerBust) {
-                _uiView.SetInteractionState(false);
+                PlayInvalidMove();
+                SetInteractionState(false);
                 _uiView.DisplayWinner("Dealer (Player Busted)");
 
                 // Player busted: Wager is permanently lost, no cloud credits needed
-                Debug.Log($"[Match Flow] Player busted. Lost: {_currentActiveWager} GD.");
+                Debug.Log($"[Match Flow] Player busted. Lost: {_currentWager} GD.");
             }
         }
 
         private void HandleStand() {
-            _uiView.SetInteractionState(false);
+            SetInteractionState(false);
 
             // Cache the current dealer card count before dealer AI acts
             int existingDealerCards = _gameEngine.GetDealerHand().Cards.Count;
@@ -229,13 +210,14 @@ namespace CardFramework.Presentation.Controllers {
             var dealerHand = _gameEngine.GetDealerHand();
             for (int i = existingDealerCards; i < dealerHand.Cards.Count; i++) {
                 _uiView.SpawnPhysicalCard(dealerHand.Cards[i], false);
+                PlayCardDrop();
             }
 
             _uiView.UpdateDealerScore(_gameEngine.GetDealerValue());
             EvaluateMatchOutcome();
         }
 
-        private void EvaluateMatchOutcome() {
+        private void EvaluateMatchOutcome(bool firstEvaluation = false) {
             int pValue = _gameEngine.GetPlayerValue();
             int dValue = _gameEngine.GetDealerValue();
 
@@ -243,36 +225,72 @@ namespace CardFramework.Presentation.Controllers {
             if (_gameEngine.CurrentState == BlackjackEngine.GameState.DealerBust) {
                 _uiView.DisplayWinner("Player Wins! (Dealer Busted)");
 
-                int payout = _currentActiveWager * 2;
+                int payout = _currentWager * 2;
                 Debug.Log($"[Match Flow] Dealer busted. Standard payout credited: {payout} GD");
-                _economyService.CreditGold(payout);
+                CreditGold(payout, firstEvaluation);
             }
             else if (pValue > dValue) {
                 // Determine if win was achieved via a Natural 2-card 21 Blackjack (Pays 3:2 -> 2.5x total payout)
                 var playerHand = _gameEngine.GetPlayerHand();
                 if (pValue == 21 && playerHand.Cards.Count == 2) {
                     _uiView.DisplayWinner("Natural Blackjack!");
-                    int payout = Mathf.FloorToInt(_currentActiveWager * 2.5f);
+                    int payout = Mathf.FloorToInt(_currentWager * 2.5f);
                     Debug.Log($"[Match Flow] Natural Blackjack! Premium payout credited: {payout} GD");
-                    _economyService.CreditGold(payout);
+
+                    CreditGold(payout, firstEvaluation);
                 }
                 else {
                     _uiView.DisplayWinner("Player Wins!");
-                    int payout = _currentActiveWager * 2;
+                    int payout = _currentWager * 2;
                     Debug.Log($"[Match Flow] Standard Win. Payout credited: {payout} GD");
-                    _economyService.CreditGold(payout);
+                    CreditGold(payout, firstEvaluation);
                 }
             }
             else if (dValue > pValue) {
                 _uiView.DisplayWinner("Dealer Wins!");
-                Debug.Log($"[Match Flow] Dealer won. Lost: {_currentActiveWager} GD.");
+                Debug.Log($"[Match Flow] Dealer won. Lost: {_currentWager} GD.");
             }
             else {
                 _uiView.DisplayWinner("Push (Tie Game)");
                 // Tie Game: Return original wager straight back to cloud inventory balance
-                Debug.Log($"[Match Flow] Tie match detected. Returning original wager: {_currentActiveWager} GD");
-                _economyService.CreditGold(_currentActiveWager);
+                Debug.Log($"[Match Flow] Tie match detected. Returning original wager: {_currentWager} GD");
+                CreditGold(_currentWager, firstEvaluation);
             }
         }
+
+        private void QueueDelayedGoldCredit(int amount) {
+            _pendingGoldCredits.Enqueue(amount);
+            if (_isGoldCreditQueueProcessing) {
+                return;
+            }
+
+            _ = ProcessQueuedGoldCreditsAsync();
+        }
+
+        private async Task ProcessQueuedGoldCreditsAsync() {
+            _isGoldCreditQueueProcessing = true;
+
+            try {
+                while (_pendingGoldCredits.Count > 0) {
+                    int nextPayout = _pendingGoldCredits.Dequeue();
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    CreditGold(nextPayout);
+                }
+            }
+            finally {
+                _isGoldCreditQueueProcessing = false;
+            }
+        }
+
+        private void CreditGold(int amount, bool delay = false) {
+            if (delay) {
+                QueueDelayedGoldCredit(amount);
+                return;
+            }
+            else
+                _economyService.CreditGold(amount);
+        }
+        #endregion
+
     }
 }

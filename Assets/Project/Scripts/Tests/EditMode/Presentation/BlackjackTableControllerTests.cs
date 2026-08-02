@@ -19,6 +19,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
         private BettingModalView _bettingModalView;
         private NavigationController _navigationController;
         private GameObject _modalContainer;
+        private IAudioService _audioService;
         private BlackjackTableController _controller;
 
         [SetUp]
@@ -44,8 +45,9 @@ namespace CardFramework.Tests.EditMode.Presentation {
             // Setup the clean isolated navigation stack required by the constructor
             var mockDashView = _modalContainer.AddComponent<DashboardMenuView>();
             _navigationController = new NavigationController(mockDashView, null);
+            _audioService = new MockAudioService();
 
-            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _mockModalService, _bettingModalView, _navigationController);
+            _controller = new BlackjackTableController(_engine, _mockView, _mockEconomy, _mockModalService, _bettingModalView, _navigationController, _audioService);
         }
 
         [TearDown]
@@ -414,6 +416,23 @@ namespace CardFramework.Tests.EditMode.Presentation {
                 var del = field.GetValue(_bettingModalView) as Action<int>;
                 del?.Invoke(targetBet);
             }
+        }
+
+        private class MockAudioService : IAudioService {
+            public int PlayCardGrabCalls { get; private set; }
+            public int PlayCardDropCalls { get; private set; }
+            public int PlayShuffleCalls { get; private set; }
+            public int PlayInvalidMoveCalls { get; private set; }
+            public int PlayButtonClickCalls { get; private set; }
+
+            public void PlayCardGrab() => PlayCardGrabCalls++;
+            public void PlayCardDrop() => PlayCardDropCalls++;
+            public void PlayShuffle() => PlayShuffleCalls++;
+            public void PlayInvalidMove() => PlayInvalidMoveCalls++;
+            public void PlayButtonClick() => PlayButtonClickCalls++;
+            public void SetMasterVolume(float volume) { }
+            public void AttachToSpatialCard(CardFramework.Presentation.Views.SpatialCardInteractable interactable) { }
+            public void DetachFromSpatialCard(CardFramework.Presentation.Views.SpatialCardInteractable interactable) { }
         }
 
         private class MockEconomyService : IEconomyService {

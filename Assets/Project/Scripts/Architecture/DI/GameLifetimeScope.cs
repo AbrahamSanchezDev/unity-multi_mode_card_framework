@@ -31,6 +31,7 @@ namespace CardFramework.Architecture.DI {
         [SerializeField] private BettingModalView bettingModalView;
 
         [SerializeField] private InputActionReference menuActionReference;
+        [SerializeField] private CardAudioService audioServiceInstance;
         [SerializeField] private DashboardMenuView dashboardMenuView;
         [SerializeField] private GameRoomIntroView gameRoomIntroView;
 
@@ -56,6 +57,19 @@ namespace CardFramework.Architecture.DI {
             builder.Register<IInputContext, StandaloneInputAdapter>(Lifetime.Singleton);
             builder.Register<ITimeService, PlayFabTimeService>(Lifetime.Singleton);
             builder.Register<CloudMailboxManager>(Lifetime.Singleton);
+
+            // ---- AUDIO SERVICE ----
+            if (audioServiceInstance != null) {
+                builder.RegisterComponent(audioServiceInstance).AsSelf().As<IAudioService>();
+            }
+            else {
+                var audioServiceObject = new GameObject("CardAudioService");
+                audioServiceObject.transform.SetParent(transform, false);
+                var audioServiceInstance = audioServiceObject.AddComponent<CardAudioService>();
+                if (audioServiceInstance != null) {
+                    builder.RegisterComponent(audioServiceInstance).AsSelf().As<IAudioService>();
+                }
+            }
 
             // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
             if (blackjackViewInstance != null) {

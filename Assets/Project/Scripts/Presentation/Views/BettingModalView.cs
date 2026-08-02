@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using CardFramework.Core.Interfaces;
 using VContainer;
 using CardFramework.Presentation.Controllers;
+using CardFramework.Presentation.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -17,7 +18,8 @@ namespace CardFramework.Presentation.Views {
 
         private IEconomyService _economyService;
         private NavigationController _navigationController;
-        
+        private IAudioService _audioService;
+
         private int _currentBetAmount = 10;
         private int _activeMinBet = 10;
         private int _activeMaxBet = int.MaxValue;
@@ -25,9 +27,10 @@ namespace CardFramework.Presentation.Views {
         private const int DefaultMinBet = 10;
 
         [Inject]
-        public void Construct(IEconomyService economyService, NavigationController navigationController) {
+        public void Construct(IEconomyService economyService, NavigationController navigationController, IAudioService audioService = null) {
             _economyService = economyService;
             _navigationController = navigationController;
+            _audioService = audioService;
         }
 
         private void OnEnable() {
@@ -108,9 +111,24 @@ namespace CardFramework.Presentation.Views {
                 UpdateBalanceUI(_economyService.CurrentGold);
         }
 
-        private void OnAdd10Clicked() => AdjustBet(10);
-        private void OnAdd100Clicked() => AdjustBet(100);
-        private void OnAdd1kClicked() => AdjustBet(1000);
+        private void OnAdd10Clicked() {
+            PlayButtonClick();
+            AdjustBet(10);
+        }
+
+        private void OnAdd100Clicked() {
+            PlayButtonClick();
+            AdjustBet(100);
+        }
+
+        private void OnAdd1kClicked() {
+            PlayButtonClick();
+            AdjustBet(1000);
+        }
+
+        private void PlayButtonClick() {
+            _audioService?.PlayButtonClick();
+        }
 
         private void AdjustBet(int amount) {
             int targetBet = _currentBetAmount + amount;
@@ -123,11 +141,13 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void ClearBet() {
+            PlayButtonClick();
             _currentBetAmount = _activeMinBet;
             UpdateBetUI();
         }
 
         private void SetMaxBet() {
+            PlayButtonClick();
             int availableGold = _economyService != null ? _economyService.CurrentGold : 0;
             _currentBetAmount = Mathf.Min(_activeMaxBet, availableGold);
             if (_currentBetAmount < _activeMinBet) _currentBetAmount = _activeMinBet;
@@ -136,7 +156,7 @@ namespace CardFramework.Presentation.Views {
 
         private void UpdateBetUI() {
             if (_lblCurrentBet != null) _lblCurrentBet.text = $"{_currentBetAmount} GD";
-            
+
             int maxAllowed = Mathf.Min(_activeMaxBet, _economyService != null ? _economyService.CurrentGold : _currentBetAmount);
             if (_btnConfirm != null)
                 _btnConfirm.SetEnabled(_currentBetAmount >= _activeMinBet && _currentBetAmount <= maxAllowed);
@@ -148,6 +168,7 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void ConfirmBet() {
+            PlayButtonClick();
             int maxAllowed = Mathf.Min(_activeMaxBet, _economyService != null ? _economyService.CurrentGold : _currentBetAmount);
             if (_currentBetAmount >= _activeMinBet && _currentBetAmount <= maxAllowed) {
                 OnBetConfirmed?.Invoke(_currentBetAmount);
