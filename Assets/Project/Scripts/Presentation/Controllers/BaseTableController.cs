@@ -110,7 +110,6 @@ namespace CardFramework.Presentation.Controllers {
         public virtual void RequestNewGame() {
             if (!_isGameModeActive) return;
             if (playButtonsAreActive) {
-                Debug.Log("[Match Flow] Player requested a new round while in the middle of a hand. Prompting confirmation modal.");
                 _modalService?.ShowConfirmation(
                 GetStartOnNewGameText(),
                 GetDescriptionOnNewGameText(),

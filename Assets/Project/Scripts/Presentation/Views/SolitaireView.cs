@@ -1,6 +1,7 @@
 // File: Assets/_Project/Scripts/Presentation/Views/SolitaireView.cs
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -391,6 +392,42 @@ namespace CardFramework.Presentation.Views {
             }
 
             return -1;
+        }
+
+        public void AnimateStockDraw(CardData card, int destinationStackCount, Action onComplete) {
+            if (card == null || stockAnchor == null || wasteAnchor == null || cardPrefab == null) {
+                onComplete?.Invoke();
+                return;
+            }
+
+            _cardsPool ??= new CardsPool(cardPrefab, cardPoolRoot);
+            GameObject cardInstance = _cardsPool.GetCard(stockAnchor.position, stockAnchor.rotation, stockAnchor);
+            if (cardInstance == null) {
+                onComplete?.Invoke();
+                return;
+            }
+
+            var faceGenerator = cardInstance.GetComponent<CardFaceGenerator>();
+            if (faceGenerator != null) {
+                faceGenerator.GenerateCard(card, cardsGraphics);
+                faceGenerator.SetFaceUpMaterial(false);
+            }
+
+            var interactable = cardInstance.GetComponent<SpatialCardInteractable>();
+            if (interactable != null) {
+                interactable.enabled = false;
+            }
+
+            Vector3 targetPosition = wasteAnchor.position + (Vector3.up * ((destinationStackCount - 1) * cardThicknessOffset));
+            Quaternion targetRotation = wasteAnchor.rotation;
+
+            CardAnimationHelper.MoveCardTo(cardInstance, targetPosition, targetRotation, onComplete: () => {
+                if (faceGenerator != null) {
+                    faceGenerator.SetFaceUpMaterial(true);
+                }
+                _cardsPool?.ReturnCard(cardInstance);
+                onComplete?.Invoke();
+            });
         }
 
         public void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste) {

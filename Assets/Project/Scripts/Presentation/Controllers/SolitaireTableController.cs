@@ -123,6 +123,13 @@ namespace CardFramework.Presentation.Controllers {
 
             _engine.DrawCard();
             PlayCardGrab();
+
+            var waste = _engine.GetWaste();
+            if (waste != null && waste.Count > 0) {
+                _uiView?.AnimateStockDraw(waste[^1], waste.Count, RefreshTableLayout);
+                return;
+            }
+
             RefreshTableLayout();
         }
 

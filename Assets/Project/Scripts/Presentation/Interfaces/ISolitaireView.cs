@@ -10,6 +10,7 @@ namespace CardFramework.Presentation.Interfaces {
         event Action<List<CardData>, int, int, int> OnTableauDropRequested;
         event Action<List<CardData>, int> OnFoundationDropRequested;
 
+        void AnimateStockDraw(CardData card, int destinationStackCount, Action onComplete);
         void ClearTable();
         void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste);
         void UpdateWalletBalance(int balance);
