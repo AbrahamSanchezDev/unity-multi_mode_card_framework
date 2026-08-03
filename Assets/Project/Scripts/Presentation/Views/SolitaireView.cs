@@ -574,7 +574,8 @@ namespace CardFramework.Presentation.Views {
         }
 
         public void SetInteractionState(bool canInteract) {
-            if (_btnRestart != null) _btnRestart.SetEnabled(canInteract);
+            // if (_btnRestart != null) _btnRestart.SetEnabled(canInteract);
+            if (_btnDraw != null) _btnDraw.SetEnabled(canInteract);
         }
 
         public void ClearTable() {

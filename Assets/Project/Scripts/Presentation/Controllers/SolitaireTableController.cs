@@ -95,8 +95,14 @@ namespace CardFramework.Presentation.Controllers {
                 _engine.GetWaste()
             );
 
+            bool canDraw = _isGameModeActive && (_engine.GetStock().Count > 0 || _engine.GetWaste().Count >= 1);
+            SetInteractionState(canDraw);
             _uiView?.UpdateFoundationScore(GetFoundationCount(), 52);
             _uiView?.ClearOutcome();
+        }
+
+        private void SetInteractionState(bool canInteract) {
+            _uiView?.SetInteractionState(canInteract);
         }
 
         protected override void UpdateWalletBalance(int newBalance) {
