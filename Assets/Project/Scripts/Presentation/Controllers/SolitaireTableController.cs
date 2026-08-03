@@ -88,11 +88,13 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         protected override void RefreshTableLayout() {
+            var newlyRevealedCards = _engine.ConsumeLastRevealedCards();
             _uiView?.RenderLayout(
                 _engine.GetTableau(),
                 _engine.GetFoundation(),
                 _engine.GetStock(),
-                _engine.GetWaste()
+                _engine.GetWaste(),
+                newlyRevealedCards
             );
 
             bool canDraw = _isGameModeActive && (_engine.GetStock().Count > 0 || _engine.GetWaste().Count >= 1);

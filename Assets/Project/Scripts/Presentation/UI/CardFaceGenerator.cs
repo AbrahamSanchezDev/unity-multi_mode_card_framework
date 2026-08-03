@@ -345,12 +345,20 @@ namespace CardFramework.Presentation.Views {
             return mats;
         }
 
+        public bool IsFacingUp;
+        public bool IsFacingDown;
+
         public void SetFaceUpMaterial(bool isFacingUp) {
+            IsFacingUp = isFacingUp;
+            IsFacingDown = !isFacingUp;
             Material[] mats = GetMaterials();
             if (mats == null) {
+                Debug.LogWarning("CardFaceGenerator: no targetRenderer assigned, can't set face up material.", this);
                 return;
             }
             mats[setupData.materialIndex] = isFacingUp ? _generatedMaterialInstance : blankFaceMaterial;
+            targetRenderer.materials = mats;
+
         }
 
         public virtual void SaveTextureToFolder(string folder) {

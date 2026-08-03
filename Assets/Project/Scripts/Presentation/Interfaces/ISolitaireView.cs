@@ -12,7 +12,7 @@ namespace CardFramework.Presentation.Interfaces {
 
         void AnimateStockDraw(CardData card, int destinationStackCount, Action onComplete);
         void ClearTable();
-        void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste);
+        void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste, List<(int ColumnIndex, int CardIndex)> newlyRevealedCards = null);
         void UpdateWalletBalance(int balance);
         void UpdateFoundationScore(int foundationCount, int totalCards);
         void DisplayOutcome(string message);

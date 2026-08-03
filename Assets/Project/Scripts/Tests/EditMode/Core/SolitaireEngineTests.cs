@@ -288,6 +288,28 @@ namespace CardFramework.Tests.EditMode.Core {
             Assert.IsTrue(engine.GetTableau()[sourceColumn][^1].IsFaceUp, "The newly revealed card should flip face up after the move.");
         }
 
+        [Test]
+        public void MoveCardToFoundation_PreservesRevealStateForAlreadyRevealedCard() {
+            // Arrange
+            var sourceColumn = 0;
+            var targetSuitIndex = (int)CardData.Suit.Spades;
+
+            var hiddenCard = new CardData(CardData.Suit.Spades, CardData.Rank.Queen, isFaceUp: false, instanceId: 100);
+            var movedCard = new CardData(CardData.Suit.Hearts, CardData.Rank.King, isFaceUp: true, instanceId: 200);
+
+            engine.GetTableau()[sourceColumn].Clear();
+            engine.GetTableau()[sourceColumn].Add(hiddenCard);
+            engine.GetTableau()[sourceColumn].Add(movedCard);
+
+            // Act - revealing the hidden card first
+            engine.MoveCardToTableau(movedCard, 1);
+            var revealedCard = engine.GetTableau()[sourceColumn][^1];
+            engine.MoveCardToFoundation(revealedCard, targetSuitIndex);
+
+            // Assert
+            Assert.IsTrue(engine.GetFoundation()[targetSuitIndex][0].HasBeenRevealed, "The card should keep its reveal flag when it moves to the foundation.");
+        }
+
         #endregion
 
         #region Foundation Placement Tests

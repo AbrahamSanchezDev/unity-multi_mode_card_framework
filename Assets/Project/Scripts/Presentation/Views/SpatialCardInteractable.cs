@@ -24,6 +24,10 @@ namespace CardFramework.Presentation.Views {
         private Collider _cardCollider;
         private Vector3 _originalPosition;
         private Quaternion _originalRotation;
+        private CardData _lastRenderedCardData;
+        private bool _hasRenderedState;
+        private bool _lastRenderedFaceUp;
+        private bool _pendingRevealAnimation;
 
         public void Initialize(CardData cardData, int sourceColumnIndex = -1, int cardIndexInColumn = -1, bool isFromWastePile = false) {
             CardData = cardData;
@@ -33,6 +37,7 @@ namespace CardFramework.Presentation.Views {
             _cardCollider = GetComponent<Collider>();
             _originalPosition = transform.position;
             _originalRotation = transform.rotation;
+            SyncRenderedState(cardData, cardData.IsFaceUp);
         }
 
         public void SetPosition(Vector3 position) {
@@ -56,6 +61,30 @@ namespace CardFramework.Presentation.Views {
         public void SetColliderEnabled(bool enabled) {
             if (_cardCollider != null) {
                 _cardCollider.enabled = enabled;
+            }
+        }
+
+        public bool ShouldAnimateReveal(CardData cardData, bool isFaceUp, bool requestedReveal) {
+            if (!requestedReveal || !isFaceUp) {
+                return false;
+            }
+
+            if (!_hasRenderedState) {
+                return false;
+            }
+
+            bool sameCard = _lastRenderedCardData.HasSameIdentity(cardData);
+            bool shouldReveal = sameCard && !_lastRenderedFaceUp;
+            _pendingRevealAnimation = shouldReveal;
+            return shouldReveal;
+        }
+
+        public void SyncRenderedState(CardData cardData, bool isFaceUp) {
+            _lastRenderedCardData = cardData;
+            _lastRenderedFaceUp = isFaceUp;
+            _hasRenderedState = true;
+            if (!isFaceUp) {
+                _pendingRevealAnimation = false;
             }
         }
 

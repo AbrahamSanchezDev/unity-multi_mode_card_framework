@@ -49,9 +49,11 @@ namespace CardFramework.Presentation.Views {
 
         private readonly List<GameObject> _spawnedCards = new();
         private readonly List<SpatialCardInteractable> _spawnedInteractables = new();
+        private readonly Dictionary<int, bool> _previousRenderedFaceUpByInstanceId = new();
         private CardsPool _cardsPool;
         private Camera _mainCamera;
         private bool _isDragging;
+        private bool _flipOnYAxis = false;
         private Plane _dragPlane;
         private Vector3 _dragStartWorldPosition;
         private Vector3 _currentDragWorldPosition;
@@ -407,6 +409,8 @@ namespace CardFramework.Presentation.Views {
                 return;
             }
 
+            cardInstance.transform.rotation = GetHiddenCardRotation(stockAnchor.rotation);
+
             var faceGenerator = cardInstance.GetComponent<CardFaceGenerator>();
             if (faceGenerator != null) {
                 faceGenerator.GenerateCard(card, cardsGraphics);
@@ -430,8 +434,12 @@ namespace CardFramework.Presentation.Views {
             });
         }
 
-        public void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste) {
+        public void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste, List<(int ColumnIndex, int CardIndex)> newlyRevealedCards = null) {
             ClearTable();
+
+            var revealSet = newlyRevealedCards == null
+                ? new HashSet<(int ColumnIndex, int CardIndex)>()
+                : new HashSet<(int ColumnIndex, int CardIndex)>(newlyRevealedCards);
 
             if (tableauDropTargets != null) {
                 for (int i = 0; i < tableauDropTargets.Length && i < tableau.Length; i++) {
@@ -455,7 +463,8 @@ namespace CardFramework.Presentation.Views {
                     Quaternion rotation = anchor.rotation;
 
                     bool isFaceUp = card.IsFaceUp;
-                    SpawnCard(card, position, rotation, isFaceUp, anchor, canInteract: isFaceUp, sourceColumnIndex: col, cardIndexInColumn: i, isFromWastePile: false);
+                    bool animateFlip = isFaceUp && revealSet.Contains((col, i));
+                    SpawnCard(card, position, rotation, isFaceUp, anchor, canInteract: isFaceUp, sourceColumnIndex: col, cardIndexInColumn: i, isFromWastePile: false, animateFlip);
                 }
             }
 
@@ -463,7 +472,7 @@ namespace CardFramework.Presentation.Views {
             if (stockAnchor != null) {
                 for (int i = 0; i < stock.Count; i++) {
                     Vector3 position = stockAnchor.position + (Vector3.up * (i * cardThicknessOffset));
-                    SpawnCard(stock[i], position, stockAnchor.rotation, isFaceUp: false, stockAnchor, canInteract: false, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: false);
+                    SpawnCard(stock[i], position, stockAnchor.rotation, isFaceUp: false, stockAnchor, canInteract: false, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: false, animateFlip: false);
                 }
             }
 
@@ -472,7 +481,7 @@ namespace CardFramework.Presentation.Views {
                 for (int i = 0; i < waste.Count; i++) {
                     Vector3 position = wasteAnchor.position + (Vector3.up * (i * cardThicknessOffset));
                     bool isTopCard = (i == waste.Count - 1);
-                    SpawnCard(waste[i], position, wasteAnchor.rotation, isFaceUp: true, wasteAnchor, canInteract: isTopCard, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: isTopCard);
+                    SpawnCard(waste[i], position, wasteAnchor.rotation, isFaceUp: true, wasteAnchor, canInteract: isTopCard, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: isTopCard, animateFlip: false);
                 }
             }
 
@@ -485,12 +494,12 @@ namespace CardFramework.Presentation.Views {
                 if (fCards.Count > 0) {
                     CardData topCard = fCards[^1];
                     Vector3 position = anchor.position;
-                    SpawnCard(topCard, position, anchor.rotation, isFaceUp: topCard.IsFaceUp, anchor, canInteract: false, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: false);
+                    SpawnCard(topCard, position, anchor.rotation, isFaceUp: topCard.IsFaceUp, anchor, canInteract: false, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: false, animateFlip: false);
                 }
             }
         }
 
-        private GameObject SpawnCard(CardData cardData, Vector3 position, Quaternion rotation, bool isFaceUp, Transform theParent, bool canInteract, int sourceColumnIndex, int cardIndexInColumn, bool isFromWastePile) {
+        private GameObject SpawnCard(CardData cardData, Vector3 position, Quaternion rotation, bool isFaceUp, Transform theParent, bool canInteract, int sourceColumnIndex, int cardIndexInColumn, bool isFromWastePile, bool animateFlip) {
             if (cardPrefab == null) {
                 Debug.LogError("[SolitaireView] cardPrefab is not assigned in the Inspector!");
                 return null;
@@ -502,30 +511,46 @@ namespace CardFramework.Presentation.Views {
                 return null;
             }
 
-            if (!isFaceUp) {
-                cardInstance.transform.rotation = rotation * Quaternion.Euler(180f, 0f, 0f);
-            }
-            else {
-                cardInstance.transform.rotation = rotation;
-            }
-
             var faceGenerator = cardInstance.GetComponent<CardFaceGenerator>();
             if (faceGenerator) {
-                faceGenerator.SetFaceUpMaterial(isFaceUp);
-                if (isFaceUp) {
-                    faceGenerator.GenerateCard(cardData, cardsGraphics);
-                    if (faceGenerator.DisplayType == CardDisplayType.FullCard) {
-                        cardInstance.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                    }
-                    faceGenerator.SetFaceUpMaterial(isFaceUp);
+                faceGenerator.GenerateCard(cardData, cardsGraphics);
+                if (faceGenerator.DisplayType == CardDisplayType.FullCard) {
+                    cardInstance.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
                 }
             }
 
             var interactable = cardInstance.GetComponent<SpatialCardInteractable>();
+            bool shouldAnimateFlip = animateFlip && isFaceUp && ShouldAnimateReveal(cardData);
+
+            if (interactable != null) {
+                interactable.Initialize(cardData, sourceColumnIndex, cardIndexInColumn, isFromWastePile);
+            }
+
+            if (faceGenerator) {
+                if (isFaceUp) {
+                    if (shouldAnimateFlip) {
+                        Quaternion hiddenRotation = GetHiddenCardRotation(rotation);
+                        cardInstance.transform.rotation = hiddenRotation;
+                        faceGenerator.SetFaceUpMaterial(false);
+                        cardInstance.transform.DOKill();
+                        cardInstance.transform.DORotateQuaternion(rotation, 0.35f).SetEase(Ease.InOutSine).OnComplete(() => {
+                            cardInstance.transform.rotation = rotation;
+                            faceGenerator.SetFaceUpMaterial(true);
+                        });
+                    }
+                    else {
+                        cardInstance.transform.rotation = rotation;
+                        faceGenerator.SetFaceUpMaterial(true);
+                    }
+                }
+                else {
+                    cardInstance.transform.rotation = GetHiddenCardRotation(rotation);
+                    faceGenerator.SetFaceUpMaterial(false);
+                }
+            }
             if (canInteract) {
                 if (interactable != null) {
                     interactable.enabled = true;
-                    interactable.Initialize(cardData, sourceColumnIndex, cardIndexInColumn, isFromWastePile);
                     interactable.SetColliderEnabled(isFaceUp);
                     _spawnedInteractables.Add(interactable);
                 }
@@ -545,6 +570,22 @@ namespace CardFramework.Presentation.Views {
 
             _spawnedCards.Add(cardInstance);
             return cardInstance;
+        }
+
+        private bool ShouldAnimateReveal(CardData cardData) {
+            if (cardData.InstanceId == 0) {
+                return true;
+            }
+
+            return !_previousRenderedFaceUpByInstanceId.TryGetValue(cardData.InstanceId, out bool wasFaceUp) || !wasFaceUp;
+        }
+
+        private Quaternion GetHiddenCardRotation(Quaternion baseRotation) {
+            if (_flipOnYAxis) {
+                return baseRotation * Quaternion.Euler(0f, 180f, 0f);
+            }
+
+            return baseRotation * Quaternion.Euler(180f, 0f, 0f);
         }
 
         public void UpdateWalletBalance(int balance) {
@@ -593,6 +634,12 @@ namespace CardFramework.Presentation.Views {
                     _cardsPool.ReturnCard(cardObj);
                 }
             }
+            _previousRenderedFaceUpByInstanceId.Clear();
+            foreach (var interactable in _spawnedInteractables) {
+                if (interactable == null) continue;
+                _previousRenderedFaceUpByInstanceId[interactable.CardData.InstanceId] = interactable.CardData.IsFaceUp;
+            }
+
             _spawnedCards.Clear();
             _spawnedInteractables.Clear();
             ClearOutcome();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 namespace CardFramework.Presentation.Views {
@@ -24,6 +25,7 @@ namespace CardFramework.Presentation.Views {
                 return null;
             }
 
+            cardInstance.transform.DOKill();
             cardInstance.SetActive(true);
             cardInstance.transform.SetParent(parent, false);
             cardInstance.transform.SetPositionAndRotation(position, rotation);
@@ -36,6 +38,7 @@ namespace CardFramework.Presentation.Views {
                 return;
             }
 
+            cardInstance.transform.DOKill();
             cardInstance.SetActive(false);
             if (_poolRoot != null) {
                 cardInstance.transform.SetParent(_poolRoot, false);

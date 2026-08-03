@@ -16,15 +16,30 @@ namespace CardFramework.Core.Models {
         public readonly Suit CardSuit;
         public readonly Rank CardRank;
         public readonly bool IsFaceUp;
+        public readonly int InstanceId;
+        public readonly bool HasBeenRevealed;
 
-        public CardData(Suit suit, Rank rank, bool isFaceUp = false) {
+        private static int _nextInstanceId = 1;
+
+        public CardData(Suit suit, Rank rank, bool isFaceUp = false, int? instanceId = null, bool hasBeenRevealed = false) {
             CardSuit = suit;
             CardRank = rank;
             IsFaceUp = isFaceUp;
+            InstanceId = instanceId ?? NextInstanceId();
+            HasBeenRevealed = hasBeenRevealed;
+        }
+
+        private static int NextInstanceId() {
+            int nextId = _nextInstanceId;
+            _nextInstanceId++;
+            return nextId;
         }
 
         public override bool Equals(object obj) => obj is CardData card && Equals(card);
         public bool Equals(CardData other) => CardSuit == other.CardSuit && CardRank == other.CardRank;
+        public bool HasSameIdentity(CardData other) => InstanceId != 0 && other.InstanceId != 0
+            ? InstanceId == other.InstanceId
+            : CardSuit == other.CardSuit && CardRank == other.CardRank;
         public override int GetHashCode() => ((int)CardSuit << 4) | (int)CardRank;
         public override string ToString() => $"{CardRank}{CardSuit}";
 

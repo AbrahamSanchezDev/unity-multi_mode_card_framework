@@ -14,8 +14,8 @@ namespace CardFramework.Tests.EditMode.Core {
 
         [Test]
         public void Equals_WithSameCardValues_ReturnsTrue() {
-            var left = new CardData(CardData.Suit.Spades, CardData.Rank.Ace);
-            var right = new CardData(CardData.Suit.Spades, CardData.Rank.Ace);
+            var left = new CardData(CardData.Suit.Spades, CardData.Rank.Ace, instanceId: 1);
+            var right = new CardData(CardData.Suit.Spades, CardData.Rank.Ace, instanceId: 1);
 
             Assert.IsTrue(left.Equals(right), "Equals(CardData) must return true for identical cards.");
             Assert.IsTrue(left == right, "Operator == must return true for identical cards.");
@@ -24,8 +24,8 @@ namespace CardFramework.Tests.EditMode.Core {
 
         [Test]
         public void Equals_WithDifferentCardValues_ReturnsFalse() {
-            var left = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten);
-            var right = new CardData(CardData.Suit.Clubs, CardData.Rank.Ten);
+            var left = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten, instanceId: 1);
+            var right = new CardData(CardData.Suit.Clubs, CardData.Rank.Ten, instanceId: 2);
 
             Assert.IsFalse(left.Equals(right), "Equals(CardData) must return false for different suits.");
             Assert.IsFalse(left == right, "Operator == must return false for different cards.");
@@ -49,9 +49,17 @@ namespace CardFramework.Tests.EditMode.Core {
         }
 
         [Test]
+        public void Constructor_WithFaceUpChange_PreservesInstanceId() {
+            var originalCard = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten, instanceId: 42);
+            var flippedCard = new CardData(originalCard.CardSuit, originalCard.CardRank, true, originalCard.InstanceId);
+
+            Assert.AreEqual(42, flippedCard.InstanceId, "A card should preserve its identity when its face-up state changes.");
+        }
+
+        [Test]
         public void GetHashCode_ProducesConsistentValueForSameCard() {
-            var cardA = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten);
-            var cardB = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten);
+            var cardA = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten, instanceId: 1);
+            var cardB = new CardData(CardData.Suit.Hearts, CardData.Rank.Ten, instanceId: 1);
 
             Assert.AreEqual(cardA.GetHashCode(), cardB.GetHashCode(), "Equal cards must produce the same hash code.");
         }
