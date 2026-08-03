@@ -279,6 +279,7 @@ Transform:
   - {fileID: 1114632460}
   - {fileID: 1256187645}
   - {fileID: 2113502162}
+  - {fileID: 1538065787}
   m_Father: {fileID: 978833526}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &120898948
@@ -297,6 +298,7 @@ MonoBehaviour:
   - GameName: Blackjack
     PlayerSpawnPoint: {fileID: 1114632460}
     TableVisualsRoot: {fileID: 0}
+    winVfxSpawnPoint: {fileID: 1538065787}
     VisualObjsForGame:
     - {fileID: 3061051010103553040}
     TableUiDocument: {fileID: 1537347078}
@@ -305,6 +307,7 @@ MonoBehaviour:
   - GameName: Solitaire
     PlayerSpawnPoint: {fileID: 1256187645}
     TableVisualsRoot: {fileID: 0}
+    winVfxSpawnPoint: {fileID: 1538065787}
     VisualObjsForGame:
     - {fileID: 1868630774}
     - {fileID: 956844176}
@@ -316,6 +319,7 @@ MonoBehaviour:
   - GameName: TexasHoldem
     PlayerSpawnPoint: {fileID: 2113502162}
     TableVisualsRoot: {fileID: 0}
+    winVfxSpawnPoint: {fileID: 1538065787}
     VisualObjsForGame:
     - {fileID: 1703138151}
     TableUiDocument: {fileID: 0}
@@ -325,6 +329,7 @@ MonoBehaviour:
   zoomInputReference: {fileID: 6240969308177333660, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   zoomSpeed: 0.25
   defaultMaxZoomOutDistance: 4
+  winVfxPrefab: {fileID: 6333146337367256448, guid: 3b7aadd1082b4e94982ad3177dd46f3e, type: 3}
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1528,6 +1533,7 @@ GameObject:
   - component: {fileID: 780721300}
   - component: {fileID: 780721302}
   - component: {fileID: 780721301}
+  - component: {fileID: 780721303}
   m_Layer: 0
   m_Name: CardAudioService
   m_TagString: Untagged
@@ -1563,6 +1569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.CardAudioService
   audioSource: {fileID: 780721302}
+  ambientAudioSource: {fileID: 780721303}
   masterVolume: 1
   pitchVariance: 0.05
   cardGrabClip: {fileID: 8300000, guid: 19c92015a4fd4f446a803a2172fbb166, type: 3}
@@ -1570,12 +1577,115 @@ MonoBehaviour:
   cardShuffleClip: {fileID: 8300000, guid: e8a7585226145fb4b95720e595b29e55, type: 3}
   invalidMoveClip: {fileID: 8300000, guid: 1bb899b2771cd934d96b43496fcdcc95, type: 3}
   buttonClickClip: {fileID: 8300000, guid: 760e57957b075a342abb74d878294a3c, type: 3}
+  gameWinClip: {fileID: 8300000, guid: c58a6e6d4ceb56e4882a7d60561a7afc, type: 3}
+  gameStartClip: {fileID: 8300000, guid: b3b1ca576c2899b40befb38abb0775fe, type: 3}
+  ambientMusicClip: {fileID: 8300000, guid: bea93a38b71b64b598109b3a3b1a0048, type: 3}
+  ambientMusicVolume: 0.05
   cardGrabVolume: 0.75
   cardDropVolume: 0.7
   cardShuffleVolume: 0.65
   invalidMoveVolume: 0.6
   buttonClickVolume: 0.55
+  gameWinVolume: 0.8
+  gameStartVolume: 0.75
 --- !u!82 &780721302
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 780721299}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &780721303
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3529,6 +3639,37 @@ MonoBehaviour:
   deckSpawnAnchor: {fileID: 1121140203}
   dealDuration: 0.45
   dealEase: 6
+--- !u!1 &1538065786
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1538065787}
+  m_Layer: 0
+  m_Name: Winning Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1538065787
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538065786}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.397, y: 0.039, z: -0.248}
+  m_LocalScale: {x: 0.074152514, y: 0.074152514, z: 0.074152514}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 120898947}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1563481713
 GameObject:
   m_ObjectHideFlags: 0

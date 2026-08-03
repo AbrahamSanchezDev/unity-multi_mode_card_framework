@@ -33,6 +33,16 @@ namespace CardFramework.Presentation.Interfaces {
         void PlayButtonClick();
 
         /// <summary>
+        /// Plays the configured sound used when a game is won.
+        /// </summary>
+        void PlayVictory();
+
+        /// <summary>
+        /// Plays the configured sound used when a game starts.
+        /// </summary>
+        void PlayGameStart();
+
+        /// <summary>
         /// Sets the overall playback volume for the service.
         /// </summary>
         /// <param name="volume">The master volume value in the range <c>[0, 1]</c>.</param>

@@ -112,7 +112,7 @@ namespace CardFramework.Presentation.Controllers {
         private void HandleGameSwitchTriggered(string targetGameKey) {
             OnSwitchGameRequested?.Invoke(targetGameKey);
             HandleCloseDashboard();
-            
+
             // Move the player spatially to the requested table setup
             _tableManager?.SwitchTable(targetGameKey);
             _dashboardView.UpdateActiveGameVisuals(targetGameKey);
@@ -131,6 +131,14 @@ namespace CardFramework.Presentation.Controllers {
 #else
             Application.Quit();
 #endif
+        }
+
+        public void PlayWinVfx(string gameName) {
+            _tableManager?.PlayWinVfxFor(gameName);
+        }
+        
+        public void StopWinVfx() {
+            _tableManager?.StopActiveWinVfx();
         }
     }
 }

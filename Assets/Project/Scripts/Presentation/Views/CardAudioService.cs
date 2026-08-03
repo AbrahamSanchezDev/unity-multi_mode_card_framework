@@ -14,6 +14,10 @@ namespace CardFramework.Presentation.Views {
         [Tooltip("AudioSource used to fire short one-shot sounds.")]
         private AudioSource audioSource;
 
+        [SerializeField]
+        [Tooltip("Optional AudioSource for ambient background music.")]
+        private AudioSource ambientAudioSource;
+
         [Header("Master Mix")]
         [SerializeField]
         [Tooltip("Overall volume multiplier applied to every sound effect.")]
@@ -46,6 +50,27 @@ namespace CardFramework.Presentation.Views {
         [Tooltip("Played for UI button interactions.")]
         private AudioClip buttonClickClip;
 
+        [SerializeField]
+        [Tooltip("Win sound played when a game is completed successfully.")]
+        private AudioClip gameWinClip;
+
+        [SerializeField]
+        [Tooltip("Played when a game starts.")]
+        private AudioClip gameStartClip;
+
+
+        [Header("Ambient Music")]
+        [SerializeField]
+        [Tooltip("Optional background music to play during gameplay.")]
+        private AudioClip ambientMusicClip;
+
+        [SerializeField]
+        [Tooltip("Volume for the ambient music.")]
+        [Range(0f, 1f)]
+        private float ambientMusicVolume = 0.5f;
+
+        // -------------------------------------------- Audio Settings --------------------------------------------
+
         [Header("Per-Clip Volume Controls")]
         [SerializeField]
         [Tooltip("Playback volume for the card grab sound.")]
@@ -72,6 +97,16 @@ namespace CardFramework.Presentation.Views {
         [Range(0f, 1f)]
         private float buttonClickVolume = 0.55f;
 
+        [SerializeField]
+        [Tooltip("Playback volume for the win sound.")]
+        [Range(0f, 1f)]
+        private float gameWinVolume = 0.8f;
+
+        [SerializeField]
+        [Tooltip("Playback volume for the game start sound.")]
+        [Range(0f, 1f)]
+        private float gameStartVolume = 0.75f;
+
         private readonly HashSet<SpatialCardInteractable> _trackedSpatialCards = new HashSet<SpatialCardInteractable>();
 
         /// <summary>
@@ -90,6 +125,13 @@ namespace CardFramework.Presentation.Views {
             audioSource.loop = false;
             audioSource.spatialBlend = 0f;
             audioSource.dopplerLevel = 0f;
+
+            if (ambientAudioSource != null && ambientMusicClip != null) {
+                ambientAudioSource.clip = ambientMusicClip;
+                ambientAudioSource.loop = true;
+                ambientAudioSource.volume = Mathf.Clamp01(ambientMusicVolume * masterVolume);
+                ambientAudioSource.Play();
+            }
         }
 
         /// <summary>
@@ -131,6 +173,16 @@ namespace CardFramework.Presentation.Views {
         /// <inheritdoc />
         public void PlayButtonClick() {
             PlayOneShot(buttonClickClip, buttonClickVolume);
+        }
+
+        /// <inheritdoc />
+        public void PlayVictory() {
+            PlayOneShot(gameWinClip, gameWinVolume);
+        }
+
+        /// <inheritdoc />
+        public void PlayGameStart() {
+            PlayOneShot(gameStartClip, gameStartVolume);
         }
 
         /// <inheritdoc />

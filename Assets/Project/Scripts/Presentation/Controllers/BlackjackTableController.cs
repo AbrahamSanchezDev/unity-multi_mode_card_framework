@@ -287,8 +287,10 @@ namespace CardFramework.Presentation.Controllers {
                 QueueDelayedGoldCredit(amount);
                 return;
             }
-            else
+            else {
                 _economyService.CreditGold(amount);
+                PlayVictorySound();
+            }
         }
         #endregion
 

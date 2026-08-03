@@ -199,15 +199,17 @@ namespace CardFramework.Presentation.Controllers {
         }
 
         protected virtual void PlayVictorySound() {
-            // _audioService?.PlayVictory();
+            _audioService?.PlayVictory();
+            _navigationController?.PlayWinVfx(GetGameModeKey());
         }
 
         protected virtual void PlayOnBetConfirmedSound() {
-            // _audioService?.PlayButtonClick();
+            _audioService?.PlayGameStart();
         }
 
         protected virtual void PlayOnNewGameSound() {
             // _audioService?.PlayButtonClick();
+            _navigationController?.StopWinVfx();
         }
 
     }

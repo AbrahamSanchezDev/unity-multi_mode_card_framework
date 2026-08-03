@@ -12,12 +12,13 @@ namespace CardFramework.Presentation.Controllers {
             public string GameName;                  // Name matching the UI carousel parameter ("Blackjack", "Solitaire", etc.)
             public Transform PlayerSpawnPoint;       // Position and rotation where the player/VR rig will move
             public GameObject TableVisualsRoot;      // Physical table assets, chairs, lights to toggle
+            public Transform winVfxSpawnPoint; // Optional spawn point for win VFX
 
             public GameObject[] VisualObjsForGame;
 
             public UIDocument TableUiDocument;        // Optional VR world-space UI linked to this specific table
             public bool AllowZoom;                   // Enables scroll-based zoom for this table
-            [Range(0f, 1f)] 
+            [Range(0f, 1f)]
             public float MaxZoomOutDistance;         // Optional per-table zoom-out limit from the spawn point
         }
 
@@ -31,6 +32,11 @@ namespace CardFramework.Presentation.Controllers {
         private string _activeGameName = "Blackjack"; // Default starting table
         private Vector3 _zoomOffsetFromSpawn = Vector3.zero;
         private TableConfiguration? _activeTable;
+
+
+        [Header("VFX Info")]
+        [SerializeField] private ParticleSystem winVfxPrefab;
+        private ParticleSystem _activeWinVfxInstance;
 
         private void Start() {
             // Initialize the default starting view configuration
@@ -130,6 +136,51 @@ namespace CardFramework.Presentation.Controllers {
             }
 
             return UnityEngine.Input.GetAxis("Mouse ScrollWheel");
+        }
+
+
+        public void StopActiveWinVfx() {
+            PlayWinVfxAt(false, Vector3.zero);
+        }
+
+        public void PlayWinVfxFor(string gameName) {
+            if (winVfxPrefab == null) {
+                return;
+            }
+            var winVfxSpawnPoint = _activeTable?.winVfxSpawnPoint;
+
+            for (int i = 0; i < tables.Count; i++) {
+                if (tables[i].GameName.Equals(gameName, StringComparison.OrdinalIgnoreCase)) {
+                    winVfxSpawnPoint = tables[i].winVfxSpawnPoint;
+                    break;
+                }
+            }
+
+            Vector3 spawnPosition = winVfxSpawnPoint != null ? winVfxSpawnPoint.position : playerTransform.position + playerTransform.forward * 1.5f;
+
+            PlayWinVfxAt(true, spawnPosition);
+        }
+
+        private void PlayWinVfxAt(bool playVfx, Vector3 position) {
+            if (winVfxPrefab == null) {
+                return;
+            }
+            if (playVfx) {
+                if (_activeWinVfxInstance == null) {
+                    _activeWinVfxInstance = Instantiate(winVfxPrefab, position, Quaternion.identity);
+                }
+                else {
+                    _activeWinVfxInstance.gameObject.SetActive(true);
+                    _activeWinVfxInstance.transform.position = position;
+                    _activeWinVfxInstance.Play();
+                }
+            }
+            else {
+                if (_activeWinVfxInstance != null) {
+                    _activeWinVfxInstance.Stop();
+                    _activeWinVfxInstance.gameObject.SetActive(false);
+                }
+            }
         }
     }
 }

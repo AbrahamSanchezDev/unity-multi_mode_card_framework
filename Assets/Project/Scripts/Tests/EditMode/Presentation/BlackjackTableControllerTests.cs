@@ -424,12 +424,15 @@ namespace CardFramework.Tests.EditMode.Presentation {
             public int PlayShuffleCalls { get; private set; }
             public int PlayInvalidMoveCalls { get; private set; }
             public int PlayButtonClickCalls { get; private set; }
+            public int PlayGameStartCalls { get; private set; }
 
             public void PlayCardGrab() => PlayCardGrabCalls++;
             public void PlayCardDrop() => PlayCardDropCalls++;
             public void PlayShuffle() => PlayShuffleCalls++;
             public void PlayInvalidMove() => PlayInvalidMoveCalls++;
             public void PlayButtonClick() => PlayButtonClickCalls++;
+            public void PlayGameStart() => PlayGameStartCalls++;
+            public void PlayVictory() => throw new NotImplementedException("PlayVictory is not implemented in the mock audio service.");
             public void SetMasterVolume(float volume) { }
             public void AttachToSpatialCard(CardFramework.Presentation.Views.SpatialCardInteractable interactable) { }
             public void DetachFromSpatialCard(CardFramework.Presentation.Views.SpatialCardInteractable interactable) { }
