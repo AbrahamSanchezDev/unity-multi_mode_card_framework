@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace CardFramework.Presentation.Controllers {
@@ -15,17 +16,57 @@ namespace CardFramework.Presentation.Controllers {
             public GameObject[] VisualObjsForGame;
 
             public UIDocument TableUiDocument;        // Optional VR world-space UI linked to this specific table
+            public bool AllowZoom;                   // Enables scroll-based zoom for this table
+            [Range(0f, 1f)] 
+            public float MaxZoomOutDistance;         // Optional per-table zoom-out limit from the spawn point
         }
 
         [Header("Setup Configurations")]
         [SerializeField] private List<TableConfiguration> tables;
         [SerializeField] private Transform playerTransform; // Reference to the VR Rig or Main Camera assembly
+        [SerializeField] private InputActionReference zoomInputReference; // Optional input action for scroll wheel zoom
+        [SerializeField] private float zoomSpeed = 0.25f;
+        [SerializeField] private float defaultMaxZoomOutDistance = 4f;
 
         private string _activeGameName = "Blackjack"; // Default starting table
+        private Vector3 _zoomOffsetFromSpawn = Vector3.zero;
+        private TableConfiguration? _activeTable;
 
         private void Start() {
             // Initialize the default starting view configuration
             //SwitchTable(_activeGameName);
+        }
+
+        private void Update() {
+            if (_activeTable == null || playerTransform == null) {
+                return;
+            }
+
+            var activeTable = _activeTable.Value;
+            if (!activeTable.AllowZoom || activeTable.PlayerSpawnPoint == null) {
+                return;
+            }
+
+            float scrollDelta = ReadZoomScrollDelta();
+            if (Mathf.Abs(scrollDelta) < 0.0001f) {
+                return;
+            }
+
+            float maxZoomOutDistance = activeTable.MaxZoomOutDistance > 0f
+                ? activeTable.MaxZoomOutDistance
+                : defaultMaxZoomOutDistance;
+
+            float currentDistance = _zoomOffsetFromSpawn.magnitude;
+            float nextDistance = currentDistance - (scrollDelta * zoomSpeed);
+            nextDistance = Mathf.Clamp(nextDistance, 0f, maxZoomOutDistance);
+
+            if (Mathf.Abs(nextDistance - currentDistance) < 0.0001f) {
+                return;
+            }
+
+            Vector3 zoomDirection = -playerTransform.forward;
+            _zoomOffsetFromSpawn = zoomDirection.normalized * nextDistance;
+            playerTransform.position = activeTable.PlayerSpawnPoint.position + _zoomOffsetFromSpawn;
         }
 
         /// <summary>
@@ -51,6 +92,8 @@ namespace CardFramework.Presentation.Controllers {
             }
 
             _activeGameName = gameName;
+            _activeTable = targetTable;
+            _zoomOffsetFromSpawn = Vector3.zero;
 
             // Execute actual physical spatial movements
             if (playerTransform != null && targetTable.Value.PlayerSpawnPoint != null) {
@@ -79,6 +122,14 @@ namespace CardFramework.Presentation.Controllers {
                     }
                 }
             }
+        }
+
+        private float ReadZoomScrollDelta() {
+            if (zoomInputReference != null && zoomInputReference.action != null) {
+                return zoomInputReference.action.ReadValue<Vector2>().y;
+            }
+
+            return UnityEngine.Input.GetAxis("Mouse ScrollWheel");
         }
     }
 }

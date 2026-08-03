@@ -300,6 +300,8 @@ MonoBehaviour:
     VisualObjsForGame:
     - {fileID: 3061051010103553040}
     TableUiDocument: {fileID: 1537347078}
+    AllowZoom: 0
+    MaxZoomOutDistance: 3
   - GameName: Solitaire
     PlayerSpawnPoint: {fileID: 1256187645}
     TableVisualsRoot: {fileID: 0}
@@ -309,13 +311,20 @@ MonoBehaviour:
     - {fileID: 1601864629}
     - {fileID: 1308137156}
     TableUiDocument: {fileID: 0}
+    AllowZoom: 1
+    MaxZoomOutDistance: 0.5
   - GameName: TexasHoldem
     PlayerSpawnPoint: {fileID: 2113502162}
     TableVisualsRoot: {fileID: 0}
     VisualObjsForGame:
     - {fileID: 1703138151}
     TableUiDocument: {fileID: 0}
+    AllowZoom: 0
+    MaxZoomOutDistance: 0.5
   playerTransform: {fileID: 961739753}
+  zoomInputReference: {fileID: 6240969308177333660, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  zoomSpeed: 0.25
+  defaultMaxZoomOutDistance: 4
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
