@@ -1,0 +1,387 @@
+/*
+  GameRoomIntro.uss
+  "Midnight Casino" design system, ported from DESIGN.md into UI Toolkit.
+
+  v1.1 fixes:
+  - .mode-icon now explicitly locks flex-grow/flex-shrink/width/height so it
+    can no longer be stretched into a pill by its parent's flex layout.
+  - Content now lives inside a ScrollView (.root-scroll) and key elements are
+    flex-shrink: 0, so on short/narrow screens the layout scrolls instead of
+    compressing and overlapping text.
+  - A ".compact" modifier class is included for small screens — toggle it
+    from C# (see the reply text) since USS has no media queries.
+  - .random-button corner radius switched from a pill (9999px) to 10px per
+    all four corners, matching the latest design change.
+  - The idle hero "float" animation cannot be expressed in USS (no keyframe
+    animations in UI Toolkit) — it must run from C#. See the reply text for
+    the coroutine to add to GameRoomIntroView.cs.
+
+  NOTES ON UI TOOLKIT LIMITATIONS vs the HTML reference:
+  - There is no backdrop-filter/blur in USS. The "glass" look is approximated
+    with a semi-transparent surface color + a thin gold-tinted border. If you
+    need real blur, render the gameplay behind this screen to a RenderTexture
+    and blur it in a shader, or fake it with a blurred background sprite.
+  - box-shadow with blur radius is only supported on Unity 6000.0+ (USS 2).
+    On earlier LTS versions, delete the box-shadow rules below and use a
+    9-sliced "shadow" Image element behind .glass-modal instead.
+  - Fonts: Playfair Display / Inter need to be imported as Font Assets
+    (drag the .ttf into Assets/Fonts). Point -unity-font-definition at the
+    imported asset, e.g.:
+      -unity-font-definition: url("/Assets/Fonts/PlayfairDisplay-Bold.ttf");
+    Replace the placeholder paths below with your project's actual paths.
+  - Material Symbols icons aren't available in Unity by default. .mode-icon
+    is left as a plain tinted circle; GameRoomIntroView.cs already assigns
+    per-option sprites/colors at runtime via option.icon / option.accentColor.
+*/
+
+/* ---------------------------------------------------------------------- */
+/* Color tokens (from DESIGN.md)                                          */
+/* ---------------------------------------------------------------------- */
+/*
+  surface:                  #101415
+  surface-container-low:    #191c1e
+  surface-container:        #1d2022
+  surface-container-high:   #272a2c
+  surface-container-highest:#323537
+  on-surface:                #e0e3e5
+  on-surface-variant:        #d8c3ad
+  outline:                   #a08e7a
+  outline-variant:           #534434
+  primary (Radiant Gold):    #ffc174
+  on-primary:                #472a00
+  primary-container:         #f59e0b
+  on-primary-container:      #613b00
+*/
+
+.intro-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(16, 20, 21); /* surface */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Decorative background glow (stand-in for the animated shader)          */
+/* ---------------------------------------------------------------------- */
+
+.background-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.glow-blob {
+    position: absolute;
+    border-radius: 9999px;
+    opacity: 0.16;
+}
+
+.glow-blob--gold {
+    width: 700px;
+    height: 700px;
+    top: -200px;
+    left: 50%;
+    margin-left: -350px;
+    background-color: rgb(245, 158, 11); /* primary-container */
+}
+
+.glow-blob--navy {
+    width: 900px;
+    height: 900px;
+    bottom: -400px;
+    right: -200px;
+    background-color: rgb(63, 70, 92); /* secondary-container */
+    opacity: 0.10;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Content wrapper                                                        */
+/* ---------------------------------------------------------------------- */
+
+.root-scroll {
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* Center the content horizontally and let it size to its own content
+   vertically, so the ScrollView only kicks in once things stop fitting. */
+.root-scroll > #unity-content-and-vertical-scroll-container > #unity-content-viewport > #unity-content-container {
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+}
+
+.content-wrapper {
+    width: 100%;
+    max-width: 960px;
+    padding: 24px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Currency badge                                                         */
+/* ---------------------------------------------------------------------- */
+
+.currency-badge {
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-end;
+    background-color: rgba(25, 28, 30, 0.85); /* surface-container-low */
+    border-width: 1px;
+    border-color: rgba(160, 142, 122, 0.3); /* outline @ 30% */
+    border-radius: 9999px;
+    padding: 8px 16px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.currency-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background-color: rgb(245, 158, 11); /* primary-container */
+    margin-right: 8px;
+}
+
+.currency-label {
+    -unity-font-style: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: rgb(255, 193, 116); /* primary */
+    /* -unity-font-definition: url("/Assets/Fonts/Inter-SemiBold.ttf"); */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Hero image                                                             */
+/* ---------------------------------------------------------------------- */
+
+.hero-wrapper {
+    align-items: center;
+    margin-bottom: -60px;
+    flex-shrink: 0;
+}
+
+.hero-image {
+    width: 256px;
+    height: 320px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    /* box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);  -- Unity 6000.0+ only */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Glass modal                                                            */
+/* ---------------------------------------------------------------------- */
+
+.glass-modal {
+    width: 100%;
+    background-color: rgba(16, 20, 21, 0.85); /* surface @ ~85% (approximated blur) */
+    border-width: 1px;
+    border-color: rgba(245, 158, 11, 0.15); /* primary-container @ 15% */
+    border-radius: 32px;
+    padding: 48px;
+    align-items: center;
+    flex-shrink: 0;
+    /* box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);  -- Unity 6000.0+ only */
+}
+
+.modal-header {
+    align-items: center;
+    padding-top: 48px;
+    margin-bottom: 48px;
+    max-width: 560px;
+    flex-shrink: 0;
+}
+
+.title-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(255, 193, 116); /* primary */
+    -unity-text-align: upper-center;
+    margin-bottom: 16px;
+    white-space: normal;
+    flex-shrink: 0;
+    /* -unity-font-definition: url("/Assets/Fonts/PlayfairDisplay-Bold.ttf"); */
+}
+
+.description-label {
+    font-size: 18px;
+    white-space: normal;
+    color: rgb(216, 195, 173); /* on-surface-variant */
+    opacity: 0.8;
+    -unity-text-align: upper-center;
+    flex-shrink: 0;
+    /* -unity-font-definition: url("/Assets/Fonts/Inter-Regular.ttf"); */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mode grid + cards                                                      */
+/* ---------------------------------------------------------------------- */
+
+.modes-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.mode-card {
+    /* Explicit column + flex-start: Unity's built-in runtime theme styles
+       Button with flex-direction: row / align-items: center by default,
+       which is what was stretching .mode-icon sideways into a pill. */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 200px;
+    min-width: 200px;
+    max-width: 260px;
+    margin: 6px;
+    padding: 24px;
+    background-color: rgba(25, 28, 30, 0.4); /* surface-container-low @ 40% */
+    border-width: 1px;
+    border-color: rgba(83, 68, 52, 0.2); /* outline-variant @ 20% */
+    border-radius: 16px;
+    transition-property: background-color, border-color, scale;
+    transition-duration: 0.2s;
+}
+
+.mode-card:hover {
+    background-color: rgb(39, 42, 44); /* surface-container-high */
+    border-color: rgb(245, 158, 11); /* primary-container */
+    border-bottom-width: 3px;
+    scale: 1.02 1.02;
+}
+
+.mode-card:active {
+    scale: 0.98 0.98;
+}
+
+.mode-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px;
+    max-height: 48px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    align-self: flex-start;
+    border-radius: 9999px;
+    background-color: rgba(255, 193, 116, 0.1); /* primary @ 10% */
+    margin-bottom: 16px;
+    -unity-background-scale-mode: scale-to-fit;
+    overflow: hidden;
+}
+
+.mode-label {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgb(224, 227, 229); /* on-surface */
+    margin-bottom: 8px;
+    white-space: normal;
+    flex-shrink: 0;
+    /* -unity-font-definition: url("/Assets/Fonts/PlayfairDisplay-Bold.ttf"); */
+}
+
+.mode-sub {
+    font-size: 14px;
+    color: rgb(216, 195, 173); /* on-surface-variant */
+    opacity: 0.6;
+    white-space: normal;
+    flex-shrink: 0;
+    /* -unity-font-definition: url("/Assets/Fonts/Inter-Regular.ttf"); */
+}
+
+/* ---------------------------------------------------------------------- */
+/* Random-mode button                                                     */
+/* ---------------------------------------------------------------------- */
+
+.random-button {
+    margin-top: 48px;
+    padding: 16px 48px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-width: 0;
+    background-color: rgb(255, 193, 116); /* primary */
+    color: rgb(71, 42, 0); /* on-primary */
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.15s;
+    /* box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);  -- Unity 6000.0+ only */
+}
+
+.random-button:hover {
+    background-color: rgb(255, 210, 156); /* primary, brightened */
+}
+
+.random-button:active {
+    scale: 0.95 0.95;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Small-screen variant                                                   */
+/* ---------------------------------------------------------------------- */
+/*
+  USS has no media queries, so this is a plain modifier class. Toggle it
+  from C# by watching the panel/root width and calling:
+    _introRoot.EnableInClassList("compact", width < 640f);
+  See the reply text for the exact snippet.
+*/
+
+.intro-root.compact .hero-wrapper {
+    margin-bottom: -32px;
+}
+
+.intro-root.compact .hero-image {
+    width: 140px;
+    height: 175px;
+}
+
+.intro-root.compact .glass-modal {
+    padding: 24px;
+    border-radius: 20px;
+}
+
+.intro-root.compact .modal-header {
+    padding-top: 24px;
+    margin-bottom: 24px;
+}
+
+.intro-root.compact .title-label {
+    font-size: 28px;
+}
+
+.intro-root.compact .description-label {
+    font-size: 14px;
+}
+
+.intro-root.compact .modes-grid {
+    flex-direction: column;
+}
+
+.intro-root.compact .mode-card {
+    width: 100%;
+    max-width: none;
+    flex-basis: auto;
+    margin: 6px 0;
+}
+
+.intro-root.compact .random-button {
+    margin-top: 24px;
+    padding: 12px 32px;
+}

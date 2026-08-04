@@ -7,24 +7,20 @@ using PlayFab;
 using PlayFab.ClientModels;
 using CardFramework.Cloud.PlayFab;
 
-namespace CardFramework.Tests.EditMode.Cloud
-{
+namespace CardFramework.Tests.EditMode.Cloud {
     [TestFixture]
-    public class PlayFabDataServiceTests
-    {
+    public class PlayFabDataServiceTests {
         private MockPlayFabDataWrapper _mockWrapper;
         private PlayFabDataService _dataService;
 
         [SetUp]
-        public void Setup()
-        {
+        public void Setup() {
             _mockWrapper = new MockPlayFabDataWrapper();
             _dataService = new PlayFabDataService(_mockWrapper);
         }
 
         [Test]
-        public async Task SaveDataAsync_OnSuccess_ReturnsTrue()
-        {
+        public async Task SaveDataAsync_OnSuccess_ReturnsTrue() {
             // Arrange
             _mockWrapper.ShouldFail = false;
             var payload = new TestPayload { Value = 100 };
@@ -37,8 +33,7 @@ namespace CardFramework.Tests.EditMode.Cloud
         }
 
         [Test]
-        public async Task SaveDataAsync_OnError_LogsErrorAndReturnsFalse()
-        {
+        public async Task SaveDataAsync_OnError_LogsErrorAndReturnsFalse() {
             // Arrange
             LogAssert.Expect(UnityEngine.LogType.Error, new System.Text.RegularExpressions.Regex(".*PlayFab Save Data Error.*"));
             _mockWrapper.ShouldFail = true;
@@ -52,8 +47,7 @@ namespace CardFramework.Tests.EditMode.Cloud
         }
 
         [Test]
-        public async Task LoadDataAsync_WithValidKey_ReturnsDeserializedData()
-        {
+        public async Task LoadDataAsync_WithValidKey_ReturnsDeserializedData() {
             // Arrange
             _mockWrapper.ShouldFail = false;
             _mockWrapper.MockedJsonReturned = "{\"Value\":999}";
@@ -67,8 +61,7 @@ namespace CardFramework.Tests.EditMode.Cloud
         }
 
         [Test]
-        public async Task LoadDataAsync_WithMissingKey_ReturnsDefault()
-        {
+        public async Task LoadDataAsync_WithMissingKey_ReturnsDefault() {
             // Arrange
             _mockWrapper.ShouldFail = false;
             _mockWrapper.MockedJsonReturned = null; // Key does not exist
@@ -81,8 +74,7 @@ namespace CardFramework.Tests.EditMode.Cloud
         }
 
         [Test]
-        public async Task LoadDataAsync_OnError_LogsErrorAndReturnsDefault()
-        {
+        public async Task LoadDataAsync_OnError_LogsErrorAndReturnsDefault() {
             // Arrange
             LogAssert.Expect(UnityEngine.LogType.Error, new System.Text.RegularExpressions.Regex(".*PlayFab Load Data Error.*"));
             _mockWrapper.ShouldFail = true;
@@ -94,34 +86,45 @@ namespace CardFramework.Tests.EditMode.Cloud
             Assert.IsNull(result);
         }
 
+        [Test]
+        public void DataService_DefaultConstructor_InjectsDefaultPlayFabDataWrapper() {
+            // 1. Act: Instantiate using the public parameterless production constructor
+            var serviceInstance = new PlayFabDataService();
+
+            // 2. Reflect: Extract the internal assigned private wrapper field component
+            var wrapperField = typeof(PlayFabDataService).GetField("_wrapper",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+            object assignedWrapper = wrapperField?.GetValue(serviceInstance);
+
+            // 3. Assert: Verify the operational structure is initialized with the correct type wrapper
+            Assert.IsNotNull(assignedWrapper, "The default constructor must initialize and assign the internal wrapper reference.");
+            Assert.IsInstanceOf<DefaultPlayFabDataWrapper>(assignedWrapper, "The production constructor failed to default instantiate a clean DefaultPlayFabDataWrapper runtime component.");
+        }
+
         [Serializable]
         private class TestPayload { public int Value; }
 
         // Controlled Mock Class for predictable pipeline outcomes
-        private class MockPlayFabDataWrapper : IPlayFabDataWrapper
-        {
+        private class MockPlayFabDataWrapper : IPlayFabDataWrapper {
             public bool ShouldFail;
             public string MockedJsonReturned;
 
-            public void UpdateUserData(UpdateUserDataRequest request, Action<UpdateUserDataResult> resultCallback, Action<PlayFabError> errorCallback)
-            {
+            public void UpdateUserData(UpdateUserDataRequest request, Action<UpdateUserDataResult> resultCallback, Action<PlayFabError> errorCallback) {
                 if (ShouldFail)
                     errorCallback?.Invoke(new PlayFabError { ErrorMessage = "Mocked Throttle/Network Error" });
                 else
                     resultCallback?.Invoke(new UpdateUserDataResult());
             }
 
-            public void GetUserData(GetUserDataRequest request, Action<GetUserDataResult> resultCallback, Action<PlayFabError> errorCallback)
-            {
-                if (ShouldFail)
-                {
+            public void GetUserData(GetUserDataRequest request, Action<GetUserDataResult> resultCallback, Action<PlayFabError> errorCallback) {
+                if (ShouldFail) {
                     errorCallback?.Invoke(new PlayFabError { ErrorMessage = "Mocked Retrieval Failure" });
                     return;
                 }
 
                 var dictionary = new Dictionary<string, UserDataRecord>();
-                if (MockedJsonReturned != null)
-                {
+                if (MockedJsonReturned != null) {
                     dictionary.Add(request.Keys[0], new UserDataRecord { Value = MockedJsonReturned });
                 }
 

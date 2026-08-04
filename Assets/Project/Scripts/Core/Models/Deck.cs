@@ -30,6 +30,11 @@ namespace CardFramework.Core.Models {
             }
         }
 
+        public static CardData CreateCardWithRevealState(CardData sourceCard, bool isFaceUp) {
+            bool hasBeenRevealed = sourceCard.HasBeenRevealed || (isFaceUp && !sourceCard.IsFaceUp);
+            return new CardData(sourceCard.CardSuit, sourceCard.CardRank, isFaceUp, sourceCard.InstanceId, hasBeenRevealed);
+        }
+
         /// <summary>
         /// Fisher-Yates shuffle algorithm - O(n) guaranteed.
         /// 100% Pure C# implementation using standard System.Random.

@@ -8,11 +8,21 @@
 [![Unity Version](https://img.shields.io/badge/unity-6.3%20LTS-blue)](https://unity.com/download)
 
 ---
-## 👀 EPIC 3 Current State Overview
+
+## 👀 EPIC 3 State Overview
+
 ![Epic 3 Preview Image](/ReadMePreviewImages/Epic_3.png)
 ![Epic 3 Preview](/ReadMePreviewImages/Epic_3.gif)
 
+## 👀 EPIC 4 Current State Overview
+
+![Epic 4 Preview](/ReadMePreviewImages/Epic_4.gif)
+<video src="/ReadMePreviewImages/Epic_4.mp4" width="800" height="450" controls>
+  Your browser does not support the video tag.
+</video>
+
 ---
+
 ## 🎯 Project Overview
 
 **Multi-Mode Card Framework** is a comprehensive, decoupled card game engine built with Unity that demonstrates professional game development practices. The core game logic is completely isolated from the presentation layer, enabling 100% reusability across platforms and future projects.
@@ -29,36 +39,32 @@
 
 ## 🎮 Features
 
-### Current Implementation (EPIC-03 ✅ | EPIC-02-04 🔄)
+#### Current Implementation (EPIC-04 ✅ | EPIC-05 🔄)
 
 #### Game Engines
 
-- ⏳ **Blackjack (21)**: Full rules with Ace mechanics and dealer AI (stand on soft 17)
-- ⏳ **Solitaire**: Klondike variant with move validation and win conditions
-- ⏳ **Texas Hold'em**: Poker rules engine (future phase)
+- ✅ **Blackjack (21)**: Full rules with Ace mechanics and dealer AI (stand on soft 17).
+- ✅ **Solitaire**: Klondike variant with spatial 3D drag/drop tableau, foundation rules, and auto-sweep victory detection.
+- ✅ **Texas Hold'em**: Poker rules engine with betting round progression, pot tracking, and community card flow.
 
-#### Architecture
+#### Architecture & Polish
 
-- ✅ **Decoupled MVC**: Model (Core), View (UI), Controller (Orchestration)
-- ✅ **Dependency Injection**: Lightweight DI container preventing singletons
-- ✅ **Assembly Definitions**: Clean layer separation (Core, Presentation, Input, Cloud, Tests)
-- ✅ **Event System**: UnityEvent-based pub/sub for loose coupling
-- ✅ **Unit Testing**: NUnit EditMode tests (85%+ coverage)
+- ✅ **Decoupled MVC & VContainer DI**: Pure C# Models (POCOs) injected cleanly across Controllers and Views.
+- ✅ **Unity New Input System**: Unified spatial raycasting support across Mouse, Touch, and XR Interactors.
+- ✅ **UI Toolkit Integration**: Dual-layer architecture with non-blocking `PickingMode.Ignore` 3D raycast pass-through.
+- ✅ **Juice & Polish Engine**: Centralized `CardAudioService` (grab/drop/shuffle/click SFX), DOTween spatial card animation, and 3D particle burst victory effects.
+- ✅ **Unit Testing**: NUnit EditMode test suite validating engine edge cases and wager loops.
 
 #### Platform Support
 
-- ✅ **WebGL**: Browser-based gameplay
-- ✅ **PC Standalone**: Windows/Mac (60fps @ 1920x1080)
-- ✅ **Mobile**: iOS/Android (30fps adaptive)
-- 🔄 **Meta Quest 3**: VR gameplay (90fps target)
+- ✅ **WebGL**: Responsive browser-based gameplay with adaptive portrait/landscape USS layout.
+- ✅ **PC Standalone**: High-framerate desktop build profile.
+- 🔄 **Meta Quest 3**: Native spatial VR gameplay (In Progress - EPIC-05).
 
-#### Backend (Optional - Configured)
+#### Backend & Cloud Persistence
 
-- 🔄 **Cloud Persistence**: PlayFab integration
-  - Cross-progression via PIN linking
-  - Cloud save synchronization
-  - Player profiles and accounts
-- 💬 **LootLocker Alternative**: Planned fallback with Non-commercial license license
+- ✅ **PlayFab Cloud Infrastructure**: Silent hardware ID authentication, remote currency (`GD`) sync, debit/credit transaction safety, and PlayFab server-time verification.
+- ✅ **Cross-Platform State Sync**: Asynchronous 6-character PIN account linking between WebGL and Meta Quest 3 sessions.
 
 ---
 
@@ -156,7 +162,7 @@ cd multi-mode-card-framework
 | ------------------------ | --------------------------------------------------------- |
 | **BACKLOG.md**           | Detailed task breakdown, dependencies, and tracking       |
 | **PROJECT_STRUCTURE.md** | Folder hierarchy and assembly definition strategy         |
-| **ARCHITECTURE.md** | Architecture decisions and design rationale (coming soon) |
+| **ARCHITECTURE.md**      | Architecture decisions and design rationale (coming soon) |
 
 ---
 
@@ -235,43 +241,43 @@ git commit -m "TASK-2.1: Setup LootLocker integration with guest authentication"
 
 ### EPIC Progress
 
-| Epic                                      | Tasks |     Status     | Target Completion |
-| :---------------------------------------- | :---: | :------------: | :---------------: |
-| **EPIC-01: Core Pure C# Game Logic**      |  4/4  |  ✅ COMPLETED  |      Week 4       |
-| **EPIC-02: Architecture & DI Scoping**    |  3/3  |  ✅ COMPLETED  |      Week 8       |
-| **EPIC-03: UI/UX Presentation Layer**     |  3/3  |  ✅ COMPLETED  |      Week 12      |
-| **EPIC-04: Cloud Infrastructure & State** |  0/3  | 🔄 IN PROGRESS |      Week 16      |
-| **EPIC-05: XR Integration & Meta Quest**  |  0/4  |   ⏳ PLANNED   |      Week 20      |
+| Epic | Tasks | Status | Target Completion |
+| :--- | :---: | :---: | :---: |
+| **EPIC-01: Core Pure C# Game Logic** | 4/4 | ✅ COMPLETED | Week 4 |
+| **EPIC-02: Architecture & DI Scoping** | 3/3 | ✅ COMPLETED | Week 8 |
+| **EPIC-03: UI/UX Presentation Layer** | 3/3 | ✅ COMPLETED | Week 12 |
+| **EPIC-04: Cloud Infrastructure & Metagame** | 5/5 | ✅ COMPLETED | Week 16 |
+| **EPIC-05: XR Integration & Meta Quest 3** | 0/4 | 🔄 IN PROGRESS | Week 20 |
 
-### Granular Phase Updates (EPIC-03 ✅)
+### Granular Phase Updates (EPIC-04 ✅)
 
-- **TASK-3.5:** Extracted loose modal windows out of specific views into an independent `ModalServiceView` driven by on-demand runtime lifecycle queries to prevent UI Toolkit panel focus leakages.
-- **TASK-3.6:** Standardized multi-platform input mappings by abstracting interactions behind an agnostically injected `IInputContext` strategy pattern.
-- **TASK-3.7:** Completed responsive elastic USS parameters for mobile portrait WebGL setups alongside 3D local coordinate mathematical hand layout auto-centering.
+- **TASK-4.1 & 4.2:** PlayFab SDK integration with silent guest login, `IEconomyService` wallet data binding to UI Toolkit HUD, and transaction safety validation.
+- **TASK-4.3:** Asynchronous 6-character PIN cross-platform account linking for WebGL and Meta Quest 3.
+- **TASK-4.5:** 3D physical spatial card interaction handling for Mouse, Touch, and XR Interactors with zero UI blockages.
+- **TASK-4.5.1:** Centralized tactile audio feedback (`CardAudioService`), spatial DOTween motion, and victory particle burst effects.
 
 ### Timeline
 
-- **Part-time (20-25 hrs/week)**: 16-20 weeks
-- **Full-time (40 hrs/week)**: 7-9 weeks
-- **Current Phase**: Starting EPIC-04 | ✅
+- **Current Phase**: Starting EPIC-05 (Meta Quest 3 & Deployment Pipelines) | 🔄
 
 ## 🚀 AI-Accelerated Velocity & Sprint Metrics
 
 This project demonstrates hyper-efficient development velocity by integrating advanced AI-assisted engineering workflows (GitHub Copilot, Cursor, Ollama, and LLM orchestration) to compress traditional enterprise timelines.
 
 ### Sprint 1 Summary (Duration: 2 Weeks)
+
 - **Traditional Baseline Estimation**: 12 Weeks (To research, scaffold core architectures, and implement fully responsive multi-platform UI layouts from scratch).
 - **Actual AI-Augmented Timeline**: 2 Weeks (Completed Sprint 1 today).
 - **Velocity Multiplier**: ~6x development speed optimization.
 
 ### Timeline Compression Breakdown
 
-| Phase / Milestone | Estimated (Manual) | Actual (AI-Driven) | Status | Efficiency Gain |
-| :--- | :---: | :---: | :---: | :---: |
-| **EPIC-01: Pure C# Domain Engine** | Weeks 1 - 4 | Days 1 - 4 | Decoupled | 85% Time Reduc. |
-| **EPIC-02: Architecture & DI Layer**| Weeks 5 - 8 | Days 5 - 8 | Solidified | 80% Time Reduc. |
-| **EPIC-03: Responsive UI Toolkit** | Weeks 9 - 12 | Days 9 - 14 | Production | 88% Time Reduc. |
-
+| Phase / Milestone                    | Estimated (Manual) | Actual (AI-Driven) |   Status   | Efficiency Gain |
+| :----------------------------------- | :----------------: | :----------------: | :--------: | :-------------: |
+| **EPIC-01: Pure C# Domain Engine**   |    Weeks 1 - 4     |     Days 1 - 4     | Decoupled  | 85% Time Reduc. |
+| **EPIC-02: Architecture & DI Layer** |    Weeks 5 - 8     |     Days 5 - 8     | Solidified | 80% Time Reduc. |
+| **EPIC-03: Responsive UI Toolkit**   |    Weeks 9 - 12    |    Days 9 - 14     | Production | 88% Time Reduc. |
+| **EPIC-04: Cloud, Polish & Input**   |   Weeks 13 - 16    |    Days 15 - 20    | Production | 86% Time Reduc. |
 > 💡 **Architectural Note**: This acceleration wasn't achieved by cutting corners. The code maintains a strict Decoupled MVC design pattern, uses VContainer for dependency injection, features adaptive spatial calculation algorithms for portrait mobile viewports, and maintains a stable **90% min Unit Test coverage**.
 
 ---
@@ -359,14 +365,13 @@ Extensions to install:
 
 ### Platform Targets
 
-| Platform     | Status     | Build Time | Output Size |
-| ------------ | ---------- | ---------- | ----------- |
-| WebGL        | ✅ Ready   | ~2-3 min   | <50MB       |
-| Windows PC   | ✅ Ready   | ~3-5 min   | ~150MB      |
-| macOS        | ✅ Ready   | ~5-7 min   | ~150MB      |
-| iOS          | 🔄 EPIC-04 | ~10 min    | ~200MB      |
-| Android      | 🔄 EPIC-04 | ~8 min     | ~200MB      |
-| Meta Quest 3 | ⏳ EPIC-05 | ~5-7 min   | ~250MB      |
+| Platform | Status | Build Time | Output Size |
+| :--- | :--- | :--- | :--- |
+| WebGL | ✅ Ready | ~2-3 min | <50MB |
+| Windows PC | ✅ Ready | ~3-5 min | ~150MB |
+| macOS | ✅ Ready | ~5-7 min | ~150MB |
+| Mobile (iOS / Android) | ✅ Ready | ~8-10 min | ~200MB |
+| Meta Quest 3 | 🔄 EPIC-05 | ~5-7 min | ~250MB |
 
 ### Build Commands (CLI)
 
@@ -504,7 +509,7 @@ Built as a **senior-level portfolio project** showcasing production-ready code q
 
 ---
 
-**Last Updated**: July 2026  
+**Last Updated**: August 2026  
 **Maintenance Status**: Active Development  
 **Project Type**: Solo Portfolio | Production-Grade Game Engine
 

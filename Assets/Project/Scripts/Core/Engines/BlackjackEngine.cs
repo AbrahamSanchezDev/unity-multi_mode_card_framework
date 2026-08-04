@@ -45,7 +45,7 @@ namespace CardFramework.Core.Engines {
         private Deck deck;
         private Hand playerHand = new();
         private Hand dealerHand = new();
-        public GameState CurrentState { get; private set; } = GameState.PlayerTurn;
+        public virtual GameState CurrentState { get; private set; } = GameState.PlayerTurn;
 
         // Allow injecting a Deck for deterministic tests. Defaults to a new Deck when null.
         public BlackjackEngine(Deck deck = null) {
@@ -57,8 +57,7 @@ namespace CardFramework.Core.Engines {
         /// <summary>
         /// Resets the engine state, prepares a fresh deck, and shuffles.
         /// </summary>
-        public void ResetEngineState()
-        {
+        public void ResetEngineState() {
             deck = new Deck();
             deck.Initialize();
             deck.Shuffle();
@@ -91,8 +90,10 @@ namespace CardFramework.Core.Engines {
 
             playerHand.Cards.Add(deck.Draw());
 
-            if (playerHand.IsBust)
+            if (playerHand.IsBust) {
                 CurrentState = GameState.PlayerBust;
+            }
+
         }
 
         public void PlayerStand() {

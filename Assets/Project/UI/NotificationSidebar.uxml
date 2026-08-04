@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/NotificationSidebar.uss?fileID=7433441132597879392&amp;guid=18c686422a32a55439e361867c5434e3&amp;type=3#NotificationSidebar"/>
+    <ui:VisualElement name="screen-root" picking-mode="Ignore" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; picking-mode: Ignore;">
+        <ui:VisualElement name="sidebar-container" class="sidebar-collapsed" style="picking-mode: Ignore;">
+            <ui:Button name="btn-toggle-sidebar" text="✉" class="sidebar-toggle-trigger" style="picking-mode: Position;"/>
+            <ui:VisualElement name="sidebar-body" style="flex-grow: 1; picking-mode: Position; background-color: rgb(26, 34, 29);">
+                <ui:VisualElement name="sidebar-header" class="casino-panel-header" style="picking-mode: Ignore;">
+                    <ui:Label text="NOTIFICATIONS" name="lbl-sidebar-title" class="casino-header-text" style="picking-mode: Ignore;"/>
+                </ui:VisualElement>
+                <ui:ScrollView name="notifications-scroll" class="notifications-list-viewport" style="flex-grow: 1;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="mail-modal-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; display: none; picking-mode: Position;">
+            <ui:VisualElement name="mail-modal-card" class="casino-modal-frame" style="width: 450px; padding: 20px; background-color: rgb(26, 34, 29); border-width: 2px; border-color: rgb(212, 175, 87); border-radius: 6px; picking-mode: Position;">
+                <ui:VisualElement style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 8px;">
+                    <ui:Label name="lbl-modal-title" text="MESSAGE PREVIEW" style="color: rgb(212, 175, 87); -unity-font-style: bold; font-size: 16px;"/>
+                    <ui:Button name="btn-close-modal" text="✕" style="background-color: transparent; border-width: 0; color: rgb(255, 255, 255); font-size: 16px;"/>
+                </ui:VisualElement>
+                <ui:ScrollView style="max-height: 200px; margin-bottom: 20px;">
+                    <ui:Label name="lbl-modal-body" text="Detailed text contents." style="color: rgb(224, 224, 224); white-space: normal; font-size: 14px;"/>
+                </ui:ScrollView>
+                <ui:VisualElement style="align-items: center; justify-content: center;">
+                    <ui:Button name="btn-claim-reward" text="CLAIM 500 GOLD" class="casino-action-button" style="padding: 10px 24px;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

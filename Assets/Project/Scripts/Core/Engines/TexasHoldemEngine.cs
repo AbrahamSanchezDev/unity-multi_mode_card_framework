@@ -1,24 +1,23 @@
 using System.Collections.Generic;
 using CardFramework.Core.Models;
 
-namespace CardFramework.Core.Engines
-{
+namespace CardFramework.Core.Engines {
     /// <summary>
     /// Pure Texas Hold'em game rules and flow engine.
     /// Manages betting rounds and community cards without MonoBehaviour.
     /// </summary>
-    public class TexasHoldemEngine
-    {
+    public class TexasHoldemEngine {
         public enum RoundState { PreFlop, Flop, Turn, River, Showdown }
 
         private readonly Deck deck = new();
         public List<CardData> PlayerHand { get; } = new();
+        public List<CardData> HouseHand { get; } = new();
         public List<CardData> CommunityCards { get; } = new();
         public RoundState CurrentRound { get; private set; } = RoundState.PreFlop;
 
-        public void StartNewHand()
-        {
+        public void StartNewHand() {
             PlayerHand.Clear();
+            HouseHand.Clear();
             CommunityCards.Clear();
             deck.Initialize();
             deck.Shuffle();
@@ -27,13 +26,15 @@ namespace CardFramework.Core.Engines
             PlayerHand.Add(deck.Draw());
             PlayerHand.Add(deck.Draw());
 
+            // Deal a hidden house/dealer hand to simulate another player on the table.
+            HouseHand.Add(deck.Draw());
+            HouseHand.Add(deck.Draw());
+
             CurrentRound = RoundState.PreFlop;
         }
 
-        public void AdvanceRound()
-        {
-            switch (CurrentRound)
-            {
+        public void AdvanceRound() {
+            switch (CurrentRound) {
                 case RoundState.PreFlop:
                     // Deal Flop (3 cards)
                     CommunityCards.Add(deck.Draw());

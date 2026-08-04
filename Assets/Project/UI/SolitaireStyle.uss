@@ -1,0 +1,170 @@
+.screen-container {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 16px;
+    justify-content: space-between;
+}
+
+.hud-header-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.hud-left-group {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.hud-right-group {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-hamburger {
+    font-size: 20px;
+    color: rgb(212, 175, 55);
+    background-color: rgba(20, 25, 22, 0.85);
+    border-width: 1px;
+    border-color: rgb(212, 175, 55);
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-right: 12px;
+    -unity-font-style: bold;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s;
+}
+
+.btn-hamburger:hover {
+    background-color: rgb(30, 94, 58);
+    color: rgb(255, 255, 255);
+    border-color: rgb(42, 133, 82);
+    scale: 1.05;
+}
+
+.btn-hamburger:active {
+    background-color: rgb(22, 72, 44);
+    scale: 0.95;
+}
+
+.title-label {
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    min-width: 200px;
+    margin-bottom: 8px;
+}
+
+.wallet-balance-label {
+    font-size: 16px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    background-color: rgba(20, 25, 22, 0.85);
+    border-radius: 8px;
+    padding: 8px 16px;
+    border-width: 1px;
+    border-color: rgb(212, 175, 55);
+    margin-right: 12px;
+    min-width: 120px;
+    -unity-text-align: middle-center;
+}
+
+.score-board {
+    background-color: rgba(20, 25, 22, 0.85);
+    border-radius: 8px;
+    padding: 10px 16px;
+    border-width: 1px;
+    border-color: rgb(212, 175, 55);
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.score-label {
+    font-size: 15px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin: 0 8px;
+}
+
+.center-container {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.outcome-banner {
+    background-color: rgba(20, 25, 22, 0.95);
+    border-color: rgb(212, 175, 55);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 16px 24px;
+    max-width: 90%;
+}
+
+.outcome-text {
+    font-size: 24px;
+    color: rgb(212, 175, 55);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.action-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-casino {
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(30, 94, 58);
+    border-width: 1px;
+    border-color: rgb(42, 133, 82);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 6px;
+    flex-grow: 1;
+    flex-basis: 120px;
+    max-width: 200px;
+}
+
+.btn-casino:hover {
+    background-color: rgb(38, 119, 74);
+}
+
+.btn-casino:active {
+    background-color: rgb(22, 72, 44);
+}
+
+.btn-casino:disabled {
+    background-color: rgb(43, 51, 46);
+    border-color: rgb(59, 68, 63);
+    color: rgb(102, 114, 107);
+}
+
+.btn-draw {
+    background-color: rgb(178, 34, 34);
+    border-color: rgb(210, 54, 54);
+}
+
+.btn-draw:hover {
+    background-color: rgb(205, 38, 38);
+}
+
+.btn-draw:active {
+    background-color: rgb(139, 26, 26);
+}

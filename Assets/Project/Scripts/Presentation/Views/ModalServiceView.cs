@@ -3,6 +3,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Presentation.Interfaces;
+using UnityEngine.Events;
+using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
@@ -14,6 +16,7 @@ namespace CardFramework.Presentation.Views {
         private Label _modalMessage;
         private Button _modalConfirmBtn;
         private Button _modalCancelBtn;
+        private IAudioService _audioService;
 
         public bool TestModeUi;
 
@@ -24,25 +27,51 @@ namespace CardFramework.Presentation.Views {
             // Ensure the panel starts completely disabled so it releases input focus on startup
             _uiDocument.enabled = false;
         }
-        private IEnumerator Start() {
+
+        public IEnumerator Start() {
             if (TestModeUi) {
 
                 // Optional: Demonstrate the modal service functionality after a brief delay
                 yield return new WaitForSeconds(1f);
-                ShowLoading("Initializing system overlay framework...");
+                TestLoading();
                 yield return new WaitForSeconds(2f);
-                ShowAlert("Welcome", "This is a test alert modal.", () => {
-                    Debug.Log("Alert confirmed by user.");
-                    ShowConfirmation("Confirm Action", "Do you want to proceed?",
-                        () => Debug.Log("User confirmed action."),
-                        () => Debug.Log("User canceled action."));
+                TestAlert(() => {
+                    TestConfirmation();
                 });
             }
+        }
+        
+        public void TestLoading() {
+            ShowLoading("Initializing system overlay framework...");
+        }
+
+        public void TestAlert(UnityAction onConfirm = null) {
+            ShowAlert("Test Alert", "This is a test alert modal.", () => {
+                Debug.Log("Alert confirmed by user.");
+                onConfirm?.Invoke();
+            });
+        }
+
+        public void TestConfirmation(UnityAction onConfirm = null, UnityAction onCancel = null) {
+            ShowConfirmation("Test Confirmation", "Do you want to proceed?",
+                () => {
+                    Debug.Log("User confirmed action.");
+                    onConfirm?.Invoke();
+                },
+                () => {
+                    Debug.Log("User canceled action.");
+                    onCancel?.Invoke();
+                });
         }
 
         /// <summary>
         /// Safe initialization to query elements only after the UIDocument updates its tree.
         /// </summary>
+        [Inject]
+        public void Construct(IAudioService audioService) {
+            _audioService = audioService;
+        }
+
         private bool InitializeVisualElements() {
             if (_uiDocument == null || !_uiDocument.enabled) return false;
 
@@ -88,14 +117,15 @@ namespace CardFramework.Presentation.Views {
             _modalCancelBtn.style.display = DisplayStyle.None;
 
             _modalConfirmBtn.clicked += SystemAction;
+            _modalConfirmBtn.clicked += PlayButtonClickSound;
 
             _modalOverlay.style.display = DisplayStyle.Flex;
             _modalOverlay.pickingMode = PickingMode.Position;
 
             void SystemAction() {
                 _modalConfirmBtn.clicked -= SystemAction;
+                InvokeCallback(onConfirm);
                 HideModal();
-                onConfirm?.Invoke();
             }
         }
 
@@ -113,18 +143,28 @@ namespace CardFramework.Presentation.Views {
 
             _modalConfirmBtn.clicked += ConfirmAction;
             _modalCancelBtn.clicked += CancelAction;
+            _modalConfirmBtn.clicked += PlayButtonClickSound;
+            _modalCancelBtn.clicked += PlayButtonClickSound;
 
             _modalOverlay.style.display = DisplayStyle.Flex;
             _modalOverlay.pickingMode = PickingMode.Position;
 
-            void ConfirmAction() { Unbind(); onConfirm?.Invoke(); }
-            void CancelAction() { Unbind(); onCancel?.Invoke(); }
+            void ConfirmAction() { InvokeCallback(onConfirm); Unbind(); }
+            void CancelAction() { InvokeCallback(onCancel); Unbind(); }
 
             void Unbind() {
                 _modalConfirmBtn.clicked -= ConfirmAction;
                 _modalCancelBtn.clicked -= CancelAction;
                 HideModal();
             }
+        }
+
+        private void PlayButtonClickSound() {
+            _audioService?.PlayButtonClick();
+        }
+
+        private void InvokeCallback(Action callback) {
+            callback?.Invoke();
         }
 
         public void HideModal() {

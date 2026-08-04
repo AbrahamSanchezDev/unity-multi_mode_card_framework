@@ -10,6 +10,7 @@ namespace CardFramework.Presentation.Interfaces {
         event Action OnHitRequested;
         event Action OnStandRequested;
         event Action OnRestartRequested;
+        event Action OnMenuRequested;
 
         // UI Update Methods
         void UpdatePlayerScore(int score);
@@ -20,5 +21,12 @@ namespace CardFramework.Presentation.Interfaces {
 
         // Adds a physical 3D card instance onto the matching actor's layout zone
         void SpawnPhysicalCard(CardData card, bool isPlayer);
+
+        /// <summary>
+        /// Updates the main HUD display with the player's current authoritative wallet balance.
+        /// </summary>
+        void UpdateWalletBalance(int freshBalance);
+
+        void ShowUi(bool show);
     }
 }

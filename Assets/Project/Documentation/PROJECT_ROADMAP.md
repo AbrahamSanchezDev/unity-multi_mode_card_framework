@@ -1,21 +1,24 @@
 # 🃏 Card Framework - Project Master Roadmap
 
 ## 🤖 AI Context & System Prompt
+
 **Target AI / Developer Instructions:**
-You are acting as a Senior Unity Developer. This document tracks the development of a cross-platform Card Game Framework (targeting WebGL and Meta Quest 3). 
-* **Architecture:** Strict decoupled MVP/MVC.
-* **Dependency Injection:** VContainer (No global Singletons or `GameManager.Instance`).
-* **Cloud Backend:** Microsoft PlayFab (Async/Await pattern using `TaskCompletionSource`, `IPlayFabDataWrapper` for test isolation).
-* **Testing Standard:** Test-Driven Development (TDD). 100% Line Coverage required for Controllers and Services using NUnit (EditMode for unit, PlayMode for integration).
-* **Language:** C# 9.0+ / Unity 6000+
-* **UI System:** UI Toolkit (.uxml / .uss) designed with Responsive Panel Settings (Screen-Space for Flatscreen, prepared for seamless migration to World-Space Panels for Meta Quest 3).
+You are acting as a Senior Unity Developer. This document tracks the development of a cross-platform Card Game Framework (targeting WebGL and Meta Quest 3).
+
+- **Architecture:** Strict decoupled MVP/MVC.
+- **Dependency Injection:** VContainer (No global Singletons or `GameManager.Instance`).
+- **Cloud Backend:** Microsoft PlayFab (Async/Await pattern using `TaskCompletionSource`, `IPlayFabDataWrapper` for test isolation).
+- **Testing Standard:** Test-Driven Development (TDD). 100% Line Coverage required for Controllers and Services using NUnit (EditMode for unit, PlayMode for integration).
+- **Language:** C# 9.0+ / Unity 6000+
+- **UI System:** UI Toolkit (.uxml / .uss) designed with Responsive Panel Settings (Screen-Space for Flatscreen, prepared for seamless migration to World-Space Panels for Meta Quest 3).
 
 All newly generated code must adhere strictly to these architectural boundaries. Update checkboxes `[x]` as tasks are completed.
 
 ---
 
 ## 📌 Epic 1: Core Logic Engine
-*Pure C# simulation logic, deterministic and independent of Unity's MonoBehaviour loop.*
+
+_Pure C# simulation logic, deterministic and independent of Unity's MonoBehaviour loop._
 
 - [x] **TASK-1.1: Blackjack Engine Implementation**
   - Hand evaluation, bust detection, dealer soft-17 rules.
@@ -29,7 +32,8 @@ All newly generated code must adhere strictly to these architectural boundaries.
 ---
 
 ## ☁️ Epic 2: Persistence & Cloud Backend
-*PlayFab integration, data storage, and cross-device syncing pipelines.*
+
+_PlayFab integration, data storage, and cross-device syncing pipelines._
 
 - [x] **TASK-2.1: Dependency Injection Container**
   - Setup `VContainer` lifecycle (`GameLifetimeScope`).
@@ -38,17 +42,12 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Implement `PlayFabAuthService` with device-unique fallback.
   - Implement `PlayFabDataService` with mocked wrapper for 0ms unit testing.
   - 100% Test Coverage (PlayMode & EditMode).
-- [ ] **TASK-2.3: Cross-Platform Account Linking**
-  - Build asynchronous 6-character alphanumeric PIN system.
-  - Sync game state from flatscreen (WebGL) to VR profiles (Meta Quest 3) with a 10-minute validity window.
-- [ ] **TASK-2.4: Cloud Mailbox & Cooldown Systems**
-  - Integrate server-verified message inbox for daily rewards.
-  - Mitigate device-clock tampering using PlayFab Title Data/CloudScript.
 
 ---
 
 ## 🖥️ Epic 3: Architecture & UI Foundation
-*Screen-space canvases, decoupled presentation controllers, and input abstraction.*
+
+_Screen-space canvases, decoupled presentation controllers, and input abstraction._
 
 - [x] **TASK-3.3: UI Presentation Layer Architecture (MVP/MVC Setup)**
   - Define `IView` contracts (`IBlackjackView`).
@@ -68,27 +67,62 @@ All newly generated code must adhere strictly to these architectural boundaries.
   - Refactor USS sheets using flexbox auto-wrapping and relative dimensions (`flex-basis`).
   - Eliminate layout engine parser warnings by aligning properties to native sub-specs.
   - Implement dynamic local space auto-centering for 3D physical card hand layout structures.
-  
+
 ---
 
-## 🎮 Epic 4: Extended Game Loops & Metagame
-*Expanding the framework to support economy and alternative game modes.*
+## 🎮 EPIC-04: Cloud Infrastructure & Metagame
 
-- [ ] **TASK-4.1: Economy & Betting System**
-  - Logic for placing wagers, resolving payouts, and syncing currency via `ICloudSaveService`.
-- [ ] **TASK-4.2: Texas Holdem UI Implementation**
-  - Table controller for multiplayer/AI poker states.
-- [ ] **TASK-4.3: Solitaire UI Implementation**
-  - Drag-and-drop controller for tableau manipulation.
+Expanding the framework to support persistence, cross-platform linking, and economy.
+
+- [x] **TASK-4.1: PlayFab SDK & Silent Authentication**
+  - Integrate PlayFab SDK extensions with decoupled injection safety mappings.
+  - Formulate hardware-invariant `ICloudService` abstract definitions.
+  - Implement zero-friction `CustomID` silent login execution workflows via `IInitializable` hooks.
+- [x] **TASK-4.2: Economy & Betting System (Cloud Core)**
+  - Map global currency code `GD` inside PlayFab GameManager with server-time passive recharge hooks.
+  - Establish loose `IEconomyService` structures to prevent runtime client memory tampering.
+  - Implement dynamic multi-project credit/debit cloud network sync pipelines.
+  - Deliver automated EditMode test coverage adapters validating game loop wagering states.
+    - [x] **TASK-4.2.1: Dynamic UI Wallet Balance (HUD Sync)**
+      - Extend `IBlackjackView` contract to handle real-time cash flow signatures.
+      - Bind reactive event subscriptions between `IEconomyService` and the main UI Toolkit canvas.
+      - Secure clean data updates across round transitions (debits, standard payouts, natural blackjacks, and push resolutions).
+- [x] **TASK-4.3: Cross-Platform Account Linking (Old TASK-2.3)**
+  - Build asynchronous 6-character alphanumeric PIN system to sync WebGL state with Meta Quest 3.
+    - [x] **TASK-4.3.1: Dashboard UI & Game Switcher Layout**
+      - Design the central dashboard canvas in UXML/USS featuring a multi-game selection carousel and account status views.
+      - Handle active scene context switching routines to seamlessly transition between Blackjack and secondary game slots.
+- [x] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
+  - Integrate server-verified rewards and prevent device-clock tampering via PlayFab Time/Title Data.
+- [x] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
+  - Table and drag-and-drop controllers for secondary game states.
+  - [x] **TASK-4.5.1: 3D Physical Table Presentation & Juice**
+    - Implement two-phase card dealing pipeline (Fly-to-Hand + Auto Re-Center Sequence via DOTween).
+    - Prevent Z-fighting depth overlap through role-based incremental local Z-offset logic.
+    - [x] **TASK-4.5.1.1: New Input System Spatial Drag-and-Drop**
+      - Build unified screen-to-world raycasting for Mouse, Touch, and XR Interactors.
+      - Configure UI Toolkit `PickingMode.Ignore` pass-through to prevent 3D interaction raycast blocking.
+    - [x] **TASK-4.5.1.2: Centralized Tactile Audio & Spatial VFX**
+      - Integrate `CardAudioService` for grab, drop, shuffle, snap, and UI click feedback.
+      - Implement victory particle burst system triggered on hand/board completion events.
 
 ---
 
 ## 🥽 Epic 5: XR Integration & Deployment
-*Meta Quest 3 spatial design and final deployment pipelines.*
 
-- [ ] **TASK-5.1: Meta Quest 3 Rig Setup**
-  - Implement XR Interaction Toolkit or Oculus Integration for hand-tracking/controllers.
-- [ ] **TASK-5.2: Spatial UI Adaptation**
-  - Convert Screen-Space Canvases to World-Space Canvases for the VR environment.
-- [ ] **TASK-5.3: WebGL Optimization & Build**
-  - Compress assets, strip unused engine code, and finalize browser build compatibility.
+_Meta Quest 3 spatial design, cross-platform validation, and production build pipelines._
+
+- [ ] **TASK-5.1: Meta Quest 3 Rig Setup & Interaction Binding**
+  - Integrate XR Interaction Toolkit (or Meta XR All-In-One SDK) with VContainer lifetime scopes.
+  - Wire XR Ray Interactor & Direct Interactor events into `SpatialCardInteractable.StartVRGrab()` and `EndVRGrab()`.
+  - Add Haptic Impulse feedback routines (controller vibrations on card grab/drop).
+- [ ] **TASK-5.2: Spatial UI & VR Dashboard Adaptation**
+  - Adapt UI Toolkit documents and World-Space Canvases for comfortable VR distance/gaze angles.
+  - Wire the 6-character PIN sync UI for Quest 3 to display and input authentication codes easily.
+- [ ] **TASK-5.3: WebGL Build & Performance Optimization**
+  - Configure WebGL player settings (ASTC/DXT texture compression, Managed Stripping Level, C++ compiler optimizations).
+  - Test PlayFab Silent Auth fallback behavior for WebGL browser contexts.
+  - Optimize memory allocation during batch card spawning to maintain 60 FPS in WebGL.
+- [ ] **TASK-5.4: Multi-Platform Validation & Build Pipeline**
+  - Perform side-by-side verification: WebGL state sync ↔ Meta Quest 3 headset.
+  - Build automated production export profiles for both WebGL and Android/Quest APKs.

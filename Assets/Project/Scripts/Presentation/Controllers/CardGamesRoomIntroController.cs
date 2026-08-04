@@ -1,0 +1,99 @@
+using System;
+using UnityEngine;
+using UnityEngine.UIElements;
+using VContainer.Unity;
+using CardFramework.Core.Interfaces;
+using CardFramework.Presentation.Interfaces;
+using CardFramework.Presentation.Views;
+
+namespace CardFramework.Presentation.Controllers {
+    public class CardGamesRoomIntroController : IStartable, IDisposable {
+        private readonly GameRoomIntroView _introView;
+        private readonly GameTableManager _tableManager;
+        private readonly BlackjackView _blackjackView;
+        private readonly SolitaireView _solitaireView;
+        private readonly TexasHoldemView _texasHoldemView;
+        private readonly DashboardMenuView _dashboardView;
+        private readonly IEconomyService _economyService;
+        private readonly IAudioService _audioService;
+
+        public CardGamesRoomIntroController(GameRoomIntroView introView, GameTableManager tableManager, IEconomyService economyService, BlackjackView blackjackView = null, SolitaireView solitaireView = null, TexasHoldemView texasHoldemView = null, DashboardMenuView dashboardView = null, IAudioService audioService = null) {
+            _introView = introView;
+            _tableManager = tableManager;
+            _blackjackView = blackjackView;
+            _solitaireView = solitaireView;
+            _texasHoldemView = texasHoldemView;
+            _dashboardView = dashboardView;
+            _economyService = economyService;
+            _audioService = audioService;
+        }
+
+        public void Start() {
+            if (_introView != null) {
+                _introView.OnOptionSelected += HandleOptionSelected;
+                _introView.InjectEconomy(_economyService);
+                HideGameViews();
+                _introView.Show();
+            }
+        }
+
+        public void Dispose() {
+            if (_introView != null) {
+                _introView.OnOptionSelected -= HandleOptionSelected;
+            }
+        }
+
+        private void HandleOptionSelected(string optionId) {
+            _audioService?.PlayButtonClick();
+
+            if (_introView != null) {
+                _introView.Hide();
+            }
+
+            switch (optionId) {
+                case "Blackjack":
+                    ShowGameView(_blackjackView);
+                    ChangeGameView("Blackjack");
+                    break;
+                case "Solitaire":
+                    ShowGameView(_solitaireView);
+                    ChangeGameView("Solitaire");
+                    break;
+                case "TexasHoldem":
+                    ShowGameView(_texasHoldemView);
+                    ChangeGameView("TexasHoldem");
+                    break;
+                default:
+                    Debug.LogWarning($"[CardGamesRoomIntroController] No handler configured for option '{optionId}'.");
+                    break;
+            }
+        }
+        private void ChangeGameView(string gameId) {
+            _dashboardView?.ChangeActiveGame(gameId);
+            _tableManager?.SwitchTable(gameId);
+        }
+
+        private void HideGameViews() {
+            _solitaireView?.ShowUi(false);
+            _blackjackView?.ShowUi(false);
+            _texasHoldemView?.ShowUi(false);
+        }
+
+        private void ShowGameView(MonoBehaviour view) {
+            HideGameViews();
+            SetViewVisible(view, true);
+        }
+
+        private void SetViewVisible(MonoBehaviour view, bool visible) {
+            if (view == null) return;
+
+            var uiDocument = view.GetComponent<UIDocument>();
+            if (uiDocument != null) {
+                uiDocument.enabled = visible;
+                if (uiDocument.rootVisualElement != null) {
+                    uiDocument.rootVisualElement.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                }
+            }
+        }
+    }
+}

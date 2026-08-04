@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Project/UI/SolitaireStyle.uss?fileID=7433441132597879392&amp;guid=d5086c7d9571c2f46bbb78e37cf40870&amp;type=3#SolitaireStyle"/>
+    <ui:VisualElement name="screen-container" class="screen-container">
+        <ui:VisualElement class="hud-header-row">
+            <ui:VisualElement name="VisualElement" class="hud-left-group">
+                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
+                <ui:Label text="SOLITAIRE" class="title-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="hud-right-group">
+                <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label"/>
+                <ui:VisualElement class="score-board">
+                    <ui:Label name="foundation-score-label" text="Foundation: 0/52" class="score-label"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="center-container">
+            <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: none;">
+                <ui:Label text="SOLITAIRE CLEARED!" class="outcome-text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="action-container">
+            <ui:Button name="btn-draw" text="DRAW CARD" class="btn-casino btn-draw"/>
+            <ui:Button name="btn-restart" text="NEW GAME" class="btn-casino"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

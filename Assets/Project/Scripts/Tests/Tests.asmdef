@@ -9,9 +9,12 @@
         "XR",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "PlayFab"
+        "PlayFab",
+        "Unity.TextMeshPro",
+        "VContainer",
+        "Unity.InputSystem"
     ],
-    "includePlatforms": [    
+    "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],

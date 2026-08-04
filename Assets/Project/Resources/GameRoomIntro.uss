@@ -1,0 +1,139 @@
+.intro-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #101415;
+    padding: 32px;
+}
+
+.intro-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(11, 15, 18, 0.95);
+}
+
+.hero-float {
+    position: relative;
+    margin-bottom: -80px;
+}
+
+.hero-image {
+    width: 280px;
+    height: 380px;
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border-width: 1px;
+    border-color: rgba(255, 193, 116, 0.15);
+}
+
+.glass-modal {
+    position: relative;
+    width: 980px;
+    max-width: 100%;
+    background-color: rgba(16, 20, 21, 0.76);
+    border-width: 1px;
+    border-color: rgba(245, 158, 11, 0.14);
+    border-radius: 32px;
+    padding: 60px 40px 40px;
+    align-items: center;
+}
+
+.modal-inner {
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-block {
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.modal-title {
+    font-size: 48px;
+    color: #ffd489;
+    margin-bottom: 16px;
+}
+
+.modal-description {
+    font-size: 18px;
+    color: #d8c3ad;
+    max-width: 720px;
+}
+
+.modes-grid {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.mode-card {
+    width: 220px;
+    min-height: 150px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: rgba(24, 28, 34, 0.9);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+}
+
+.mode-card:hover {
+    background-color: rgba(255, 221, 184, 0.08);
+    border-color: rgba(245, 158, 11, 0.24);
+}
+
+.mode-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+    background-color: rgba(255, 193, 116, 0.14);
+    margin-bottom: 16px;
+}
+
+.mode-label {
+    font-size: 18px;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.mode-sub {
+    font-size: 14px;
+    color: #c9b490;
+}
+
+.cta-row {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.cta-button {
+    width: 240px;
+    min-height: 50px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 999px;
+    background-color: #ffc174;
+    color: #1f1400;
+    font-size: 14px;
+    border-width: 0;
+}
