@@ -94,20 +94,35 @@ Expanding the framework to support persistence, cross-platform linking, and econ
       - Handle active scene context switching routines to seamlessly transition between Blackjack and secondary game slots.
 - [x] **TASK-4.4: Cloud Mailbox & Anti-Cheat Cooldowns (Old TASK-2.4)**
   - Integrate server-verified rewards and prevent device-clock tampering via PlayFab Time/Title Data.
-- [ ] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
+- [x] **TASK-4.5: Alternative Game UI (Solitaire & Texas Hold'em Layouts)**
   - Table and drag-and-drop controllers for secondary game states.
-  - [x] **TASK-4.5.1: 3D Physical Table Presentation & DOTween Motion**
+  - [x] **TASK-4.5.1: 3D Physical Table Presentation & Juice**
     - Implement two-phase card dealing pipeline (Fly-to-Hand + Auto Re-Center Sequence via DOTween).
-    - Prevent Z-fighting depth overlap through role-based incremental local Z-offset logic (player vs. dealer).
+    - Prevent Z-fighting depth overlap through role-based incremental local Z-offset logic.
+    - [x] **TASK-4.5.1.1: New Input System Spatial Drag-and-Drop**
+      - Build unified screen-to-world raycasting for Mouse, Touch, and XR Interactors.
+      - Configure UI Toolkit `PickingMode.Ignore` pass-through to prevent 3D interaction raycast blocking.
+    - [x] **TASK-4.5.1.2: Centralized Tactile Audio & Spatial VFX**
+      - Integrate `CardAudioService` for grab, drop, shuffle, snap, and UI click feedback.
+      - Implement victory particle burst system triggered on hand/board completion events.
+
 ---
 
 ## 🥽 Epic 5: XR Integration & Deployment
 
-_Meta Quest 3 spatial design and final deployment pipelines._
+_Meta Quest 3 spatial design, cross-platform validation, and production build pipelines._
 
-- [ ] **TASK-5.1: Meta Quest 3 Rig Setup**
-  - Implement XR Interaction Toolkit or Oculus Integration for hand-tracking/controllers.
-- [ ] **TASK-5.2: Spatial UI Adaptation**
-  - Convert Screen-Space Canvases to World-Space Canvases for the VR environment.
-- [ ] **TASK-5.3: WebGL Optimization & Build**
-  - Compress assets, strip unused engine code, and finalize browser build compatibility.
+- [ ] **TASK-5.1: Meta Quest 3 Rig Setup & Interaction Binding**
+  - Integrate XR Interaction Toolkit (or Meta XR All-In-One SDK) with VContainer lifetime scopes.
+  - Wire XR Ray Interactor & Direct Interactor events into `SpatialCardInteractable.StartVRGrab()` and `EndVRGrab()`.
+  - Add Haptic Impulse feedback routines (controller vibrations on card grab/drop).
+- [ ] **TASK-5.2: Spatial UI & VR Dashboard Adaptation**
+  - Adapt UI Toolkit documents and World-Space Canvases for comfortable VR distance/gaze angles.
+  - Wire the 6-character PIN sync UI for Quest 3 to display and input authentication codes easily.
+- [ ] **TASK-5.3: WebGL Build & Performance Optimization**
+  - Configure WebGL player settings (ASTC/DXT texture compression, Managed Stripping Level, C++ compiler optimizations).
+  - Test PlayFab Silent Auth fallback behavior for WebGL browser contexts.
+  - Optimize memory allocation during batch card spawning to maintain 60 FPS in WebGL.
+- [ ] **TASK-5.4: Multi-Platform Validation & Build Pipeline**
+  - Perform side-by-side verification: WebGL state sync ↔ Meta Quest 3 headset.
+  - Build automated production export profiles for both WebGL and Android/Quest APKs.
