@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 566531746230752113}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.025, y: 0.0349, z: -0}
+  m_LocalPosition: {x: -0.025, y: 0.038, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 1597769081885503748}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.025, y: -0.0375, z: -0}
+  m_LocalPosition: {x: 0.025, y: -0.038, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -130,8 +130,10 @@ MonoBehaviour:
     aceIconScale: 2.2
   suitIcon: {fileID: 1217900047, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
   rank: 12
+  suit: 0
   DisplayType: -1
   faceCardArt: {fileID: -1769638026, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+  customCardImages: {fileID: 0}
   deleteRigAfterGeneration: 1
   targetRenderer: {fileID: 2491012568858957086}
   cardCollider: {fileID: 8882240333010770981}
@@ -139,6 +141,9 @@ MonoBehaviour:
   bottomCornerAnchor: {fileID: 2910772960142951456}
   labelFont: {fileID: 0}
   blankFaceMaterial: {fileID: 2100000, guid: 47f476766a0867d4bb43e2c3e84860fd, type: 2}
+  IsFacingUp: 0
+  IsFacingDown: 0
+  DisableSaveTextureToFolder: 0
 --- !u!114 &8310557201113262509
 MonoBehaviour:
   m_ObjectHideFlags: 0

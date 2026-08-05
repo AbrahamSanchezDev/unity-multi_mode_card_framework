@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cda34535c29fc2044b624cbb2d185713, type: 3}
+  m_Name: Full Background Graphis 1
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.CustomCardImages
+  Suits:
+  - Suit: 0
+    DefaultIcon: {fileID: 743191293, guid: 75e59769902c61d4b88c246268e16ed7, type: 3}
+    Icon: []
+  - Suit: 1
+    DefaultIcon: {fileID: -521814516, guid: 2a20ff711929f614ea370dd91d24248b, type: 3}
+    Icon: []
+  - Suit: 2
+    DefaultIcon: {fileID: -574022410, guid: 75e59769902c61d4b88c246268e16ed7, type: 3}
+    Icon: []
+  - Suit: 3
+    DefaultIcon: {fileID: 851254186, guid: 2a20ff711929f614ea370dd91d24248b, type: 3}
+    Icon: []

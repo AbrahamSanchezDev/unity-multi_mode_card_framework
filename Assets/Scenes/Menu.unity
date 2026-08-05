@@ -3962,6 +3962,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2910772960142951456, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.038
+      objectReference: {fileID: 0}
     - target: {fileID: 3061051009987425311, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
       propertyPath: m_Name
       value: Card
@@ -3972,7 +3976,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5512631741636764082, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.0105
       objectReference: {fileID: 0}
     - target: {fileID: 5512631741636764082, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4012,15 +4016,47 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
       propertyPath: rank
-      value: 5
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
-      propertyPath: DisplayType
+      propertyPath: suit
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: suitIcon
+      value: 
+      objectReference: {fileID: 1816333410, guid: fd8f53a7cd78cce48a01a5275277d7a7, type: 3}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: IsFacingUp
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: DisplayType
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: _isBlackSuit
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: customCardImages
+      value: 
+      objectReference: {fileID: 11400000, guid: dcda6d3e04a479d48ae7c235f418ab6a, type: 2}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
       propertyPath: deleteRigAfterGeneration
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: fullBackgroundCardImages
+      value: 
+      objectReference: {fileID: 11400000, guid: c7978077307889e45a94468208323b79, type: 2}
+    - target: {fileID: 5983360096847227516, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: DisableSaveTextureToFolder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9083424446442749220, guid: 44cd83b976315844b88d6dcd14f4f430, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.038
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

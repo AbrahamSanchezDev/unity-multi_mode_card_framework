@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cda34535c29fc2044b624cbb2d185713, type: 3}
+  m_Name: Girls CustomCardImages
+  m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.CustomCardImages
+  Suits:
+  - Suit: 0
+    DefaultIcon: {fileID: 607576172, guid: ea07708036e71164ead4241202c35574, type: 3}
+    Icon:
+    - Rank: 1
+      Icon: {fileID: -1708514556, guid: ea07708036e71164ead4241202c35574, type: 3}
+    - Rank: 11
+      Icon: {fileID: -1984698412, guid: ea07708036e71164ead4241202c35574, type: 3}
+    - Rank: 12
+      Icon: {fileID: 284176052, guid: ea07708036e71164ead4241202c35574, type: 3}
+    - Rank: 13
+      Icon: {fileID: -48334028, guid: ea07708036e71164ead4241202c35574, type: 3}
+  - Suit: 1
+    DefaultIcon: {fileID: -1355327171, guid: f174c50023619f045b07796042130cf1, type: 3}
+    Icon:
+    - Rank: 1
+      Icon: {fileID: 1653417642, guid: f174c50023619f045b07796042130cf1, type: 3}
+    - Rank: 11
+      Icon: {fileID: -1480317980, guid: f174c50023619f045b07796042130cf1, type: 3}
+    - Rank: 12
+      Icon: {fileID: -8444574, guid: f174c50023619f045b07796042130cf1, type: 3}
+    - Rank: 13
+      Icon: {fileID: -1967331305, guid: f174c50023619f045b07796042130cf1, type: 3}
+  - Suit: 2
+    DefaultIcon: {fileID: -1965913989, guid: e49aa77fe2114d449b57ea9dc24f07f0, type: 3}
+    Icon:
+    - Rank: 1
+      Icon: {fileID: 2064638751, guid: e49aa77fe2114d449b57ea9dc24f07f0, type: 3}
+    - Rank: 11
+      Icon: {fileID: 909591069, guid: e49aa77fe2114d449b57ea9dc24f07f0, type: 3}
+    - Rank: 12
+      Icon: {fileID: 2080912512, guid: e49aa77fe2114d449b57ea9dc24f07f0, type: 3}
+    - Rank: 13
+      Icon: {fileID: -1673007316, guid: e49aa77fe2114d449b57ea9dc24f07f0, type: 3}
+  - Suit: 3
+    DefaultIcon: {fileID: -2084333339, guid: 80cb877f33de1424bbb3ffffd4ddf7d2, type: 3}
+    Icon:
+    - Rank: 1
+      Icon: {fileID: 1931382756, guid: 80cb877f33de1424bbb3ffffd4ddf7d2, type: 3}
+    - Rank: 11
+      Icon: {fileID: 1555565125, guid: 80cb877f33de1424bbb3ffffd4ddf7d2, type: 3}
+    - Rank: 12
+      Icon: {fileID: -1839828487, guid: 80cb877f33de1424bbb3ffffd4ddf7d2, type: 3}
+    - Rank: 13
+      Icon: {fileID: 362529218, guid: 80cb877f33de1424bbb3ffffd4ddf7d2, type: 3}

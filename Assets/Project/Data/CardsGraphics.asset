@@ -33,3 +33,5 @@ MonoBehaviour:
     Jack: {fileID: -416410012, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
     Queen: {fileID: 991299764, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
     King: {fileID: 2048042188, guid: a11fc46fd6e3298468a5f7aa80b543cb, type: 3}
+  CustomCardImages: {fileID: 11400000, guid: dcda6d3e04a479d48ae7c235f418ab6a, type: 2}
+  FullBackgroundCardImages: {fileID: 11400000, guid: c7978077307889e45a94468208323b79, type: 2}

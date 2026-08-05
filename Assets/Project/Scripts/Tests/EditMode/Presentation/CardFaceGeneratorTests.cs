@@ -102,7 +102,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             var expectedCollider = _mockRenderer.gameObject.AddComponent<BoxCollider>();
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Five, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Five, CardData.Suit.Clubs, null, false);
             });
 
             Object.DestroyImmediate(expectedCollider);
@@ -110,17 +110,17 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_OnRebuildWithExistingPips_IteratesAndDestroysPopulatedList() {
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Eight, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Eight, CardData.Suit.Clubs, null, false);
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Jack, _faceArtSprite, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Jack, CardData.Suit.Clubs, _faceArtSprite, false);
             });
         }
 
         [Test]
         public void Generator_DestroyPreviewPips_DirectInvocation() {
             // Generates a card to populate the private _pipInstances list
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ten, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ten, CardData.Suit.Clubs, null, false);
 
             // Corrected to "DestroyPreviewPips" (Singular) and NonPublic
             var destroyPipsMethod = typeof(CardFaceGenerator).GetMethod("DestroyPreviewPips",
@@ -134,7 +134,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_GetCardTextureFromCache_DirectInvocation() {
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Four, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Four, CardData.Suit.Clubs, null, false);
             string expectedKey = _generator.CardKey;
 
             var publicCacheMethod = _generator.GetCardTextureFromCache();
@@ -207,7 +207,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_OnLifecycleDestroyWithActiveRenderTexture_ReleasesMemory() {
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
 
             Assert.DoesNotThrow(() => {
                 Object.DestroyImmediate(_cardContainer);
@@ -217,12 +217,12 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_OnAllRanks_CoversRankToLabelSwitchCases() {
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Two, null, false);
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ten, null, false);
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Jack, _faceArtSprite, false);
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Queen, _faceArtSprite, false);
-            _generator.GenerateCard(_suitSprite, CardData.Rank.King, _faceArtSprite, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Two, CardData.Suit.Clubs, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ten, CardData.Suit.Clubs, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Jack, CardData.Suit.Clubs, _faceArtSprite, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Queen, CardData.Suit.Clubs, _faceArtSprite, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.King, CardData.Suit.Clubs, _faceArtSprite, false);
 
             Assert.Pass();
         }
@@ -232,17 +232,17 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _mockRenderer.sharedMaterials = new Material[0];
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
             });
         }
 
         [Test]
         public void Generator_OnMaterialIndexOutOfBounds_LogsWarningBranch() {
             _generator.setupData.materialIndex = -1;
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
 
             _generator.setupData.materialIndex = 99;
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
 
             Assert.Pass();
         }
@@ -252,7 +252,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _mockRenderer.sharedMaterials = new Material[] { null };
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
             });
         }
 
@@ -261,7 +261,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _generator.setupData.texturePropertyName = "_NonExistentPropertyBypass";
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
             });
         }
 
@@ -273,7 +273,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             _generator.cardCollider = sphereCollider;
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Two, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Two, CardData.Suit.Clubs, null, false);
             });
         }
 
@@ -284,7 +284,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
             Object.DestroyImmediate(_mockCollider);
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Six, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Six, CardData.Suit.Clubs, null, false);
             });
         }
 
@@ -301,14 +301,14 @@ namespace CardFramework.Tests.EditMode.Presentation {
             }
 
             Assert.DoesNotThrow(() => {
-                _generator.GenerateCard(_suitSprite, CardData.Rank.Nine, null, false);
+                _generator.GenerateCard(_suitSprite, CardData.Rank.Nine, CardData.Suit.Clubs, null, false);
             });
         }
 
         [Test]
         public void Generator_OnRigCleanupWithActiveRoot_ExecutesPurgeBranches() {
             _generator.deleteRigAfterGeneration = true;
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Seven, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Seven, CardData.Suit.Clubs, null, false);
 
             var rigRootField = typeof(CardFaceGenerator).GetField("_rigRoot",
                 BindingFlags.Instance | BindingFlags.NonPublic);
@@ -319,7 +319,7 @@ namespace CardFramework.Tests.EditMode.Presentation {
 
         [Test]
         public void Generator_OnSaveTextureToFile_ExecutesFileIOWrites() {
-            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, null, false);
+            _generator.GenerateCard(_suitSprite, CardData.Rank.Ace, CardData.Suit.Clubs, null, false);
             string testFilePath = Path.Combine(Application.temporaryCachePath, "TestCardOutput.png");
 
             Texture2D currentTex = new Texture2D(_generator.setupData.textureWidth, _generator.setupData.textureHeight);

@@ -18,6 +18,11 @@ namespace CardFramework.Presentation.Views {
         [Header("Card Graphics")]
         public List<CardsGraphicsSuitData> SuitsData;
 
+        [Header("Card Custom Graphics")]
+        public CustomCardImages CustomCardImages;
+
+        public CustomCardImages FullBackgroundCardImages;
+
         public Sprite GetSuitIcon(CardData.Suit suit) {
             var suitData = SuitsData.Find(s => s.Suit == suit);
             return suitData != null ? suitData.Icon : null;

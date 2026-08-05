@@ -12,6 +12,10 @@ namespace CardFramework.Presentation.Views {
         None = -1,
         FullCard = 0,
         EasyRead = 1,
+        ImagesGirls = 2,
+        EasyReadGirls = 3,
+        EasyReadGirlsAsBackground = 4,
+        FullBackground = 5
     }
     /// <summary>
     /// Procedurally generates a playing card's front-face texture (corner rank labels,
@@ -82,10 +86,20 @@ namespace CardFramework.Presentation.Views {
         [Tooltip("Card rank. 1-10 draw pips; J/Q/K draw faceCardArt instead.")]
         public CardData.Rank rank = CardData.Rank.Ace;
 
+        [Tooltip("Card suit. Used for the corner icons and, for 1-10, the center pips.")]
+        public CardData.Suit suit = CardData.Suit.Clubs;
+
         public CardDisplayType DisplayType = CardDisplayType.None;
 
         [Tooltip("Only used when rank is Jack, Queen or King. Drawn in the center area.")]
         public Sprite faceCardArt;
+
+
+        [Header("Custom Card Images")]
+        [Tooltip("Optional ScriptableObject that provides custom suit icons for each rank/suit combination. If left empty, the default suitIcon is used for all ranks.")]
+        public CustomCardImages customCardImages;
+
+        public CustomCardImages fullBackgroundCardImages;
 
         public bool deleteRigAfterGeneration;
 
@@ -164,13 +178,16 @@ namespace CardFramework.Presentation.Views {
         private float _cardWorldWidth = 1f;
         private float _cardWorldHeight = 1f;
 
-        public string CardKey => $"Card_{(suitIcon != null ? suitIcon.name : "NoSuit")}_{rank}_{DisplayType}";
+        public string CardKey => $"Card_{suit}_{rank}_{DisplayType}";
 
-        public static string GetCardFileFolder() {
+        public static string GetCardFileFolder(CardDisplayType theDisplayType) {
+            return Path.Combine(Application.persistentDataPath, "CardTextures", theDisplayType.ToString());
+        }
+        public static string GetCardFileRootFolder() {
             return Path.Combine(Application.persistentDataPath, "CardTextures");
         }
 
-        public string CardFileFullPath => $"{Path.Combine(GetCardFileFolder(), CardKey + ".png")}";
+        public string CardFileFullPath => $"{Path.Combine(GetCardFileFolder(DisplayType), CardKey + ".png")}";
 
         private void OnDestroy() {
             DestroyOrphanRigs();
@@ -215,7 +232,7 @@ namespace CardFramework.Presentation.Views {
             _textureCache[CardKey] = generated;
             // Save to persistentDataPath to save time on future runs (e.g. for Play Mode testing)
             // Keep track of what version of cards we have stored and if its different from the current version, clear the cache and regenerate.
-            SaveTextureToFolder(GetCardFileFolder(), generated);
+            SaveTextureToFolder(GetCardFileFolder(DisplayType), generated);
             return generated;
         }
 
@@ -236,7 +253,7 @@ namespace CardFramework.Presentation.Views {
                 Debug.Log($"CardFaceGenerator: Detected card texture version change from {curVersion} to {CURRENT_TEXTURE_VERSION}. Clearing cached textures.");
                 ClearCache();
                 //Delete all cached textures from persistentDataPath
-                string folder = GetCardFileFolder();
+                string folder = GetCardFileRootFolder();
                 if (Directory.Exists(folder)) {
                     DirectoryInfo di = new DirectoryInfo(folder);
                     foreach (FileInfo file in di.GetFiles()) {
@@ -274,9 +291,10 @@ namespace CardFramework.Presentation.Views {
         /// <param name="theRank"></param>
         /// <param name="TheFaceCardArt"></param> <summary>    /// 
         /// </summary>
-        public void GenerateCard(Sprite theSuitIcon, CardData.Rank theRank, Sprite TheFaceCardArt = null, bool blackSuit = false) {
+        public void GenerateCard(Sprite theSuitIcon, CardData.Rank theRank, CardData.Suit theSuit, Sprite TheFaceCardArt = null, bool blackSuit = false) {
             suitIcon = theSuitIcon;
             rank = theRank;
+            suit = theSuit;
             faceCardArt = TheFaceCardArt;
             setupData.labelColor = blackSuit ? Color.black : _redSuitColor;
             GenerateAndApplyTexture();
@@ -285,14 +303,16 @@ namespace CardFramework.Presentation.Views {
         public void GenerateCard(CardData cardData, CardsGraphics cardsGraphics) {
             // Configure card face graphics
             CardData.Rank rank = cardData.CardRank;
+            fullBackgroundCardImages = cardsGraphics != null ? cardsGraphics.FullBackgroundCardImages : null;
+            customCardImages = cardsGraphics != null ? cardsGraphics.CustomCardImages : null;
             bool isBlack = cardData.CardSuit == CardData.Suit.Spades || cardData.CardSuit == CardData.Suit.Clubs;
             Sprite suitIcon = cardsGraphics != null ? cardsGraphics.GetSuitIcon(cardData.CardSuit) : null;
             Sprite faceSprite = null;
             if (cardData.CardRank == CardData.Rank.Jack || cardData.CardRank == CardData.Rank.Queen || cardData.CardRank == CardData.Rank.King) {
                 faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(cardData) : null;
             }
-            DisplayType = CardDisplayType.EasyRead;
-            GenerateCard(suitIcon, rank, faceSprite, isBlack);
+            DisplayType = CardDisplayType.EasyRead; // Default display type, can be changed later if needed
+            GenerateCard(suitIcon, rank, cardData.CardSuit, faceSprite, isBlack);
         }
 
         [ContextMenu("Preview Card On Target Renderer")]
@@ -366,8 +386,10 @@ namespace CardFramework.Presentation.Views {
             var tex = GenerateTexture();
             SaveTextureToFolder(folder, tex);
         }
+
+        public bool DisableSaveTextureToFolder = false;
         public virtual void SaveTextureToFolder(string folder, Texture2D tex) {
-            if (string.IsNullOrEmpty(folder)) return;
+            if (string.IsNullOrEmpty(folder) || DisableSaveTextureToFolder) return;
             Directory.CreateDirectory(folder);
             string fullPath = Path.Combine(folder, CardKey + ".png");
             SaveTextureToFile(tex, fullPath);
@@ -435,71 +457,92 @@ namespace CardFramework.Presentation.Views {
                 case CardDisplayType.EasyRead:
                     BuildEasyReadRig();
                     break;
+                case CardDisplayType.ImagesGirls:
+                    BuildImagesGirlsRig();
+                    break;
+                case CardDisplayType.EasyReadGirls:
+                case CardDisplayType.EasyReadGirlsAsBackground:
+                    BuildEasyReadGirlsRig();
+                    break;
+
+                case CardDisplayType.FullBackground:
+                    BuildFullBackgroundRig();
+                    break;
             }
         }
+
+
+        private void BuildFullBackgroundRig() {
+            BuildEasyReadGirlsRig(false);
+        }
+
+        private void BuildEasyReadGirlsRig(bool addOutline = true) {
+            var canvasGO = BasicRig();
+
+            var faceRect = AddCenterAreaAndFace(canvasGO, true);
+
+            faceRect.anchorMin = Vector2.zero;
+            // setupData.centerAreaMargin;
+            faceRect.anchorMax = Vector2.one;
+            // - setupData.centerAreaMargin;
+            faceRect.offsetMin = Vector2.zero;
+            faceRect.offsetMax = Vector2.zero;
+
+            if (addOutline) {
+                var theOutline = faceRect.gameObject.AddComponent<Outline>();
+                theOutline.effectColor = Color.black;
+                theOutline.effectDistance = new Vector2(2f, -2f);
+            }
+
+
+            _easyReadSuitIcon = CreateCornerIcon(canvasGO.transform, "EasyReadSuitIcon");
+            _easyReadRankLabel = CreateCornerLabel(canvasGO.transform, "EasyReadRankLabel");
+
+            SetTopLeftObj(_easyReadRankLabel.rectTransform, false);
+            SetMainObj(_easyReadSuitIcon.rectTransform, true);
+            SetupTextObj(_easyReadRankLabel);
+        }
+
+        /// <summary>
+        /// Builds a view with images instead of icons for the card, with a single large image in the center,
+        /// </summary>
+        private void BuildImagesGirlsRig() {
+            var canvasGO = BasicRig();
+
+            var faceRect = AddCenterAreaAndFace(canvasGO, true);
+
+
+
+            faceRect.anchorMin = Vector2.zero;
+            // setupData.centerAreaMargin;
+            faceRect.anchorMax = Vector2.one;
+            // - setupData.centerAreaMargin;
+            faceRect.offsetMin = Vector2.zero;
+            faceRect.offsetMax = Vector2.zero;
+
+            var theOutline = faceRect.gameObject.AddComponent<Outline>();
+            theOutline.effectColor = Color.black;
+            theOutline.effectDistance = new Vector2(2f, -2f);
+
+            // Corners - position/rotation are applied afterwards in PositionCorners(),
+            // driven by topCornerAnchor / bottomCornerAnchor.
+            _labelTL = CreateCornerLabel(canvasGO.transform, "LabelTopLeft", 250, 200, 200);
+            _iconTL = CreateCornerIcon(canvasGO.transform, "IconTopLeft");
+            _labelBR = CreateCornerLabel(canvasGO.transform, "LabelBottomRight", 250, 200, 200);
+            _iconBR = CreateCornerIcon(canvasGO.transform, "IconBottomRight");
+        }
+
+
 
         /// <summary>
         /// Builds the full card view as in real live
         /// </summary>
         private void BuildFullCardRig() {
-            _rigRoot = new GameObject(RIG_NAME);
-            _rigRoot.hideFlags = HideFlags.DontSave;
-            _rigRoot.layer = GEN_LAYER;
-            _rigRoot.transform.SetParent(transform, false);
+            var canvasGO = BasicRig();
 
-            var canvasGO = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvasGO.layer = GEN_LAYER;
-            canvasGO.transform.SetParent(_rigRoot.transform, false);
+            var faceRect = AddCenterAreaAndFace(canvasGO, true);
 
-            _canvas = canvasGO.GetComponent<Canvas>();
-            _canvas.renderMode = RenderMode.WorldSpace;
 
-            var scaler = canvasGO.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            scaler.scaleFactor = 1f;
-
-            var camGO = new GameObject("RenderCam", typeof(Camera));
-            camGO.layer = GEN_LAYER;
-            camGO.transform.SetParent(_rigRoot.transform, false);
-
-            _renderCam = camGO.GetComponent<Camera>();
-            _renderCam.clearFlags = CameraClearFlags.SolidColor;
-            _renderCam.backgroundColor = setupData.backgroundColor;
-            _renderCam.cullingMask = 1 << GEN_LAYER;
-            _renderCam.orthographic = true;
-            _renderCam.nearClipPlane = 0.01f;
-            _renderCam.farClipPlane = 10f;
-
-            // Background
-            var bgGO = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            bgGO.layer = GEN_LAYER;
-            bgGO.transform.SetParent(canvasGO.transform, false);
-            var bgRect = bgGO.GetComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.offsetMin = Vector2.zero;
-            bgRect.offsetMax = Vector2.zero;
-            bgGO.GetComponent<Image>().color = setupData.backgroundColor;
-
-            // Center area (pips live here for 1-10)
-            var centerGO = new GameObject("CenterArea", typeof(RectTransform));
-            centerGO.layer = GEN_LAYER;
-            centerGO.transform.SetParent(canvasGO.transform, false);
-            _centerArea = centerGO.GetComponent<RectTransform>();
-            _centerArea.anchorMin = setupData.centerAreaMargin;
-            _centerArea.anchorMax = Vector2.one - setupData.centerAreaMargin;
-            _centerArea.offsetMin = Vector2.zero;
-            _centerArea.offsetMax = Vector2.zero;
-
-            // Center face art (J/Q/K)
-            var faceGO = new GameObject("CenterFace", typeof(RectTransform), typeof(Image));
-            faceGO.layer = GEN_LAYER;
-            faceGO.transform.SetParent(canvasGO.transform, false);
-            _centerFace = faceGO.GetComponent<Image>();
-            _centerFace.preserveAspect = true;
-
-            _centerFace.raycastTarget = false;
-            var faceRect = faceGO.GetComponent<RectTransform>();
             faceRect.anchorMin = setupData.centerAreaMargin;
             faceRect.anchorMax = Vector2.one - setupData.centerAreaMargin;
             faceRect.offsetMin = Vector2.zero;
@@ -513,7 +556,7 @@ namespace CardFramework.Presentation.Views {
                 faceRect.offsetMin = Vector2.zero;
                 faceRect.offsetMax = Vector2.zero;
 
-                var outline = faceGO.AddComponent<Outline>();
+                var outline = faceRect.gameObject.AddComponent<Outline>();
                 outline.effectColor = Color.black;
                 outline.effectDistance = new Vector2(5f, -5f);
             }
@@ -532,6 +575,16 @@ namespace CardFramework.Presentation.Views {
         /// where the full card layout may be too small or complex to read easily.
         /// </summary>
         private void BuildEasyReadRig() {
+            var canvasGO = BasicRig();
+            _easyReadSuitIcon = CreateCornerIcon(canvasGO.transform, "EasyReadSuitIcon");
+            _easyReadRankLabel = CreateCornerLabel(canvasGO.transform, "EasyReadRankLabel");
+
+            SetTopLeftObj(_easyReadRankLabel.rectTransform, false);
+            SetMainObj(_easyReadSuitIcon.rectTransform, true);
+            SetupTextObj(_easyReadRankLabel);
+        }
+
+        private GameObject BasicRig() {
             _rigRoot = new GameObject(RIG_NAME);
             _rigRoot.hideFlags = HideFlags.DontSave;
             _rigRoot.layer = GEN_LAYER;
@@ -570,12 +623,31 @@ namespace CardFramework.Presentation.Views {
             bgRect.offsetMax = Vector2.zero;
             bgGO.GetComponent<Image>().color = setupData.backgroundColor;
 
-            _easyReadSuitIcon = CreateCornerIcon(canvasGO.transform, "EasyReadSuitIcon");
-            _easyReadRankLabel = CreateCornerLabel(canvasGO.transform, "EasyReadRankLabel");
+            return canvasGO;
+        }
 
-            SetTopLeftObj(_easyReadRankLabel.rectTransform, false);
-            SetMainObj(_easyReadSuitIcon.rectTransform, true);
-            SetupTextObj(_easyReadRankLabel);
+        private RectTransform AddCenterAreaAndFace(GameObject canvasGO, bool addMargin = true) {
+            // Center area (pips live here for 1-10)
+            var centerGO = new GameObject("CenterArea", typeof(RectTransform));
+            centerGO.layer = GEN_LAYER;
+            centerGO.transform.SetParent(canvasGO.transform, false);
+            _centerArea = centerGO.GetComponent<RectTransform>();
+            _centerArea.anchorMin = setupData.centerAreaMargin;
+            _centerArea.anchorMax = addMargin ? Vector2.one - setupData.centerAreaMargin : Vector2.one;
+            _centerArea.offsetMin = Vector2.zero;
+            _centerArea.offsetMax = Vector2.zero;
+
+            // Center face art (J/Q/K)
+            var faceGO = new GameObject("CenterFace", typeof(RectTransform), typeof(Image));
+            faceGO.layer = GEN_LAYER;
+            faceGO.transform.SetParent(canvasGO.transform, false);
+            _centerFace = faceGO.GetComponent<Image>();
+            _centerFace.preserveAspect = true;
+
+            _centerFace.raycastTarget = false;
+            var faceRect = faceGO.GetComponent<RectTransform>();
+
+            return faceRect;
         }
 
         private void SetupTextObj(TMP_Text theText) {
@@ -708,28 +780,163 @@ namespace CardFramework.Presentation.Views {
 
             DestroyPreviewsPips();
 
-            if (DisplayType == CardDisplayType.EasyRead) {
-                if (_easyReadRankLabel != null) {
-                    _easyReadRankLabel.text = label;
-                    _easyReadRankLabel.color = setupData.labelColor;
-                    _easyReadRankLabel.gameObject.SetActive(true);
-                }
+            switch (DisplayType) {
+                case CardDisplayType.FullCard:
+                    BuildFullCardLayout(label, isFaceCard, rankValue);
+                    break;
+                case CardDisplayType.EasyRead:
+                    BuildEasyReadLayout(label, isFaceCard, rankValue);
+                    break;
+                case CardDisplayType.ImagesGirls:
+                    BuildImagesGirlsLayout(label, isFaceCard, rankValue);
+                    break;
 
-                if (_easyReadSuitIcon != null) {
-                    _easyReadSuitIcon.sprite = suitIcon;
-                    _easyReadSuitIcon.color = Color.white;
-                    _easyReadSuitIcon.gameObject.SetActive(true);
-                }
+                case CardDisplayType.EasyReadGirls:
+                    BuildEasyReadGirlsLayout(label, isFaceCard, rankValue);
+                    break;
 
-                if (_centerFace != null) _centerFace.gameObject.SetActive(false);
-                if (_centerArea != null) _centerArea.gameObject.SetActive(false);
-                if (_labelTL != null) _labelTL.gameObject.SetActive(false);
-                if (_labelBR != null) _labelBR.gameObject.SetActive(false);
-                if (_iconTL != null) _iconTL.gameObject.SetActive(false);
-                if (_iconBR != null) _iconBR.gameObject.SetActive(false);
+                case CardDisplayType.EasyReadGirlsAsBackground:
+                    BuildEasyReadGirlsLayout(label, isFaceCard, rankValue, false, true);
+                    break;
+
+                case CardDisplayType.FullBackground:
+                    BuildFullBackgroundLayout(label, isFaceCard, rankValue);
+                    break;
+            }
+        }
+
+
+        private bool IsBlackSuit() {
+            return suit == CardData.Suit.Spades || suit == CardData.Suit.Clubs;
+        }
+        private void BuildFullBackgroundLayout(string label, bool isFaceCard, int rankValue) {
+            if (_easyReadRankLabel != null) {
+                _easyReadRankLabel.text = label;
+                _easyReadRankLabel.color = setupData.labelColor;
+                _easyReadRankLabel.gameObject.SetActive(true);
+            }
+
+            if (_easyReadSuitIcon != null) {
+                _easyReadSuitIcon.sprite = suitIcon;
+                _easyReadSuitIcon.color = Color.white;
+
+                _easyReadSuitIcon.gameObject.SetActive(true);
+            }
+
+            if (_labelTL != null) _labelTL.gameObject.SetActive(false);
+            if (_labelBR != null) _labelBR.gameObject.SetActive(false);
+            if (_iconTL != null) _iconTL.gameObject.SetActive(false);
+            if (_iconBR != null) _iconBR.gameObject.SetActive(false);
+
+
+            if (fullBackgroundCardImages == null) {
+                Debug.LogWarning($"CardFaceGenerator: fullBackgroundCardImages is null for rank {rankValue}. Please assign a valid sprite for full background cards.", this);
                 return;
             }
 
+            var theIcon = fullBackgroundCardImages.GetSprite(suit, rank);
+
+            _centerFace.sprite = theIcon;
+
+
+            // Visual Effects           
+            _centerFace.preserveAspect = false;
+        }
+
+        private void BuildEasyReadLayout(string label, bool isFaceCard, int rankValue) {
+            if (_easyReadRankLabel != null) {
+                _easyReadRankLabel.text = label;
+                _easyReadRankLabel.color = setupData.labelColor;
+                _easyReadRankLabel.gameObject.SetActive(true);
+            }
+
+            if (_easyReadSuitIcon != null) {
+                _easyReadSuitIcon.sprite = suitIcon;
+                _easyReadSuitIcon.color = Color.white;
+                _easyReadSuitIcon.gameObject.SetActive(true);
+            }
+
+            if (_centerFace != null) _centerFace.gameObject.SetActive(false);
+            if (_centerArea != null) _centerArea.gameObject.SetActive(false);
+            if (_labelTL != null) _labelTL.gameObject.SetActive(false);
+            if (_labelBR != null) _labelBR.gameObject.SetActive(false);
+            if (_iconTL != null) _iconTL.gameObject.SetActive(false);
+            if (_iconBR != null) _iconBR.gameObject.SetActive(false);
+        }
+
+        private void BuildEasyReadGirlsLayout(string label, bool isFaceCard, int rankValue, bool suitIconIsTransparent = true, bool isMainImageTransparent = false) {
+            if (_easyReadRankLabel != null) {
+                _easyReadRankLabel.text = label;
+                _easyReadRankLabel.color = setupData.labelColor;
+                _easyReadRankLabel.gameObject.SetActive(true);
+            }
+
+            if (_easyReadSuitIcon != null) {
+                _easyReadSuitIcon.sprite = suitIcon;
+                _easyReadSuitIcon.color = Color.white;
+                if (suitIconIsTransparent) {
+                    var curColor = _easyReadSuitIcon.color;
+                    curColor.a = 0.5f;
+                    _easyReadSuitIcon.color = curColor;
+                }
+
+                _easyReadSuitIcon.gameObject.SetActive(true);
+            }
+
+            if (_labelTL != null) _labelTL.gameObject.SetActive(false);
+            if (_labelBR != null) _labelBR.gameObject.SetActive(false);
+            if (_iconTL != null) _iconTL.gameObject.SetActive(false);
+            if (_iconBR != null) _iconBR.gameObject.SetActive(false);
+
+
+            if (customCardImages == null) {
+                Debug.LogWarning($"CardFaceGenerator: faceCardArt is null for rank {rankValue}. Please assign a valid sprite for face cards.", this);
+                return;
+            }
+
+            var theIcon = customCardImages.GetSprite(suit, rank);
+
+            _centerFace.sprite = theIcon;
+
+            if (isMainImageTransparent) {
+                var curColor = _centerFace.color;
+                curColor.a = 0.25f;
+                _centerFace.color = curColor;
+
+                // var curIconColor = _easyReadSuitIcon.color;
+                // curIconColor.a = 0.9f;
+                // _easyReadSuitIcon.color = curIconColor;
+            }
+
+        }
+
+
+        private void BuildImagesGirlsLayout(string label, bool isFaceCard, int rankValue) {
+            _labelTL.text = label;
+            _labelBR.text = label;
+            _labelTL.color = setupData.labelColor;
+            _labelBR.color = setupData.labelColor;
+
+            if (_iconTL != null) _iconTL.sprite = suitIcon;
+            if (_iconBR != null) _iconBR.sprite = suitIcon;
+
+            if (_easyReadRankLabel != null) _easyReadRankLabel.gameObject.SetActive(false);
+            if (_easyReadSuitIcon != null) _easyReadSuitIcon.gameObject.SetActive(false);
+
+            // if (_centerFace != null) _centerFace.gameObject.SetActive(isFaceCard);
+            if (_centerArea != null) _centerArea.gameObject.SetActive(!isFaceCard);
+
+            if (customCardImages == null) {
+                Debug.LogWarning($"CardFaceGenerator: faceCardArt is null for rank {rankValue}. Please assign a valid sprite for face cards.", this);
+                return;
+            }
+
+            var theIcon = customCardImages.GetSprite(suit, rank);
+
+            _centerFace.sprite = theIcon;
+        }
+
+        private void BuildFullCardLayout(string label, bool isFaceCard, int rankValue) {
             _labelTL.text = label;
             _labelBR.text = label;
             _labelTL.color = setupData.labelColor;
@@ -787,22 +994,44 @@ namespace CardFramework.Presentation.Views {
         private void PositionCorners() {
             if (DisplayType == CardDisplayType.EasyRead) return;
 
-            PositionCornerElement(_labelTL, _iconTL, topCornerAnchor, -180f, true);
-            PositionCornerElement(_labelBR, _iconBR, bottomCornerAnchor, 0f, false);
+
+            var yOffsetForIcon = 0f;
+            switch (DisplayType) {
+                case CardDisplayType.FullCard:
+                    // yOffsetForIcon = setupData.iconOffsetFromAnchor.y;
+                    break;
+                case CardDisplayType.ImagesGirls:
+                    yOffsetForIcon = -0.002f;
+                    break;
+                case CardDisplayType.EasyReadGirls:
+                    yOffsetForIcon = -0.002f;
+                    break;
+            }
+            PositionCornerElement(_labelTL, _iconTL, topCornerAnchor, -180f, true, yOffsetForIcon);
+            PositionCornerElement(_labelBR, _iconBR, bottomCornerAnchor, 0f, false, yOffsetForIcon);
         }
 
-        private void PositionCornerElement(TMP_Text label, Image icon, Transform anchor, float extraRotationZ, bool top) {
+        private void PositionCornerElement(TMP_Text label, Image icon, Transform anchor, float extraRotationZ, bool top, float extraYPosForIcon = 0f) {
             if (anchor == null) return;
 
             Quaternion finalRotation = anchor.rotation * Quaternion.Euler(0f, 0f, extraRotationZ);
+            if (label) {
+                var labelRect = label.rectTransform;
+                labelRect.position = anchor.position;
+                labelRect.rotation = finalRotation;
+            }
 
-            var labelRect = label.rectTransform;
-            labelRect.position = anchor.position;
-            labelRect.rotation = finalRotation;
+            if (icon) {
+                var iconRect = icon.rectTransform;
+                var thePositionForIcon = setupData.iconOffsetFromAnchor;
+                if (extraYPosForIcon != 0f) {
+                    thePositionForIcon.y += extraYPosForIcon;
+                }
+                iconRect.position = anchor.TransformPoint(top ? -thePositionForIcon : thePositionForIcon);
+                iconRect.rotation = finalRotation;
 
-            var iconRect = icon.rectTransform;
-            iconRect.position = anchor.TransformPoint(top ? -setupData.iconOffsetFromAnchor : setupData.iconOffsetFromAnchor);
-            iconRect.rotation = finalRotation;
+            }
+
         }
 
         private Texture2D BakeToTexture() {
@@ -829,18 +1058,21 @@ namespace CardFramework.Presentation.Views {
             return tex;
         }
 
-        private TMP_Text CreateCornerLabel(Transform parent, string name) {
+        private TMP_Text CreateCornerLabel(Transform parent, string name, float width = 200f, float height = 100f, int customFontSize = -1) {
             var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
             go.layer = GEN_LAYER;
             go.transform.SetParent(parent, false);
 
             var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(200f, 100f);
+            rt.sizeDelta = new Vector2(width, height);
             rt.pivot = new Vector2(0.5f, 0.5f);
 
             var tmp = go.GetComponent<TextMeshProUGUI>();
-            tmp.fontSize = setupData.cornerFontSize;
+            tmp.fontSize = customFontSize != -1 ? customFontSize : setupData.cornerFontSize;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 10;
+            tmp.fontSizeMax = 1800;
             tmp.color = setupData.labelColor;
             tmp.raycastTarget = false;
             tmp.fontStyle = setupData.boldFont ? FontStyles.Bold : FontStyles.Normal;
