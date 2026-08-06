@@ -20,6 +20,7 @@
                         <ui:Label name="lbl-account-status" text="Guest Device Profile" class="text-highlight-green"/>
                     </ui:VisualElement>
                     <ui:Button name="btn-open-linking" text="LINK META QUEST 3 / WEBGL ACCOUNT" class="btn-action-premium"/>
+                    <ui:Button name="btn-open-settings" text="GAMEPLAY SETTINGS" class="btn-action-premium margin-top-md"/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="dash-footer-container">
@@ -47,6 +48,25 @@
                             <ui:TextField name="txt-input-pin" max-length="6" placeholder-text="ENTER PIN DIGIT CODE" hide-placeholder-on-focus="true" class="pin-input-field fluid-input"/>
                             <ui:Button name="btn-submit-pin" text="LINK DEVICE" class="btn-sub-action btn-sub-action-gold fluid-btn"/>
                         </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="settings-modal-overlay" class="dash-modal-overlay" style="display: none;">
+            <ui:VisualElement class="dash-modal-window">
+                <ui:VisualElement class="dash-header">
+                    <ui:Label text="GAMEPLAY SETTINGS" class="dash-title text-gold"/>
+                    <ui:Button name="btn-close-settings-modal" text="✕" class="btn-close-generic"/>
+                </ui:VisualElement>
+                <ui:Label text="Select the card face generation style used during gameplay." class="dash-section-subtitle"/>
+                <ui:VisualElement class="dash-modal-body">
+                    <ui:VisualElement class="settings-options">
+                        <ui:Button name="btn-carddisplay-fullcard" text="Full Card" class="btn-sub-action settings-option-card"/>
+                        <ui:Button name="btn-carddisplay-easyread" text="Easy Read" class="btn-sub-action settings-option-card"/>
+                        <ui:Button name="btn-carddisplay-imagesgirls" text="Images Girls" class="btn-sub-action settings-option-card"/>
+                        <ui:Button name="btn-carddisplay-easyreadgirls" text="Easy Read Girls" class="btn-sub-action settings-option-card"/>
+                        <ui:Button name="btn-carddisplay-easyreadgirls-bg" text="Easy Read Girls BG" class="btn-sub-action settings-option-card"/>
+                        <ui:Button name="btn-carddisplay-fullbackground" text="Full Background" class="btn-sub-action settings-option-card"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>

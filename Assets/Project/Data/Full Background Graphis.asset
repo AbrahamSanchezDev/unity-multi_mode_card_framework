@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.CustomCardImages
   Suits:
   - Suit: 0
-    DefaultIcon: {fileID: -574022410, guid: 75e59769902c61d4b88c246268e16ed7, type: 3}
+    DefaultIcon: {fileID: -952726126, guid: 3b52f343bfbce77418031584200089ab, type: 3}
     Icon: []
   - Suit: 1
-    DefaultIcon: {fileID: 10134382, guid: 3b52f343bfbce77418031584200089ab, type: 3}
+    DefaultIcon: {fileID: -952726126, guid: 3b52f343bfbce77418031584200089ab, type: 3}
     Icon: []
   - Suit: 2
-    DefaultIcon: {fileID: 974235640, guid: 3b52f343bfbce77418031584200089ab, type: 3}
+    DefaultIcon: {fileID: -952726126, guid: 3b52f343bfbce77418031584200089ab, type: 3}
     Icon: []
   - Suit: 3
     DefaultIcon: {fileID: -952726126, guid: 3b52f343bfbce77418031584200089ab, type: 3}

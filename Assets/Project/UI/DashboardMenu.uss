@@ -173,6 +173,35 @@
 }
 .btn-action-premium:hover { background-color: #f3cf65; }
 
+.margin-top-md { margin-top: 18px; }
+
+.settings-options {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.settings-option-card {
+    background-color: #17221c;
+    border-width: 1px;
+    border-color: #2d3d35;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.settings-option-card:hover {
+    background-color: #26332b;
+    border-color: #d4af37;
+}
+
+.settings-option-card.selected {
+    background-color: #2ed573;
+    color: #0a0e0b;
+    border-color: #ffffff;
+}
+
 /* ---- Fluid Sub-Panel Inputs ---- */
 .linking-action-block {
     width: 100%;

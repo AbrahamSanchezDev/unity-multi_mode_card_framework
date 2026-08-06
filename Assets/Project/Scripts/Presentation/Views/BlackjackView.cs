@@ -50,12 +50,18 @@ namespace CardFramework.Presentation.Views {
 
         private readonly List<Transform> _playerCardTransforms = new();
         private readonly List<Transform> _dealerCardTransforms = new();
+        private readonly Dictionary<Transform, CardData> _cardDataByTransform = new();
+        private IGameSettingsService _gameSettingsService;
 
         #endregion
 
         [Inject]
-        public void Construct(IAudioService audioService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
             _audioService = audioService;
+            _gameSettingsService = gameSettingsService;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
+            }
         }
 
         private void OnEnable() {
@@ -104,6 +110,9 @@ namespace CardFramework.Presentation.Views {
             if (_hitButton != null) _hitButton.clicked -= HandleHitClicked;
             if (_standButton != null) _standButton.clicked -= HandleStandClicked;
             if (_restartButton != null) _restartButton.clicked -= HandleRestartClicked;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged -= HandleCardDisplayTypeChanged;
+            }
         }
 
         private void HandleHitClicked() {
@@ -164,6 +173,7 @@ namespace CardFramework.Presentation.Views {
                 }
             }
             _dealerCardTransforms.Clear();
+            _cardDataByTransform.Clear();
         }
 
         public void SetInteractionState(bool canInteract) {
@@ -200,6 +210,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             activeList.Add(spawnedCard.transform);
+            _cardDataByTransform[spawnedCard.transform] = card;
 
             int totalCards = activeList.Count;
             int cardIndex = totalCards - 1;
@@ -250,6 +261,22 @@ namespace CardFramework.Presentation.Views {
         public void ShowUi(bool show) {
             if (_root != null) {
                 _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void HandleCardDisplayTypeChanged(CardDisplayType newDisplayType) {
+            RefreshRevealedCardsDisplay(newDisplayType);
+        }
+
+        private void RefreshRevealedCardsDisplay(CardDisplayType newDisplayType) {
+            foreach (var kvp in _cardDataByTransform) {
+                if (kvp.Key == null) continue;
+                CardData cardData = kvp.Value;
+                if (!cardData.HasBeenRevealed || !cardData.IsFaceUp) continue;
+                var faceGenerator = kvp.Key.GetComponent<CardFaceGenerator>();
+                if (faceGenerator == null || faceGenerator.DisplayType == newDisplayType) continue;
+                faceGenerator.GenerateCard(cardData, cardsGraphics);
+                faceGenerator.SetFaceUpMaterial(true);
             }
         }
 

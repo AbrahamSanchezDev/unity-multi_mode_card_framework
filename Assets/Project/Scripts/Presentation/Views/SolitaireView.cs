@@ -50,6 +50,8 @@ namespace CardFramework.Presentation.Views {
         private readonly List<GameObject> _spawnedCards = new();
         private readonly List<SpatialCardInteractable> _spawnedInteractables = new();
         private readonly Dictionary<int, bool> _previousRenderedFaceUpByInstanceId = new();
+        private readonly Dictionary<GameObject, CardData> _cardDataByGameObject = new();
+        private IGameSettingsService _gameSettingsService;
         private CardsPool _cardsPool;
         private Camera _mainCamera;
         private bool _isDragging;
@@ -63,8 +65,12 @@ namespace CardFramework.Presentation.Views {
         private int _dragStartIndex = -1;
 
         [Inject]
-        public void Construct(IAudioService audioService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
             _audioService = audioService;
+            _gameSettingsService = gameSettingsService;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
+            }
         }
 
         private void OnEnable() {
@@ -121,6 +127,9 @@ namespace CardFramework.Presentation.Views {
             if (_btnRestart != null) _btnRestart.clicked -= HandleRestartClicked;
             if (_btnMenu != null) _btnMenu.clicked -= HandleMenuClicked;
             if (_btnDraw != null) _btnDraw.clicked -= HandleDrawClicked;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged -= HandleCardDisplayTypeChanged;
+            }
 
             if (pointerPositionAction?.action != null) pointerPositionAction.action.Disable();
             if (pointerPressAction?.action != null) {
@@ -147,6 +156,24 @@ namespace CardFramework.Presentation.Views {
 
         private void PlayButtonClickSound() {
             _audioService?.PlayButtonClick();
+        }
+
+        private void HandleCardDisplayTypeChanged(CardDisplayType newDisplayType) {
+            RefreshRevealedCardsDisplay(newDisplayType);
+        }
+
+        private void RefreshRevealedCardsDisplay(CardDisplayType newDisplayType) {
+            foreach (var cardObj in _spawnedCards) {
+                if (cardObj == null) continue;
+                if (!_cardDataByGameObject.TryGetValue(cardObj, out var cardData)) continue;
+                if (!cardData.IsFaceUp || !cardData.HasBeenRevealed) continue;
+
+                var faceGenerator = cardObj.GetComponent<CardFaceGenerator>();
+                if (faceGenerator == null || faceGenerator.DisplayType == newDisplayType) continue;
+
+                faceGenerator.GenerateCard(cardData, cardsGraphics);
+                faceGenerator.SetFaceUpMaterial(true);
+            }
         }
 
         private void Update() {
@@ -569,6 +596,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             _spawnedCards.Add(cardInstance);
+            _cardDataByGameObject[cardInstance] = cardData;
             return cardInstance;
         }
 
@@ -641,6 +669,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             _spawnedCards.Clear();
+            _cardDataByGameObject.Clear();
             _spawnedInteractables.Clear();
             ClearOutcome();
 

@@ -71,6 +71,20 @@ namespace CardFramework.Architecture.DI {
                 }
             }
 
+            // ---- GAME SETTINGS SERVICE ----
+            var gameSettingsInstance = Object.FindFirstObjectByType<GameSettingsService>();
+            if (gameSettingsInstance != null) {
+                builder.RegisterComponent(gameSettingsInstance).AsSelf().As<IGameSettingsService>();
+            }
+            else {
+                var settingsObject = new GameObject("GameSettingsService");
+                settingsObject.transform.SetParent(transform, false);
+                gameSettingsInstance = settingsObject.AddComponent<GameSettingsService>();
+                if (gameSettingsInstance != null) {
+                    builder.RegisterComponent(gameSettingsInstance).AsSelf().As<IGameSettingsService>();
+                }
+            }
+
             // ---- VIEWS / PRESENTATION LAYER REGISTRATIONS ----
             if (blackjackViewInstance != null) {
                 builder.RegisterComponent(blackjackViewInstance).AsSelf().As<IBlackjackView>();

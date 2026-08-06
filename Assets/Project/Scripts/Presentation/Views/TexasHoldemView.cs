@@ -46,6 +46,8 @@ namespace CardFramework.Presentation.Views {
         private readonly List<Transform> _playerCardTransforms = new();
         private readonly List<Transform> _communityCardTransforms = new();
         private readonly List<Transform> _houseCardTransforms = new();
+        private readonly Dictionary<Transform, CardData> _cardDataByTransform = new();
+        private IGameSettingsService _gameSettingsService;
 
         public event Action OnDealRequested;
         public event Action OnRestartRequested;
@@ -53,8 +55,12 @@ namespace CardFramework.Presentation.Views {
         public event Action OnMenuRequested;
 
         [Inject]
-        public void Construct(IAudioService audioService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
             _audioService = audioService;
+            _gameSettingsService = gameSettingsService;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
+            }
         }
 
         private void OnEnable() {
@@ -111,6 +117,9 @@ namespace CardFramework.Presentation.Views {
             if (_btnDeal != null) _btnDeal.clicked -= HandleDealClicked;
             if (_btnFold != null) _btnFold.clicked -= HandleFoldClicked;
             if (_btnRestart != null) _btnRestart.clicked -= HandleRestartClicked;
+            if (_gameSettingsService != null) {
+                _gameSettingsService.OnCardDisplayTypeChanged -= HandleCardDisplayTypeChanged;
+            }
         }
 
         private void HandleDealClicked() {
@@ -145,6 +154,23 @@ namespace CardFramework.Presentation.Views {
                 }
             }
             _playerCardTransforms.Clear();
+
+            foreach (var t in _communityCardTransforms) {
+                if (t != null) {
+                    t.DOKill();
+                    Destroy(t.gameObject);
+                }
+            }
+            _communityCardTransforms.Clear();
+
+            foreach (var t in _houseCardTransforms) {
+                if (t != null) {
+                    t.DOKill();
+                    Destroy(t.gameObject);
+                }
+            }
+            _houseCardTransforms.Clear();
+            _cardDataByTransform.Clear();
 
             foreach (var t in _communityCardTransforms) {
                 if (t != null) {
@@ -210,6 +236,7 @@ namespace CardFramework.Presentation.Views {
                 var faceGenerator = cardTransform.GetComponent<CardFaceGenerator>();
                 if (faceGenerator != null) {
                     faceGenerator.GenerateCard(houseCards[i], cardsGraphics);
+                    _cardDataByTransform[cardTransform] = houseCards[i];
                 }
 
                 cardTransform.DOKill();
@@ -237,6 +264,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             activeList.Add(spawnedCard.transform);
+            _cardDataByTransform[spawnedCard.transform] = card;
 
             int totalCards = activeList.Count;
             int cardIndex = totalCards - 1;
@@ -286,6 +314,22 @@ namespace CardFramework.Presentation.Views {
 
         public void UpdateWalletBalance(int balance) {
             if (_lblWalletBalance != null) _lblWalletBalance.text = $"Balance: {balance} GD";
+        }
+
+        private void HandleCardDisplayTypeChanged(CardDisplayType newDisplayType) {
+            RefreshRevealedCardsDisplay(newDisplayType);
+        }
+
+        private void RefreshRevealedCardsDisplay(CardDisplayType newDisplayType) {
+            foreach (var kvp in _cardDataByTransform) {
+                if (kvp.Key == null) continue;
+                CardData cardData = kvp.Value;
+                if (!cardData.HasBeenRevealed || !cardData.IsFaceUp) continue;
+                var faceGenerator = kvp.Key.GetComponent<CardFaceGenerator>();
+                if (faceGenerator == null || faceGenerator.DisplayType == newDisplayType) continue;
+                faceGenerator.GenerateCard(cardData, cardsGraphics);
+                faceGenerator.SetFaceUpMaterial(true);
+            }
         }
 
         public void DisplayOutcome(string message) {

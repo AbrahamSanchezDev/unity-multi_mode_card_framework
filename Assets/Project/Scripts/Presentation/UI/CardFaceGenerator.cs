@@ -311,7 +311,7 @@ namespace CardFramework.Presentation.Views {
             if (cardData.CardRank == CardData.Rank.Jack || cardData.CardRank == CardData.Rank.Queen || cardData.CardRank == CardData.Rank.King) {
                 faceSprite = cardsGraphics != null ? cardsGraphics.GetFaceCardSprite(cardData) : null;
             }
-            DisplayType = CardDisplayType.EasyRead; // Default display type, can be changed later if needed
+            DisplayType = GameSettingsService.CurrentCardDisplayType;
             GenerateCard(suitIcon, rank, cardData.CardSuit, faceSprite, isBlack);
         }
 

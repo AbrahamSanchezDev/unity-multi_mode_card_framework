@@ -63,11 +63,11 @@ namespace CardFramework.Core.Engines {
             if (stock.Count > 0) {
                 CardData drawnCard = stock[^1];
                 stock.RemoveAt(stock.Count - 1);
-                waste.Add(drawnCard);
+                waste.Add(Deck.CreateCardWithRevealState(drawnCard, isFaceUp: true));
             } else if (waste.Count > 0) {
                 // Recycle waste back to stock
                 for (int i = waste.Count - 1; i >= 0; i--) {
-                    stock.Add(waste[i]);
+                    stock.Add(Deck.CreateCardWithRevealState(waste[i], isFaceUp: false));
                 }
                 waste.Clear();
             }

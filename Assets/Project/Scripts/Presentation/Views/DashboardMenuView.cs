@@ -14,6 +14,8 @@ namespace CardFramework.Presentation.Views {
         public event Action OnLinkAccountRequested;
         public event Action OnExitApplicationRequested;
         public event Action<string> OnGameSwitchRequested;
+        public event Action<CardDisplayType> OnCardDisplayTypeChangeRequested;
+
         private VisualElement _root;
         private Label _lblAccountStatus;
 
@@ -23,6 +25,15 @@ namespace CardFramework.Presentation.Views {
         private Label _lblGeneratedPin;
         private TextField _txtInputPin;
 
+        private Button _btnOpenSettings;
+        private VisualElement _settingsModalOverlay;
+        private Button _btnCloseSettingsModal;
+        private Button _btnCardDisplayFullCard;
+        private Button _btnCardDisplayEasyRead;
+        private Button _btnCardDisplayImagesGirls;
+        private Button _btnCardDisplayEasyReadGirls;
+        private Button _btnCardDisplayEasyReadGirlsBg;
+        private Button _btnCardDisplayFullBackground;
         private VisualElement _linkingModalOverlay;
         private Button _btnCloseModal;
 
@@ -41,6 +52,7 @@ namespace CardFramework.Presentation.Views {
         private const string LockedClassName = "game-locked";
 
         private ICloudService _cloudService;
+        private IGameSettingsService _gameSettingsService;
         private IAudioService _audioService;
 
         private void OnEnable() {
@@ -55,6 +67,24 @@ namespace CardFramework.Presentation.Views {
 
             _root = uiDocument.rootVisualElement;
             _lblAccountStatus = _root.Q<Label>("lbl-account-status");
+
+            _btnOpenLinking = _root.Q<Button>("btn-open-linking");
+            _btnGeneratePin = _root.Q<Button>("btn-generate-pin");
+            _btnSubmitPin = _root.Q<Button>("btn-submit-pin");
+            _lblGeneratedPin = _root.Q<Label>("lbl-generated-pin");
+            _txtInputPin = _root.Q<TextField>("txt-input-pin");
+            _linkingModalOverlay = _root.Q<VisualElement>("linking-modal-overlay");
+            _btnCloseModal = _root.Q<Button>("btn-close-modal");
+
+            _btnOpenSettings = _root.Q<Button>("btn-open-settings");
+            _settingsModalOverlay = _root.Q<VisualElement>("settings-modal-overlay");
+            _btnCloseSettingsModal = _root.Q<Button>("btn-close-settings-modal");
+            _btnCardDisplayFullCard = _root.Q<Button>("btn-carddisplay-fullcard");
+            _btnCardDisplayEasyRead = _root.Q<Button>("btn-carddisplay-easyread");
+            _btnCardDisplayImagesGirls = _root.Q<Button>("btn-carddisplay-imagesgirls");
+            _btnCardDisplayEasyReadGirls = _root.Q<Button>("btn-carddisplay-easyreadgirls");
+            _btnCardDisplayEasyReadGirlsBg = _root.Q<Button>("btn-carddisplay-easyreadgirls-bg");
+            _btnCardDisplayFullBackground = _root.Q<Button>("btn-carddisplay-fullbackground");
 
             // Query game select buttons from visual tree
             var btnBlackjack = _root.Q<Button>("btn-game-blackjack");
@@ -73,9 +103,34 @@ namespace CardFramework.Presentation.Views {
             if (btnSolitaire != null) btnSolitaire.clicked += () => HandleGameSwitchClicked("Solitaire");
             if (btnTexasHoldem != null) btnTexasHoldem.clicked += () => HandleGameSwitchClicked("TexasHoldem");
 
+            if (_btnOpenLinking != null) _btnOpenLinking.clicked += HandleOpenLinkingClicked;
+            if (_btnOpenSettings != null) _btnOpenSettings.clicked += HandleOpenSettingsClicked;
+            if (_btnCloseModal != null) _btnCloseModal.clicked += () => OpenLinkingModal(false);
+            if (_btnCloseSettingsModal != null) _btnCloseSettingsModal.clicked += () => OpenSettingsModal(false);
+
+            if (_btnCardDisplayFullCard != null) _btnCardDisplayFullCard.clicked += () => HandleCardDisplaySelected(CardDisplayType.FullCard);
+            if (_btnCardDisplayEasyRead != null) _btnCardDisplayEasyRead.clicked += () => HandleCardDisplaySelected(CardDisplayType.EasyRead);
+            if (_btnCardDisplayImagesGirls != null) _btnCardDisplayImagesGirls.clicked += () => HandleCardDisplaySelected(CardDisplayType.ImagesGirls);
+            if (_btnCardDisplayEasyReadGirls != null) _btnCardDisplayEasyReadGirls.clicked += () => HandleCardDisplaySelected(CardDisplayType.EasyReadGirls);
+            if (_btnCardDisplayEasyReadGirlsBg != null) _btnCardDisplayEasyReadGirlsBg.clicked += () => HandleCardDisplaySelected(CardDisplayType.EasyReadGirlsAsBackground);
+            if (_btnCardDisplayFullBackground != null) _btnCardDisplayFullBackground.clicked += () => HandleCardDisplaySelected(CardDisplayType.FullBackground);
+
+            if (_btnGeneratePin != null) _btnGeneratePin.clicked += OnGeneratePinClicked;
+            else Debug.LogWarning("[Sync] btn-generate-pin not found in the visual tree.");
+
+            if (_btnSubmitPin != null) _btnSubmitPin.clicked += OnSubmitPinClicked;
+            else Debug.LogWarning("[Sync] btn-submit-pin not found in the visual tree.");
+
+            if (_txtInputPin != null) {
+                _txtInputPin.RegisterValueChangedCallback(evt => OnInputPinValueChanged(evt));
+            }
+
             _root.Q<Button>("btn-close-dash").clicked += HandleCloseDashboardClicked;
-            _root.Q<Button>("btn-open-linking").clicked += HandleOpenLinkingClicked;
             _root.Q<Button>("btn-exit-app").clicked += HandleExitAppClicked;
+
+            if (_gameSettingsService != null) {
+                SetSelectedCardDisplayType(_gameSettingsService.CardDisplayType);
+            }
 
             // Set default runtime visual highlighting state
             UpdateActiveGameVisuals("Blackjack");
@@ -85,8 +140,14 @@ namespace CardFramework.Presentation.Views {
 
 
         [Inject]
-        public void Construct(IAudioService audioService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, ICloudService cloudService) {
             _audioService = audioService;
+            _gameSettingsService = gameSettingsService;
+            _cloudService = cloudService;
+
+            if (_root != null && _gameSettingsService != null) {
+                SetSelectedCardDisplayType(_gameSettingsService.CardDisplayType);
+            }
         }
 
         public void ChangeActiveGame(string gameId) {
@@ -165,49 +226,61 @@ namespace CardFramework.Presentation.Views {
             if (_root != null) _root.style.display = DisplayStyle.None;
         }
 
-        #region Linking Panel Logic
-
-        [Inject]
-        public void InitializePresenter(ICloudService cloudService) {
-            _cloudService = cloudService;
-
-            var uiDocument = GetComponent<UIDocument>();
-            if (uiDocument == null || uiDocument.rootVisualElement == null) {
-                Debug.LogWarning("[Sync] UIDocument or rootVisualElement not found.");
-                return;
-            }
-            uiDocument.enabled = true;
-
-            var root = uiDocument.rootVisualElement;
-
-            // Query elements matching your UXML identifiers
-            _btnOpenLinking = root.Q<Button>("btn-open-linking");
-            _btnGeneratePin = root.Q<Button>("btn-generate-pin");
-            _btnSubmitPin = root.Q<Button>("btn-submit-pin");
-            _lblGeneratedPin = root.Q<Label>("lbl-generated-pin");
-            _txtInputPin = root.Q<TextField>("txt-input-pin");
-
-            _linkingModalOverlay = root.Q<VisualElement>("linking-modal-overlay");
-            _btnCloseModal = root.Q<Button>("btn-close-modal");
-
-            // Modal Interaction Events
-            if (_btnOpenLinking != null) _btnOpenLinking.clicked += () => OpenLinkingModal(true);
-            else Debug.LogWarning("[Sync] _btnOpenLinking not found in the visual tree.");
-
-            if (_btnCloseModal != null) _btnCloseModal.clicked += () => OpenLinkingModal(false);
-            else Debug.LogWarning("[Sync] _btnCloseModal not found in the visual tree.");
-
-            // Wire Events
-            if (_btnGeneratePin != null) _btnGeneratePin.clicked += OnGeneratePinClicked;
-            else Debug.LogWarning("[Sync] btn-generate-pin not found in the visual tree.");
-
-            if (_btnSubmitPin != null) _btnSubmitPin.clicked += OnSubmitPinClicked;
-            else Debug.LogWarning("[Sync] btn-submit-pin not found in the visual tree.");
-
-            if (_txtInputPin != null) {
-                _txtInputPin.RegisterValueChangedCallback(evt => OnInputPinValueChanged(evt));
+        public void SetSelectedCardDisplayType(CardDisplayType displayType) {
+            ClearCardDisplaySelection();
+            switch (displayType) {
+                case CardDisplayType.FullCard:
+                    _btnCardDisplayFullCard?.AddToClassList("selected");
+                    break;
+                case CardDisplayType.EasyRead:
+                    _btnCardDisplayEasyRead?.AddToClassList("selected");
+                    break;
+                case CardDisplayType.ImagesGirls:
+                    _btnCardDisplayImagesGirls?.AddToClassList("selected");
+                    break;
+                case CardDisplayType.EasyReadGirls:
+                    _btnCardDisplayEasyReadGirls?.AddToClassList("selected");
+                    break;
+                case CardDisplayType.EasyReadGirlsAsBackground:
+                    _btnCardDisplayEasyReadGirlsBg?.AddToClassList("selected");
+                    break;
+                case CardDisplayType.FullBackground:
+                    _btnCardDisplayFullBackground?.AddToClassList("selected");
+                    break;
             }
         }
+
+        private void ClearCardDisplaySelection() {
+            _btnCardDisplayFullCard?.RemoveFromClassList("selected");
+            _btnCardDisplayEasyRead?.RemoveFromClassList("selected");
+            _btnCardDisplayImagesGirls?.RemoveFromClassList("selected");
+            _btnCardDisplayEasyReadGirls?.RemoveFromClassList("selected");
+            _btnCardDisplayEasyReadGirlsBg?.RemoveFromClassList("selected");
+            _btnCardDisplayFullBackground?.RemoveFromClassList("selected");
+        }
+
+        private void HandleOpenSettingsClicked() {
+            PlayButtonClickSound();
+            OpenSettingsModal(true);
+        }
+
+        private void OpenSettingsModal(bool open) {
+            if (_settingsModalOverlay == null) return;
+            _settingsModalOverlay.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void HandleCardDisplaySelected(CardDisplayType displayType) {
+            PlayButtonClickSound();
+            SetSelectedCardDisplayType(displayType);
+            if (_gameSettingsService != null) {
+                _gameSettingsService.CardDisplayType = displayType;
+                _gameSettingsService.Save();
+            }
+            OnCardDisplayTypeChangeRequested?.Invoke(displayType);
+            OpenSettingsModal(false);
+        }
+
+        #region Linking Panel Logic
 
         private void ToggleLinkingPanel() {
             if (_linkingModalOverlay == null) {
