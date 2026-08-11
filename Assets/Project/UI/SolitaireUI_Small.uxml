@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" ExplicitBindings="true" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/UI/BlackjackStyle.uss?fileID=7433441132597879392&amp;guid=d5086c7d9571c2f46bbb78e37cf40870&amp;type=3#BlackjackStyle"/>
+    <ui:VisualElement name="screen-container" class="screen-container" style="align-content: flex-start; align-self: auto; align-items: stretch; flex-wrap: nowrap;">
+        <ui:VisualElement name="VisualElement" class="hud-left-group" style="justify-content: center; flex-basis: 10%;">
+            <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
+            <ui:Label text="SOLITAIRE" class="title-label"/>
+        </ui:VisualElement>
+        <ui:Label name="lbl-wallet-balance" text="Balance: $100" class="wallet-balance-label" style="min-width: auto; padding-right: 0; margin-right: 0; margin-left: 0; flex-basis: 10%;"/>
+        <ui:VisualElement class="score-board" style="justify-content: center; flex-basis: 10%;">
+            <ui:Label name="foundation-score-label" text="Foundation: 0/52" class="score-label" style="-unity-text-align: upper-center;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="outcome-message-label" class="outcome-banner" style="display: flex; padding-right: 0; padding-left: 0; max-width: 100%; flex-basis: 40%;">
+            <ui:Label text="SOLITAIRE CLEARED!" class="outcome-text" style="flex-shrink: 1; flex-grow: 1; min-width: 90%; min-height: 90%;"/>
+        </ui:VisualElement>
+        <ui:Button name="btn-draw" text="DRAW CARD" class="btn-casino btn-draw" style="max-width: none; flex-basis: 10%;"/>
+        <ui:Button name="btn-restart" text="NEW GAME" class="btn-casino" style="max-width: none; flex-basis: 10%;"/>
+    </ui:VisualElement>
+</ui:UXML>

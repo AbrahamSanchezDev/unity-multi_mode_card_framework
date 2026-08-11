@@ -2,7 +2,10 @@
     "name": "XR",
     "rootNamespace": "",
     "references": [
-        "GUID:951684e7ad05c7f47b692969443aae66"
+        "GUID:951684e7ad05c7f47b692969443aae66",
+        "GUID:fe685ec1767f73d42b749ea8045bfe43",
+        "GUID:5c75761d3abc5b740b9c48bd483ab3a5",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [

@@ -26,6 +26,8 @@ namespace CardFramework.Presentation.Views {
 
         private const int DefaultMinBet = 10;
 
+        private BoxCollider _boxCollider;
+
         [Inject]
         public void Construct(IEconomyService economyService, NavigationController navigationController, IAudioService audioService = null) {
             _economyService = economyService;
@@ -64,6 +66,7 @@ namespace CardFramework.Presentation.Views {
                 _economyService.OnBalanceUpdated += UpdateBalanceUI;
                 UpdateBalanceUI(_economyService.CurrentGold);
             }
+            _boxCollider = GetComponent<BoxCollider>();
 
             HideModal();
         }
@@ -99,7 +102,7 @@ namespace CardFramework.Presentation.Views {
         /// </summary>
         public void ShowModalWithCap(int minBet, int maxBet) {
             SetupUiReferences();
-
+            _boxCollider.enabled = true;
             _activeMinBet = Mathf.Max(0, minBet);
             _activeMaxBet = maxBet;
             _currentBetAmount = _activeMinBet;
@@ -179,6 +182,8 @@ namespace CardFramework.Presentation.Views {
         private void HideModal() {
             if (_root != null)
                 _root.style.display = DisplayStyle.None;
+
+            _boxCollider.enabled = false;
         }
 
         private void HandleGameSwitch(string targetGameKey) {

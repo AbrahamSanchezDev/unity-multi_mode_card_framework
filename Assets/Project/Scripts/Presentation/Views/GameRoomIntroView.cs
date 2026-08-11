@@ -50,6 +50,8 @@ namespace CardFramework.Presentation.Views {
 
         public event Action<string> OnOptionSelected;
 
+        private BoxCollider _boxCollider;
+
         private void Awake() {
             _uiDocument = GetComponent<UIDocument>();
             if (_uiDocument != null) {
@@ -59,6 +61,8 @@ namespace CardFramework.Presentation.Views {
             _audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
             _audioSource.playOnAwake = false;
             _audioSource.volume = audioVolume;
+
+            _boxCollider = GetComponent<BoxCollider>();
         }
 
         private void OnEnable() {
@@ -111,6 +115,9 @@ namespace CardFramework.Presentation.Views {
                 PlayIntroAudio();
             }
             DoHeroAnimation(visible);
+            if (_boxCollider != null) {
+                _boxCollider.enabled = visible;
+            }
         }
 
         public void SetData(GameRoomIntroData data) {

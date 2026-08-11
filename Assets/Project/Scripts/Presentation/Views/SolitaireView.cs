@@ -64,6 +64,8 @@ namespace CardFramework.Presentation.Views {
         private int _dragSourceColumn = -1;
         private int _dragStartIndex = -1;
 
+        private BoxCollider _boxCollider;
+
         [Inject]
         public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
             _audioService = audioService;
@@ -74,6 +76,13 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void OnEnable() {
+
+            var inits = GetComponentsInChildren<IViewInitObj>(true);
+            foreach (var init in inits) {
+                init.Init();
+            }
+            _boxCollider = GetComponent<BoxCollider>();
+
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument != null) {
                 uiDocument.enabled = true;
@@ -684,6 +693,8 @@ namespace CardFramework.Presentation.Views {
             if (_root != null) {
                 _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             }
+            if (_boxCollider)
+                _boxCollider.enabled = show;
         }
     }
 }

@@ -80,11 +80,13 @@ namespace CardFramework.Presentation.Controllers {
 
         protected override void BeginNewGame() {
             base.BeginNewGame();
+            ShowUI(false);
             _uiView?.ClearTable();
         }
 
         protected override void InitializeEngine() {
             _engine.Initialize();
+            ShowUI(true);
         }
 
         protected override void RefreshTableLayout() {
