@@ -9,10 +9,9 @@ using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class BlackjackView : MonoBehaviour, IBlackjackView {
+    public class BlackjackView : CardsGameBaseView, IBlackjackView {
 
         public bool HasAll;
-        private VisualElement _root;
         private Button _hitButton;
         private Button _standButton;
         private Button _restartButton;
@@ -23,12 +22,10 @@ namespace CardFramework.Presentation.Views {
         private VisualElement _screenContainer;
 
         private Label _lblWalletBalance;
-        private IAudioService _audioService;
 
         public event Action OnHitRequested;
         public event Action OnStandRequested;
         public event Action OnRestartRequested;
-        public event Action OnMenuRequested;
 
         #region 3D Spawning & Animation Architecture
 
@@ -56,15 +53,18 @@ namespace CardFramework.Presentation.Views {
         #endregion
 
         [Inject]
-        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, INotificationsView notificationsView) {
             _audioService = audioService;
             _gameSettingsService = gameSettingsService;
+            _notificationsView = notificationsView;
             if (_gameSettingsService != null) {
                 _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
             }
         }
 
         private void OnEnable() {
+
+            _boxCollider = GetComponent<BoxCollider>();
             var uiDocument = GetComponent<UIDocument>();
             uiDocument.enabled = true;
             _root = uiDocument.rootVisualElement;
@@ -104,6 +104,8 @@ namespace CardFramework.Presentation.Views {
                 _lblWalletBalance.text = "Balance: -- GD";
                 _lblWalletBalance.style.color = Color.white;
             }
+
+            Setup3DView();
         }
 
         private void OnDisable() {
@@ -114,6 +116,22 @@ namespace CardFramework.Presentation.Views {
                 _gameSettingsService.OnCardDisplayTypeChanged -= HandleCardDisplayTypeChanged;
             }
         }
+
+        #region 3D View Controls
+
+        protected override void HandleMainButtonClicked() {
+            HandleHitClicked();
+        }
+        protected override void HandleGiveUpClicked() {
+            HandleStandClicked();
+        }
+
+        protected override void HandleNewGameClicked() {
+            HandleRestartClicked();
+        }
+
+
+        #endregion
 
         private void HandleHitClicked() {
             PlayButtonClickSound();
@@ -128,16 +146,7 @@ namespace CardFramework.Presentation.Views {
         private void HandleRestartClicked() {
             PlayButtonClickSound();
             OnRestartRequested?.Invoke();
-        }
-
-        private void HandleMenuClicked() {
-            PlayButtonClickSound();
-            OnMenuRequested?.Invoke();
-        }
-
-        private void PlayButtonClickSound() {
-            _audioService?.PlayButtonClick();
-        }
+        }      
 
         public void UpdatePlayerScore(int score) => _playerScoreLabel.text = $"Player: {score}";
         public void UpdateDealerScore(int score) => _dealerScoreLabel.text = $"Dealer: {score}";
@@ -146,16 +155,21 @@ namespace CardFramework.Presentation.Views {
             if (_lblWalletBalance != null) {
                 _lblWalletBalance.text = $"Balance: {freshBalance} GD";
             }
+            UpdateBalanceDisplay($"Balance: {freshBalance} GD");
         }
 
         public void DisplayWinner(string winnerName) {
             _outcomeMessageVisualElement.style.display = DisplayStyle.Flex;
             _outcomeMessageLabel.text = winnerName;
+            ShowFinalResultDisplay(true);
+            UpdateFinalResultText(winnerName);
         }
 
         public void ClearTable() {
             _outcomeMessageLabel.text = string.Empty;
             _outcomeMessageVisualElement.style.display = DisplayStyle.None;
+            UpdateFinalResultText(string.Empty);
+            ShowFinalResultDisplay(false);
 
             // Kill active tweens on cards before destroying them to avoid memory warnings
             foreach (var t in _playerCardTransforms) {
@@ -185,6 +199,7 @@ namespace CardFramework.Presentation.Views {
             }
 
             _screenContainer.pickingMode = canInteract ? PickingMode.Position : PickingMode.Ignore;
+            Show3DView(canInteract);
         }
 
         private void ValidateVisualTreeBindings() {
@@ -255,12 +270,6 @@ namespace CardFramework.Presentation.Views {
                 cardTransform.DOKill();
                 centerSequence.Join(cardTransform.DOLocalMove(finalPos, 0.25f).SetEase(Ease.OutCubic));
                 centerSequence.Join(cardTransform.DOLocalRotate(Vector3.zero, 0.25f));
-            }
-        }
-
-        public void ShowUi(bool show) {
-            if (_root != null) {
-                _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

@@ -11,20 +11,17 @@ using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class SolitaireView : MonoBehaviour, ISolitaireView {
+    public class SolitaireView : CardsGameBaseView, ISolitaireView {
 
-        private VisualElement _root;
         private Label _lblWalletBalance;
         private Button _btnRestart;
         private Button _btnMenu;
         private Button _btnDraw;
         private Label _lblFoundationScore;
         private VisualElement _outcomeMessageVisualElement;
-        private IAudioService _audioService;
 
         public event Action OnStockTapped;
         public event Action OnRestartRequested;
-        public event Action OnMenuRequested;
         public event Action<List<CardData>, int, int, int> OnTableauDropRequested;
         public event Action<List<CardData>, int> OnFoundationDropRequested;
 
@@ -64,12 +61,11 @@ namespace CardFramework.Presentation.Views {
         private int _dragSourceColumn = -1;
         private int _dragStartIndex = -1;
 
-        private BoxCollider _boxCollider;
-
         [Inject]
-        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, INotificationsView notificationsView) {
             _audioService = audioService;
             _gameSettingsService = gameSettingsService;
+            _notificationsView = notificationsView;
             if (_gameSettingsService != null) {
                 _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
             }
@@ -130,6 +126,11 @@ namespace CardFramework.Presentation.Views {
                     tableauColumnDropTargets[i].SetEnabled(false);
                 }
             }
+
+            if (view3D) {
+                ShowGiveUpButton(false);
+                Setup3DView();
+            }
         }
 
         private void OnDisable() {
@@ -148,14 +149,21 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
+        #region  3D View Controls
+
+        protected override void HandleMainButtonClicked() {
+            HandleDrawClicked();
+        }
+
+        protected override void HandleNewGameClicked() {
+            HandleRestartClicked();
+        }  
+
+        #endregion
+
         private void HandleRestartClicked() {
             PlayButtonClickSound();
             OnRestartRequested?.Invoke();
-        }
-
-        private void HandleMenuClicked() {
-            PlayButtonClickSound();
-            OnMenuRequested?.Invoke();
         }
 
         private void HandleDrawClicked() {
@@ -163,9 +171,7 @@ namespace CardFramework.Presentation.Views {
             OnStockTapped?.Invoke();
         }
 
-        private void PlayButtonClickSound() {
-            _audioService?.PlayButtonClick();
-        }
+
 
         private void HandleCardDisplayTypeChanged(CardDisplayType newDisplayType) {
             RefreshRevealedCardsDisplay(newDisplayType);
@@ -631,11 +637,15 @@ namespace CardFramework.Presentation.Views {
                 Debug.Log($"[SolitaireView] Wallet balance updated: {balance} GD");
             }
             else Debug.LogWarning("[SolitaireView] _lblWalletBalance is not assigned in the Inspector!");
+            UpdateBalanceDisplay($"Balance: {balance} GD");
+
         }
 
         public void UpdateFoundationScore(int foundationCount, int totalCards) {
             if (_lblFoundationScore != null)
                 _lblFoundationScore.text = $"Foundation: {foundationCount}/{totalCards}";
+
+            UpdateScoreDisplay($"Foundation: {foundationCount}/{totalCards}");
         }
 
         public void DisplayOutcome(string message) {
@@ -644,11 +654,14 @@ namespace CardFramework.Presentation.Views {
                 var label = _outcomeMessageVisualElement.Q<Label>();
                 if (label != null) label.text = message;
             }
+            ShowFinalResultDisplay(true);
+            UpdateFinalResultText(message);
         }
 
         public void ClearOutcome() {
             if (_outcomeMessageVisualElement != null)
                 _outcomeMessageVisualElement.style.display = DisplayStyle.None;
+            ShowFinalResultDisplay(false);
         }
 
         public void SetInteractionState(bool canInteract) {
@@ -689,12 +702,6 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        public void ShowUi(bool show) {
-            if (_root != null) {
-                _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
-            }
-            if (_boxCollider)
-                _boxCollider.enabled = show;
-        }
+
     }
 }

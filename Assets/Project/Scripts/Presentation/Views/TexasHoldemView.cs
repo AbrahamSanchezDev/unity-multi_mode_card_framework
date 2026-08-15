@@ -10,15 +10,13 @@ using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class TexasHoldemView : MonoBehaviour, ITexasHoldemView {
-        private VisualElement _root;
+    public class TexasHoldemView : CardsGameBaseView, ITexasHoldemView {
         private Label _lblWalletBalance;
         private Label _lblRoundState;
         private Label _lblPlayerHand;
         private Label _lblCommunityCards;
         private Label _lblOutcome;
         private Button _btnDeal;
-        private IAudioService _audioService;
         private Button _btnFold;
         private Button _btnRestart;
         private VisualElement _outcomeMessageVisualElement;
@@ -52,18 +50,21 @@ namespace CardFramework.Presentation.Views {
         public event Action OnDealRequested;
         public event Action OnRestartRequested;
         public event Action OnFoldRequested;
-        public event Action OnMenuRequested;
+
 
         [Inject]
-        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService) {
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, INotificationsView notificationsView) {
             _audioService = audioService;
             _gameSettingsService = gameSettingsService;
+            _notificationsView = notificationsView;
             if (_gameSettingsService != null) {
                 _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
             }
         }
 
         private void OnEnable() {
+
+            _boxCollider = GetComponent<BoxCollider>();
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) {
                 Debug.LogWarning($"[{name}]: Missing UIDocument component.");
@@ -111,6 +112,7 @@ namespace CardFramework.Presentation.Views {
             else {
                 Debug.LogWarning($"[{name}]: Could not find community data section on Texas Hold'em view.");
             }
+            Setup3DView();
         }
 
         private void OnDisable() {
@@ -122,6 +124,22 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
+
+        #region 3D View Controls
+
+        protected override void HandleMainButtonClicked() {
+            HandleDealClicked();
+        }
+        protected override void HandleGiveUpClicked() {
+            HandleFoldClicked();
+        }
+
+        protected override void HandleNewGameClicked() {
+            HandleRestartClicked();
+        }
+
+
+        #endregion
         private void HandleDealClicked() {
             PlayButtonClickSound();
             OnDealRequested?.Invoke();
@@ -135,15 +153,6 @@ namespace CardFramework.Presentation.Views {
         private void HandleRestartClicked() {
             PlayButtonClickSound();
             OnRestartRequested?.Invoke();
-        }
-
-        private void HandleMenuClicked() {
-            PlayButtonClickSound();
-            OnMenuRequested?.Invoke();
-        }
-
-        private void PlayButtonClickSound() {
-            _audioService?.PlayButtonClick();
         }
 
         public void ClearTable() {
@@ -314,6 +323,8 @@ namespace CardFramework.Presentation.Views {
 
         public void UpdateWalletBalance(int balance) {
             if (_lblWalletBalance != null) _lblWalletBalance.text = $"Balance: {balance} GD";
+
+            UpdateBalanceDisplay($"Balance: {balance} GD");
         }
 
         private void HandleCardDisplayTypeChanged(CardDisplayType newDisplayType) {
@@ -340,6 +351,8 @@ namespace CardFramework.Presentation.Views {
             if (_lblOutcome != null) {
                 _lblOutcome.text = message;
             }
+            UpdateFinalResultText(message);
+            ShowFinalResultDisplay(true);
         }
 
         public void ClearOutcome() {
@@ -350,30 +363,30 @@ namespace CardFramework.Presentation.Views {
             if (_lblOutcome != null) {
                 _lblOutcome.text = string.Empty;
             }
+
+            UpdateFinalResultText(string.Empty);
+            ShowFinalResultDisplay(false);
         }
 
         public void SetInteractionState(bool canInteract) {
             if (_btnDeal != null) _btnDeal.SetEnabled(canInteract);
             if (_btnFold != null) _btnFold.SetEnabled(canInteract);
             AllowResetButton(canInteract);
+            Show3DView(canInteract);
         }
 
         public void AllowResetButton(bool allow) {
             if (_btnRestart != null) {
                 _btnRestart.SetEnabled(allow);
             }
+            ShowNewGameButton(allow);
         }
 
         public void SetRestartButtonEnabled(bool enabled) {
             if (_btnRestart != null) {
                 _btnRestart.SetEnabled(enabled);
             }
-        }
-
-        public void ShowUi(bool show) {
-            if (_root != null) {
-                _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
-            }
+            ShowNewGameButton(enabled);
         }
 
         private static string FormatCardList(List<CardData> cards, string emptyText) {

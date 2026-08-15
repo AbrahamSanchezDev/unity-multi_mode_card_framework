@@ -11,7 +11,7 @@ using CardFramework.Cloud.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class NotificationSidebarView : MonoBehaviour {
+    public class NotificationSidebarView : MonoBehaviour, INotificationsView {
         public event Action<NotificationItem> OnClaimRewardRequested;
         public event Action<NotificationItem> OnClaimRewardCompleted;
 
@@ -90,7 +90,7 @@ namespace CardFramework.Presentation.Views {
             _btnCloseModal = _root.Q<Button>("btn-close-modal");
 
             // Assign operational click callbacks
-            if (_btnToggleSidebar != null) _btnToggleSidebar.clicked += ToggleSidebarState;
+            if (_btnToggleSidebar != null) _btnToggleSidebar.clicked += ToggleNotificationDisplay;
             if (_btnCloseModal != null) _btnCloseModal.clicked += () => OpenMailModal(false);
             if (_btnClaimReward != null) _btnClaimReward.clicked += HandleClaimClicked;
 
@@ -141,7 +141,7 @@ namespace CardFramework.Presentation.Views {
             PopulateNotifications(testItems);
         }
 
-        private void ToggleSidebarState() {
+        public void ToggleNotificationDisplay() {
             SetSidebarOpenState(!_isSidebarOpen);
         }
 
@@ -235,7 +235,7 @@ namespace CardFramework.Presentation.Views {
                 yield return new WaitForSecondsRealtime(1.0f);
                 remaining = remaining.Subtract(TimeSpan.FromSeconds(1));
             }
-            
+
             // Reset styles back when available again
             _btnClaimReward.style.color = StyleKeyword.Null;
             _btnClaimReward.style.backgroundColor = StyleKeyword.Null;
