@@ -20,17 +20,20 @@ namespace CardFramework.Presentation.Views {
 
         public bool TestModeUi;
 
+        private Collider _modalCollider;
+
         private void Awake() {
             // Cache the native UIDocument component reference immediately
             _uiDocument = GetComponent<UIDocument>();
 
             // Ensure the panel starts completely disabled so it releases input focus on startup
             _uiDocument.enabled = false;
+
+            _modalCollider = GetComponent<Collider>();
         }
 
         public IEnumerator Start() {
             if (TestModeUi) {
-
                 // Optional: Demonstrate the modal service functionality after a brief delay
                 yield return new WaitForSeconds(1f);
                 TestLoading();
@@ -40,7 +43,7 @@ namespace CardFramework.Presentation.Views {
                 });
             }
         }
-        
+
         public void TestLoading() {
             ShowLoading("Initializing system overlay framework...");
         }
@@ -103,6 +106,8 @@ namespace CardFramework.Presentation.Views {
 
             _modalOverlay.style.display = DisplayStyle.Flex;
             _modalOverlay.pickingMode = PickingMode.Position;
+
+            EnableCollider(true);
         }
 
         public void ShowAlert(string title, string message, Action onConfirm = null) {
@@ -127,6 +132,8 @@ namespace CardFramework.Presentation.Views {
                 InvokeCallback(onConfirm);
                 HideModal();
             }
+
+            EnableCollider(true);
         }
 
         public void ShowConfirmation(string title, string message, Action onConfirm, Action onCancel) {
@@ -157,6 +164,8 @@ namespace CardFramework.Presentation.Views {
                 _modalCancelBtn.clicked -= CancelAction;
                 HideModal();
             }
+            
+            EnableCollider(true);
         }
 
         private void PlayButtonClickSound() {
@@ -167,11 +176,19 @@ namespace CardFramework.Presentation.Views {
             callback?.Invoke();
         }
 
+        private void EnableCollider(bool enable) {
+            if (_modalCollider != null) {
+                _modalCollider.enabled = enable;
+            }
+        }
+
         public void HideModal() {
             if (_modalOverlay != null) {
                 _modalOverlay.style.display = DisplayStyle.None;
                 _modalOverlay.pickingMode = PickingMode.Ignore;
             }
+
+            EnableCollider(false);
 
             // Safely turn off the UIDocument component to unblock input raycasts completely
             if (_uiDocument != null) {

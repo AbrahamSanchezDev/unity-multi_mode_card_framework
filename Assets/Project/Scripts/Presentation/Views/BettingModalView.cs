@@ -66,6 +66,7 @@ namespace CardFramework.Presentation.Views {
                 _economyService.OnBalanceUpdated += UpdateBalanceUI;
                 UpdateBalanceUI(_economyService.CurrentGold);
             }
+
             _boxCollider = GetComponent<BoxCollider>();
 
             HideModal();
@@ -102,7 +103,7 @@ namespace CardFramework.Presentation.Views {
         /// </summary>
         public void ShowModalWithCap(int minBet, int maxBet) {
             SetupUiReferences();
-            _boxCollider.enabled = true;
+            EnableCollider(true);
             _activeMinBet = Mathf.Max(0, minBet);
             _activeMaxBet = maxBet;
             _currentBetAmount = _activeMinBet;
@@ -183,11 +184,17 @@ namespace CardFramework.Presentation.Views {
             if (_root != null)
                 _root.style.display = DisplayStyle.None;
 
-            _boxCollider.enabled = false;
+            EnableCollider(false);
         }
 
         private void HandleGameSwitch(string targetGameKey) {
             HideModal();
+        }
+
+        private void EnableCollider(bool enable) {
+            if (_boxCollider != null) {
+                _boxCollider.enabled = enable;
+            }
         }
     }
 }

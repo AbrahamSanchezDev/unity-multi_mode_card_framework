@@ -54,10 +54,12 @@ namespace CardFramework.Presentation.Views {
         protected virtual void HandleMenuClicked() {
             PlayButtonClickSound();
             OnMenuRequested?.Invoke();
+            Debug.Log("[CardsGameBaseView] HandleMenuClicked called.");
         }
 
         protected virtual void HandleEmailClicked() {
             _notificationsView?.ToggleNotificationDisplay();
+            Debug.Log("[CardsGameBaseView] HandleEmailClicked called.");
         }
 
         protected void Show3DView(bool show) {
@@ -125,6 +127,8 @@ namespace CardFramework.Presentation.Views {
             if (view3D) {
                 view3D.gameObject.SetActive(show);
             }
+
+            Show3DView(show);
         }
     }
 }

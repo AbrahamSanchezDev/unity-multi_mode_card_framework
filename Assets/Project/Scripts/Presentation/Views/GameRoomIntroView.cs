@@ -115,9 +115,9 @@ namespace CardFramework.Presentation.Views {
                 PlayIntroAudio();
             }
             DoHeroAnimation(visible);
-            if (_boxCollider != null) {
-                _boxCollider.enabled = visible;
-            }
+
+            EnableCollider(visible);
+
         }
 
         public void SetData(GameRoomIntroData data) {
@@ -292,7 +292,7 @@ namespace CardFramework.Presentation.Views {
                         }
                     }
 
-                    void HandleClick() => OnOptionSelected?.Invoke(option.optionId);
+                    void HandleClick() => HandleOptionClick(option.optionId);
                     _modeHandlers[index] = HandleClick;
                     button.clicked += HandleClick;
                 }
@@ -309,6 +309,11 @@ namespace CardFramework.Presentation.Views {
                 _randomHandler = HandleRandom;
                 _randomButton.clicked += _randomHandler;
             }
+        }
+
+        private void HandleOptionClick(string optionId) {
+            OnOptionSelected?.Invoke(optionId);
+            Debug.Log($"[GameRoomIntroView] Option selected: {optionId}");
         }
 
         private void BindEconomy(IEconomyService economyService) {
@@ -341,6 +346,12 @@ namespace CardFramework.Presentation.Views {
                 _audioSource.Stop();
             }
             _audioSource.PlayOneShot(introAudio);
+        }
+
+        private void EnableCollider(bool enable) {
+            if (_boxCollider != null) {
+                _boxCollider.enabled = enable;
+            }
         }
     }
 }

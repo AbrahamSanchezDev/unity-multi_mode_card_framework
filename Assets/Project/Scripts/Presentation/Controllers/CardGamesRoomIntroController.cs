@@ -49,6 +49,8 @@ namespace CardFramework.Presentation.Controllers {
             if (_introView != null) {
                 _introView.Hide();
             }
+            
+            Debug.Log($"[CardGamesRoomIntroController] Option selected: {optionId}");
 
             switch (optionId) {
                 case "Blackjack":

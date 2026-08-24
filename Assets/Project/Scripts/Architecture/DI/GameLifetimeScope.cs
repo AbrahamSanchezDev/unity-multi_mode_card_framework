@@ -58,6 +58,20 @@ namespace CardFramework.Architecture.DI {
             builder.Register<ITimeService, PlayFabTimeService>(Lifetime.Singleton);
             builder.Register<CloudMailboxManager>(Lifetime.Singleton);
 
+
+            if (notificationSidebarViewInstance != null) {
+                builder.RegisterComponent(notificationSidebarViewInstance).AsSelf().As<INotificationsView>();
+            }
+            else {
+                var notificationSidebarViewInScene = Object.FindAnyObjectByType<NotificationSidebarView>();
+                if (notificationSidebarViewInScene != null) {
+                    builder.RegisterComponent(notificationSidebarViewInScene).AsSelf().As<INotificationsView>();
+                }
+                else {
+                    builder.Register<INotificationsView, NullNotificationsView>(Lifetime.Singleton);
+                }
+            }
+
             // ---- AUDIO SERVICE ----
             if (audioServiceInstance != null) {
                 builder.RegisterComponent(audioServiceInstance).AsSelf().As<IAudioService>();
@@ -149,9 +163,7 @@ namespace CardFramework.Architecture.DI {
                 }
             }
 
-            if (notificationSidebarViewInstance != null) {
-                builder.RegisterComponent(notificationSidebarViewInstance);
-            }
+
 
             if (bettingModalView != null) {
                 builder.RegisterComponent(bettingModalView);
@@ -187,6 +199,10 @@ namespace CardFramework.Architecture.DI {
                 .WithParameter(menuActionReference)
                 .WithParameter(tableManager)
                 .AsSelf();
+        }
+
+        private sealed class NullNotificationsView : INotificationsView {
+            public void ToggleNotificationDisplay() { }
         }
     }
 }

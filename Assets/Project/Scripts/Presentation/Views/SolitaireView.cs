@@ -1,4 +1,3 @@
-// File: Assets/_Project/Scripts/Presentation/Views/SolitaireView.cs
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -157,7 +156,7 @@ namespace CardFramework.Presentation.Views {
 
         protected override void HandleNewGameClicked() {
             HandleRestartClicked();
-        }  
+        }
 
         #endregion
 
@@ -612,6 +611,13 @@ namespace CardFramework.Presentation.Views {
 
             _spawnedCards.Add(cardInstance);
             _cardDataByGameObject[cardInstance] = cardData;
+
+#if VR
+            var vrCardController = cardInstance.AddComponent<VRCardController>();
+            vrCardController.actionOnCardDeselected = () => {
+                EndDrag();
+            };
+#endif
             return cardInstance;
         }
 
