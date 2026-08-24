@@ -51,12 +51,14 @@ namespace CardFramework.Presentation.Views {
         private CardsPool _cardsPool;
         private Camera _mainCamera;
         private bool _isDragging;
+        private bool _isVRDragging;
         private bool _flipOnYAxis = false;
         private Plane _dragPlane;
         private Vector3 _dragStartWorldPosition;
         private Vector3 _currentDragWorldPosition;
         private List<SpatialCardInteractable> _draggedStack = new();
         private List<Vector3> _draggedOriginalPositions = new();
+        private List<Transform> _draggedOriginalParents = new(); // ponytail: parent following cards during VR drag so they follow grabbed card
         private int _dragSourceColumn = -1;
         private int _dragStartIndex = -1;
 
@@ -191,7 +193,7 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void Update() {
-            if (!_isDragging || _mainCamera == null) return;
+            if (!_isDragging || _isVRDragging || _mainCamera == null) return;
 
             Vector2 currentPointerPosition = GetPointerPosition();
             Ray ray = _mainCamera.ScreenPointToRay(currentPointerPosition);
@@ -227,14 +229,7 @@ namespace CardFramework.Presentation.Views {
             if (Physics.Raycast(ray, out RaycastHit hit)) {
                 var interactable = hit.collider.GetComponent<SpatialCardInteractable>() ?? hit.collider.GetComponentInParent<SpatialCardInteractable>();
                 if (interactable != null) {
-                    if (interactable.IsFromWastePile) {
-                        StartDragging(interactable);
-                    }
-                    else if (interactable.CardData.IsFaceUp && (interactable.SourceColumnIndex >= 0))
-                        StartDragging(interactable);
-                    else {
-                        Debug.Log("[SolitaireView] Pointer pressed on a card, but it is not face-up or not from a valid source.");
-                    }
+                    TryStartDragging(interactable);
                 }
             }
         }
@@ -245,9 +240,23 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private void StartDragging(SpatialCardInteractable interactable) {
+        private void TryStartDragging(SpatialCardInteractable interactable, bool isVR = false) {
+            if (interactable == null) return;
+            if (!interactable.IsFromWastePile && (!interactable.CardData.IsFaceUp || interactable.SourceColumnIndex < 0)) {
+                Debug.Log("[SolitaireView] Drag rejected: card is not face-up or has no valid source.");
+                return;
+            }
+
+            StartDragging(interactable, isVR);
+        }
+
+        private void StartDragging(SpatialCardInteractable interactable, bool isVR = false) {
+            if (_isDragging || interactable == null) return;
+
             _draggedStack.Clear();
             _draggedOriginalPositions.Clear();
+            _draggedOriginalParents.Clear();
+            _isVRDragging = isVR;
             _dragSourceColumn = interactable.SourceColumnIndex;
             _dragStartIndex = interactable.CardIndexInColumn;
 
@@ -270,7 +279,6 @@ namespace CardFramework.Presentation.Views {
                         if (candidate.SourceColumnIndex != _dragSourceColumn) continue;
                         if (candidate.CardIndexInColumn != nextIndex) continue;
                         if (!candidate.CardData.IsFaceUp) continue;
-                        if (!IsValidSequence(current.CardData, candidate.CardData)) continue;
 
                         next = candidate;
                         break;
@@ -294,15 +302,32 @@ namespace CardFramework.Presentation.Views {
 
             foreach (var card in _draggedStack) {
                 _draggedOriginalPositions.Add(card.transform.position);
+                _draggedOriginalParents.Add(card.transform.parent);
                 card.SetColliderEnabled(false);
             }
 
-            Vector2 pointerPosition = GetPointerPosition();
-            Ray ray = _mainCamera.ScreenPointToRay(pointerPosition);
-            _dragPlane = new Plane(Vector3.up, _draggedStack[0].transform.position);
-            if (_dragPlane.Raycast(ray, out float enter)) {
-                _dragStartWorldPosition = ray.GetPoint(enter);
+            // If VR drag, parent the following face-up cards to the grabbed card so they move with it.
+            // ponytail: using transform parenting (worldPositionStays=true) is the minimal reliable solution here.
+            if (_isVRDragging && _draggedStack.Count > 1) {
+                var root = _draggedStack[0].transform;
+                for (int i = 1; i < _draggedStack.Count; i++) {
+                    // preserve world position when changing parent so relative offsets stay the same
+                    _draggedStack[i].transform.SetParent(root, true);
+                }
+            }
+
+            if (_isVRDragging) {
+                _dragStartWorldPosition = interactable.transform.position;
                 _currentDragWorldPosition = _dragStartWorldPosition;
+            }
+            else if (_mainCamera != null) {
+                Vector2 pointerPosition = GetPointerPosition();
+                Ray ray = _mainCamera.ScreenPointToRay(pointerPosition);
+                _dragPlane = new Plane(Vector3.up, _draggedStack[0].transform.position);
+                if (_dragPlane.Raycast(ray, out float enter)) {
+                    _dragStartWorldPosition = ray.GetPoint(enter);
+                    _currentDragWorldPosition = _dragStartWorldPosition;
+                }
             }
 
             _isDragging = true;
@@ -319,19 +344,21 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private bool IsValidSequence(CardData lowerCard, CardData upperCard) {
-            bool differentColor = GetCardColor(lowerCard.CardSuit) != GetCardColor(upperCard.CardSuit);
-            bool descendingRank = lowerCard.CardRank == upperCard.CardRank + 1;
-            return differentColor && descendingRank;
-        }
-
-        private int GetCardColor(CardData.Suit suit) {
-            return suit == CardData.Suit.Diamonds || suit == CardData.Suit.Hearts ? 0 : 1;
-        }
-
-        private void EndDrag() {
+        private void EndDrag(Vector3? releaseWorldPosition = null) {
             if (!_isDragging) return;
             _isDragging = false;
+
+            // If we did a VR drag, restore any parenting we changed so scene hierarchy is correct before handling drop logic.
+            if (_isVRDragging && _draggedOriginalParents != null && _draggedOriginalParents.Count == _draggedStack.Count) {
+                for (int i = 0; i < _draggedStack.Count; i++) {
+                    var origParent = _draggedOriginalParents[i];
+                    _draggedStack[i].transform.SetParent(origParent, true);
+                }
+            }
+
+            if (releaseWorldPosition.HasValue) {
+                _currentDragWorldPosition = releaseWorldPosition.Value;
+            }
 
             bool handled = false;
             int foundationTargetIndex = GetFoundationDropTargetIndex();
@@ -375,66 +402,73 @@ namespace CardFramework.Presentation.Views {
 
             _draggedStack.Clear();
             _draggedOriginalPositions.Clear();
+            _draggedOriginalParents.Clear();
             _dragSourceColumn = -1;
             _dragStartIndex = -1;
+            _isVRDragging = false;
 
             AllowColumnDropTargets(false);
         }
 
         private int GetFoundationDropTargetIndex() {
-            if (_mainCamera == null) return -1;
-
-            Vector2 screenPos = GetPointerPosition();
-            Ray ray = _mainCamera.ScreenPointToRay(screenPos);
-            if (Physics.Raycast(ray, out RaycastHit hit)) {
-                var target = hit.collider.GetComponent<FoundationDropTarget>() ?? hit.collider.GetComponentInParent<FoundationDropTarget>();
-                if (target != null) {
-                    return target.FoundationIndex;
-                }
+            var collider = GetDropCollider();
+            var target = collider?.GetComponent<FoundationDropTarget>() ?? collider?.GetComponentInParent<FoundationDropTarget>();
+            if (target != null) {
+                Debug.Log($"[SolitaireView] Foundation drop target found at index {target.FoundationIndex} for the current drag position.");
+                return target.FoundationIndex;
             }
 
-            for (int f = 0; f < foundationDropTargets.Length; f++) {
-                if (foundationDropTargets[f] != null) {
-                    var target = foundationDropTargets[f].GetComponent<FoundationDropTarget>();
-                    if (target != null && Vector3.Distance(_currentDragWorldPosition, foundationDropTargets[f].transform.position) <= dropDetectionRadius) {
-                        return target.FoundationIndex;
-                    }
-                }
-            }
+            Debug.Log("[SolitaireView] No valid foundation drop target found for the current drag position.");
 
             return -1;
         }
 
         private int GetTableauDropTargetColumn() {
-            if (_mainCamera == null) return -1;
-
-            Vector2 screenPos = GetPointerPosition();
-            Ray ray = _mainCamera.ScreenPointToRay(screenPos);
-            if (Physics.Raycast(ray, out RaycastHit hit)) {
-                var interactable = hit.collider.GetComponent<SpatialCardInteractable>() ?? hit.collider.GetComponentInParent<SpatialCardInteractable>();
-                if (interactable != null && interactable.SourceColumnIndex >= 0) {
-                    return interactable.SourceColumnIndex;
-                }
-
-                var tableauTarget = hit.collider.GetComponent<TableauDropTarget>() ?? hit.collider.GetComponentInParent<TableauDropTarget>();
-                if (tableauTarget != null) {
-                    return tableauTarget.ColumnIndex;
-                }
+            var collider = GetDropCollider();
+            var emptyTarget = collider?.GetComponent<TableauDropTarget>() ?? collider?.GetComponentInParent<TableauDropTarget>();
+            if (emptyTarget != null) {
+                return emptyTarget.ColumnIndex;
             }
 
-            for (int col = 0; col < tableauDropTargets.Length; col++) {
-                if (tableauDropTargets[col] != null && Vector3.Distance(_currentDragWorldPosition, tableauDropTargets[col].transform.position) <= dropDetectionRadius) {
-                    return tableauDropTargets[col].ColumnIndex;
-                }
+            var columnTarget = collider?.GetComponent<TableauColumnDropTarget>() ?? collider?.GetComponentInParent<TableauColumnDropTarget>();
+            if (columnTarget != null) {
+                return columnTarget.ColumnIndex;
             }
-
-            for (int col = 0; col < tableauDropTargets.Length; col++) {
-                if (tableauDropTargets[col] != null && Vector3.Distance(_currentDragWorldPosition, tableauDropTargets[col].transform.position) <= dropDetectionRadius) {
-                    return col;
-                }
-            }
-
             return -1;
+        }
+
+        private Collider GetDropCollider() {
+            Vector3 halfExtents = dropDetectionRadius * Vector3.one;
+            Quaternion orientation = _draggedStack.Count > 0 ? _draggedStack[0].transform.rotation : Quaternion.identity;
+
+            var colliders = Physics.OverlapBox(
+                _currentDragWorldPosition,
+                halfExtents,
+                orientation,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Collide);
+
+            Collider closestCollider = null;
+            float closestDistanceSqr = float.PositiveInfinity;
+            foreach (var collider in colliders) {
+                if (collider.GetComponent<FoundationDropTarget>() == null &&
+                    collider.GetComponentInParent<FoundationDropTarget>() == null &&
+                    collider.GetComponent<TableauDropTarget>() == null &&
+                    collider.GetComponentInParent<TableauDropTarget>() == null &&
+                    collider.GetComponent<TableauColumnDropTarget>() == null &&
+                    collider.GetComponentInParent<TableauColumnDropTarget>() == null) {
+                    continue;
+                }
+
+                Vector3 closestPoint = collider.ClosestPoint(_currentDragWorldPosition);
+                float distanceSqr = (_currentDragWorldPosition - closestPoint).sqrMagnitude;
+                if (distanceSqr < closestDistanceSqr) {
+                    closestDistanceSqr = distanceSqr;
+                    closestCollider = collider;
+                }
+            }
+
+            return closestCollider;
         }
 
         public void AnimateStockDraw(CardData card, int destinationStackCount, Action onComplete) {
@@ -604,20 +638,21 @@ namespace CardFramework.Presentation.Views {
                 if (faceGenerator && collider == null) {
                     collider = faceGenerator.cardCollider;
                 }
-                if (collider != null && !isFaceUp) {
-                    collider.enabled = false;
-                }
+                if (collider != null) collider.enabled = false;
             }
 
             _spawnedCards.Add(cardInstance);
             _cardDataByGameObject[cardInstance] = cardData;
 
-#if VR
             var vrCardController = cardInstance.AddComponent<VRCardController>();
+            if (interactable != null) {
+                vrCardController.actionOnCardSelected = () => {
+                    TryStartDragging(interactable, true);
+                };
+            }
             vrCardController.actionOnCardDeselected = () => {
-                EndDrag();
+                EndDrag(interactable != null ? interactable.transform.position : cardInstance.transform.position);
             };
-#endif
             return cardInstance;
         }
 
