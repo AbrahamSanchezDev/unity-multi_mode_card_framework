@@ -71,7 +71,6 @@ namespace CardFramework.Presentation.Views {
         private void OnSelected() {
             onClickAction?.Invoke();
             PlayPulseImpact();
-            Debug.Log($"[ButtonObj3D] Button clicked: {gameObject.name}");
         }
 
         override public void DoSetup() {

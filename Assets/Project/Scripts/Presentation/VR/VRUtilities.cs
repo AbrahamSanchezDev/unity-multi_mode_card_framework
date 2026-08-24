@@ -60,13 +60,13 @@ public static class VRUtilities {
             grabableObj = obj.AddComponent<XRGrabInteractable>();
         }
         grabableObj.trackRotation = false;
-        grabableObj.throwOnDetach = false;        
+        grabableObj.throwOnDetach = false;
 
-        var grabTransform = obj.GetComponent<XRGeneralGrabTransformer>();
+        var grabTransform = obj.GetComponent<OffsetGrabTransformer>();
         if (grabTransform == null) {
-            grabTransform = obj.AddComponent<XRGeneralGrabTransformer>();
+            grabTransform = obj.AddComponent<OffsetGrabTransformer>();
         }
-        grabTransform.permittedDisplacementAxes =  XRGeneralGrabTransformer.ManipulationAxes.X | XRGeneralGrabTransformer.ManipulationAxes.Z;
+        grabTransform.permittedDisplacementAxes = XRGeneralGrabTransformer.ManipulationAxes.X | XRGeneralGrabTransformer.ManipulationAxes.Z;
         grabTransform.allowOneHandedScaling = false;
         grabTransform.allowTwoHandedScaling = false;
         grabTransform.clampScaling = false;

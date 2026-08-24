@@ -61,6 +61,7 @@ namespace CardFramework.Presentation.Views {
         private List<Transform> _draggedOriginalParents = new(); // ponytail: parent following cards during VR drag so they follow grabbed card
         private int _dragSourceColumn = -1;
         private int _dragStartIndex = -1;
+        private float _highestCardY = 0.01f;
 
         [Inject]
         public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, INotificationsView notificationsView) {
@@ -308,7 +309,7 @@ namespace CardFramework.Presentation.Views {
 
             // If VR drag, parent the following face-up cards to the grabbed card so they move with it.
             // ponytail: using transform parenting (worldPositionStays=true) is the minimal reliable solution here.
-            if (_isVRDragging && _draggedStack.Count > 1) {
+            if (_isVRDragging) {
                 var root = _draggedStack[0].transform;
                 for (int i = 1; i < _draggedStack.Count; i++) {
                     // preserve world position when changing parent so relative offsets stay the same
@@ -414,12 +415,8 @@ namespace CardFramework.Presentation.Views {
             var collider = GetDropCollider();
             var target = collider?.GetComponent<FoundationDropTarget>() ?? collider?.GetComponentInParent<FoundationDropTarget>();
             if (target != null) {
-                Debug.Log($"[SolitaireView] Foundation drop target found at index {target.FoundationIndex} for the current drag position.");
                 return target.FoundationIndex;
             }
-
-            Debug.Log("[SolitaireView] No valid foundation drop target found for the current drag position.");
-
             return -1;
         }
 
@@ -512,6 +509,7 @@ namespace CardFramework.Presentation.Views {
         public void RenderLayout(List<CardData>[] tableau, List<CardData>[] foundation, List<CardData> stock, List<CardData> waste, List<(int ColumnIndex, int CardIndex)> newlyRevealedCards = null) {
             ClearTable();
 
+
             var revealSet = newlyRevealedCards == null
                 ? new HashSet<(int ColumnIndex, int CardIndex)>()
                 : new HashSet<(int ColumnIndex, int CardIndex)>(newlyRevealedCards);
@@ -572,6 +570,26 @@ namespace CardFramework.Presentation.Views {
                     SpawnCard(topCard, position, anchor.rotation, isFaceUp: topCard.IsFaceUp, anchor, canInteract: false, sourceColumnIndex: -1, cardIndexInColumn: -1, isFromWastePile: false, animateFlip: false);
                 }
             }
+            RecalculateHighestCardY();
+
+        }
+
+        private void RecalculateHighestCardY() {
+            float highestY = 0.01f;
+            foreach (var cardObj in _spawnedCards) {
+                if (cardObj == null) continue;
+
+                var interactable = cardObj.GetComponent<SpatialCardInteractable>();
+                if (interactable == null || interactable.SourceColumnIndex < 0) continue;
+                // Its the Z because the card was modeled in a way that the Z axis is the vertical axis in the 3D space.
+                highestY = Math.Max(highestY, cardObj.transform.position.y);
+            }
+            _highestCardY = highestY;
+            _highestCardY += cardThicknessOffset; // Add a small offset to ensure the dragged card is above the highest card. 
+        }
+
+        private float GetHighestCardY() {
+            return _highestCardY;
         }
 
         private GameObject SpawnCard(CardData cardData, Vector3 position, Quaternion rotation, bool isFaceUp, Transform theParent, bool canInteract, int sourceColumnIndex, int cardIndexInColumn, bool isFromWastePile, bool animateFlip) {
@@ -643,8 +661,12 @@ namespace CardFramework.Presentation.Views {
 
             _spawnedCards.Add(cardInstance);
             _cardDataByGameObject[cardInstance] = cardData;
-
-            var vrCardController = cardInstance.AddComponent<VRCardController>();
+#if VR
+            #region VR Interaction
+            var vrCardController = cardInstance.GetComponent<VRCardController>();
+            if (vrCardController == null) {
+                vrCardController = cardInstance.AddComponent<VRCardController>();
+            }
             if (interactable != null) {
                 vrCardController.actionOnCardSelected = () => {
                     TryStartDragging(interactable, true);
@@ -653,6 +675,12 @@ namespace CardFramework.Presentation.Views {
             vrCardController.actionOnCardDeselected = () => {
                 EndDrag(interactable != null ? interactable.transform.position : cardInstance.transform.position);
             };
+            vrCardController.getHighersOffset = () => GetHighestCardY();
+
+            #endregion
+
+#endif
+
             return cardInstance;
         }
 
