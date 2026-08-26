@@ -3884,7 +3884,9 @@ GameObject:
   - component: {fileID: 312575490}
   - component: {fileID: 312575492}
   - component: {fileID: 312575491}
-  m_Layer: 0
+  - component: {fileID: 312575494}
+  - component: {fileID: 312575493}
+  m_Layer: 5
   m_Name: Notifications
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3899,12 +3901,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 312575489}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 978833526}
+  m_Father: {fileID: 1822623497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &312575491
 MonoBehaviour:
@@ -3925,7 +3927,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 312575489}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
@@ -3939,8 +3941,44 @@ MonoBehaviour:
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &312575493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 312575489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 2e2b43ed8540c654db007f8f8b0e4d79, type: 2}
+  vrObjParent: {fileID: 1121302534}
+  vrUiVersion: {fileID: 0}
+--- !u!65 &312575494
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 312575489}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 2.2200003, y: 1.08, z: 0.0000000944166}
+  m_Center: {x: 0.00000011920929, y: 0.54, z: 0.0000000472083}
 --- !u!1 &313932405
 GameObject:
   m_ObjectHideFlags: 0
@@ -6144,11 +6182,8 @@ GameObject:
   - component: {fileID: 485441446}
   - component: {fileID: 485441445}
   - component: {fileID: 485441447}
-  - component: {fileID: 485441448}
   - component: {fileID: 485441449}
-  - component: {fileID: 485441451}
-  - component: {fileID: 485441450}
-  - component: {fileID: 485441452}
+  - component: {fileID: 485441448}
   m_Layer: 5
   m_Name: GameRoomIntroView
   m_TagString: Untagged
@@ -6199,7 +6234,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: 0b6a68da62b1d254795b957155e282cf, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: c1fb9ebb95075764fb5ddb937302ce4b, type: 3}
   m_SortingOrder: 10
@@ -6208,7 +6243,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!82 &485441447
 AudioSource:
@@ -6319,15 +6354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 2e2b43ed8540c654db007f8f8b0e4d79, type: 2}
   vrObjParent: {fileID: 1822623497}
-  vrPanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
   vrUiVersion: {fileID: 0}
-  turnToVR: 1
-  copyTransform: 0
-  keepParent: 0
-  addVrComponents: 1
-  changeWorldSpaceDimensions: 0
-  worldScale: {x: 400, y: 400}
 --- !u!65 &485441449
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6347,116 +6376,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
-  m_Size: {x: 2.1200001, y: 1.6800001, z: 0.00000014687026}
-  m_Center: {x: 0.100000024, y: -0.100000024, z: -0.000000008742276}
---- !u!114 &485441450
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 485441443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 115f1a2a50d85cd4b9d6dad4c95622be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Filtering.XRPokeFilter
-  m_Interactable: {fileID: 485441451}
-  m_PokeCollider: {fileID: 485441449}
-  m_PokeConfiguration:
-    m_UseConstant: 1
-    m_ConstantValue:
-      m_PokeDirection: 3
-      m_InteractionDepthOffset: 0
-      m_EnablePokeAngleThreshold: 1
-      m_PokeAngleThreshold: 45
-    m_Variable: {fileID: 0}
---- !u!114 &485441451
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 485441443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a35f6cfbfba9b548aaa00d52cfe8a50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable
-  m_InteractionManager: {fileID: 0}
-  m_Colliders: []
-  m_InteractionLayers:
-    m_Bits: 1
-  m_DistanceCalculationMode: 1
-  m_SelectMode: 0
-  m_FocusMode: 1
-  m_CustomReticle: {fileID: 0}
-  m_AllowGazeInteraction: 0
-  m_AllowGazeSelect: 0
-  m_OverrideGazeTimeToSelect: 0
-  m_GazeTimeToSelect: 0.5
-  m_OverrideTimeToAutoDeselectGaze: 0
-  m_TimeToAutoDeselectGaze: 3
-  m_AllowGazeAssistance: 0
-  m_FirstHoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastHoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstSelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastSelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstFocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastFocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Activated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Deactivated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_StartingHoverFilters: []
-  m_StartingSelectFilters: []
-  m_StartingInteractionStrengthFilters: []
-  m_AutoFindParentInteractableInHierarchy: 0
-  m_ParentInteractableObject: {fileID: 0}
---- !u!114 &485441452
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 485441443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e20b625db654b1940b92fcfd88d19815, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: XR::UIToolkitDebugger
+  m_Size: {x: 1.9200001, y: 1.08, z: 0.0000000944166}
+  m_Center: {x: 0, y: 0.54, z: 0}
 --- !u!1 &486169798
 GameObject:
   m_ObjectHideFlags: 0
@@ -7432,10 +7353,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 691196382}
-  - {fileID: 1537347079}
-  - {fileID: 1974090934}
   - {fileID: 1048974259}
+  - {fileID: 1121302534}
   - {fileID: 1822623497}
   - {fileID: 1441533082}
   m_Father: {fileID: 978833526}
@@ -9182,9 +9101,9 @@ GameObject:
   - component: {fileID: 691196382}
   - component: {fileID: 691196381}
   - component: {fileID: 691196380}
-  - component: {fileID: 691196383}
   - component: {fileID: 691196384}
-  m_Layer: 0
+  - component: {fileID: 691196383}
+  m_Layer: 5
   m_Name: SolitaireView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9271,7 +9190,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 546719294}
+  m_Father: {fileID: 1121302534}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &691196383
 MonoBehaviour:
@@ -9285,15 +9204,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
-  vrObjParent: {fileID: 122975071}
-  vrPanelSettings: {fileID: 11400000, guid: c4540458ed7f4eb4cbe94888df6fdf4a, type: 2}
+  data: {fileID: 11400000, guid: 0d242db98e9248b46a438d45278315d7, type: 2}
+  vrObjParent: {fileID: 1121302534}
   vrUiVersion: {fileID: 9197481963319205126, guid: 55d761923bda509449f78b7e37705646, type: 3}
-  turnToVR: 1
-  copyTransform: 1
-  keepParent: 0
-  addVrComponents: 1
-  changeWorldSpaceDimensions: 1
-  worldScale: {x: 400, y: 400}
 --- !u!65 &691196384
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11465,8 +11378,8 @@ GameObject:
   - component: {fileID: 856836104}
   - component: {fileID: 856836103}
   - component: {fileID: 856836102}
-  - component: {fileID: 856836105}
   - component: {fileID: 856836106}
+  - component: {fileID: 856836105}
   m_Layer: 5
   m_Name: BettingModal
   m_TagString: Untagged
@@ -11498,7 +11411,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: 0b6a68da62b1d254795b957155e282cf, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: dab3221843653c84b90a2cf07dabb65a, type: 3}
   m_SortingOrder: 9
@@ -11507,7 +11420,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &856836104
 Transform:
@@ -11536,15 +11449,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 2e2b43ed8540c654db007f8f8b0e4d79, type: 2}
   vrObjParent: {fileID: 1822623497}
-  vrPanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
   vrUiVersion: {fileID: 0}
-  turnToVR: 1
-  copyTransform: 0
-  keepParent: 0
-  addVrComponents: 1
-  changeWorldSpaceDimensions: 0
-  worldScale: {x: 400, y: 400}
 --- !u!65 &856836106
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11565,7 +11472,7 @@ BoxCollider:
   m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1.9200001, y: 1.08, z: 0.0000000944166}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.54, z: 0}
 --- !u!1 &860509470
 GameObject:
   m_ObjectHideFlags: 0
@@ -12920,10 +12827,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 546719294}
-  - {fileID: 2091487885}
-  - {fileID: 1900687046}
   - {fileID: 120898947}
-  - {fileID: 312575490}
   - {fileID: 780721300}
   - {fileID: 161891280}
   m_Father: {fileID: 0}
@@ -14481,6 +14385,40 @@ Transform:
   - {fileID: 5512631742025529789}
   m_Father: {fileID: 1972175378}
   m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
+--- !u!1 &1121302533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121302534}
+  m_Layer: 0
+  m_Name: Over Table Parent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1121302534
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121302533}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 1.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 691196382}
+  - {fileID: 1537347079}
+  - {fileID: 1974090934}
+  m_Father: {fileID: 546719294}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1136379718
 GameObject:
   m_ObjectHideFlags: 0
@@ -19543,6 +19481,8 @@ GameObject:
   - component: {fileID: 1537347079}
   - component: {fileID: 1537347078}
   - component: {fileID: 1537347080}
+  - component: {fileID: 1537347081}
+  - component: {fileID: 1537347082}
   m_Layer: 5
   m_Name: BlackjackView
   m_TagString: Untagged
@@ -19568,10 +19508,10 @@ MonoBehaviour:
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
+  m_WorldSpaceWidth: 400
+  m_WorldSpaceHeight: 400
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &1537347079
 Transform:
@@ -19586,7 +19526,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 546719294}
+  m_Father: {fileID: 1121302534}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1537347080
 MonoBehaviour:
@@ -19609,6 +19549,42 @@ MonoBehaviour:
   deckSpawnAnchor: {fileID: 1121140203}
   dealDuration: 0.45
   dealEase: 6
+--- !u!65 &1537347081
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537347077}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.40000004, y: 0.4, z: 0.000000034969112}
+  m_Center: {x: 0.000000014901161, y: 0.19999999, z: 0.000000017484558}
+--- !u!114 &1537347082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537347077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 0d242db98e9248b46a438d45278315d7, type: 2}
+  vrObjParent: {fileID: 1121302534}
+  vrUiVersion: {fileID: 9197481963319205126, guid: 060b0745d6522b944930bd7356f9bf3e, type: 3}
 --- !u!1 &1538065786
 GameObject:
   m_ObjectHideFlags: 0
@@ -22593,15 +22569,18 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1822623496}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.082037166, y: -0, z: -0, w: 0.9966293}
-  m_LocalPosition: {x: 0.102, y: 1.521, z: 0.69}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 1.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 485441444}
   - {fileID: 856836104}
+  - {fileID: 2091487885}
+  - {fileID: 1900687046}
+  - {fileID: 312575490}
   m_Father: {fileID: 546719294}
-  m_LocalEulerAnglesHint: {x: -9.411, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1833437796
 GameObject:
   m_ObjectHideFlags: 0
@@ -23973,7 +23952,9 @@ GameObject:
   - component: {fileID: 1900687046}
   - component: {fileID: 1900687047}
   - component: {fileID: 1900687048}
-  m_Layer: 0
+  - component: {fileID: 1900687050}
+  - component: {fileID: 1900687049}
+  m_Layer: 5
   m_Name: Dashboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23988,12 +23969,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900687045}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.79575, y: -0.992, z: -0.09137}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 978833526}
+  m_Father: {fileID: 1822623497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1900687047
 MonoBehaviour:
@@ -24016,7 +23997,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!114 &1900687048
 MonoBehaviour:
@@ -24030,6 +24011,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6d78b59a0a3b2d4d897b2dd5cffb0c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Presentation::CardFramework.Presentation.Views.DashboardMenuView
+--- !u!114 &1900687049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900687045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 2e2b43ed8540c654db007f8f8b0e4d79, type: 2}
+  vrObjParent: {fileID: 1121302534}
+  vrUiVersion: {fileID: 0}
+--- !u!65 &1900687050
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900687045}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 1.9200001, y: 1.08, z: 0.0000000944166}
+  m_Center: {x: 0, y: 0.54, z: 0.0000000472083}
 --- !u!1 &1901425832
 GameObject:
   m_ObjectHideFlags: 0
@@ -25211,7 +25228,9 @@ GameObject:
   - component: {fileID: 1974090934}
   - component: {fileID: 1974090933}
   - component: {fileID: 1974090932}
-  m_Layer: 0
+  - component: {fileID: 1974090935}
+  - component: {fileID: 1974090936}
+  m_Layer: 5
   m_Name: TexasHoldemView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25258,14 +25277,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 0b6a68da62b1d254795b957155e282cf, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: c4d0130004c60dd4090c6a5ebe0e7b94, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: bc819135bef62e64b94a14a1edac4ab4, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
+  m_WorldSpaceWidth: 400
+  m_WorldSpaceHeight: 400
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &1974090934
 Transform:
@@ -25280,8 +25299,44 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 546719294}
+  m_Father: {fileID: 1121302534}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1974090935
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1974090931}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.40000004, y: 0.4, z: 0.000000034969112}
+  m_Center: {x: 0.000000014901161, y: 0.19999999, z: 0.000000017484558}
+--- !u!114 &1974090936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1974090931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 0d242db98e9248b46a438d45278315d7, type: 2}
+  vrObjParent: {fileID: 1121302534}
+  vrUiVersion: {fileID: 9197481963319205126, guid: bc819135bef62e64b94a14a1edac4ab4, type: 3}
 --- !u!1 &1983096845
 GameObject:
   m_ObjectHideFlags: 0
@@ -26707,7 +26762,8 @@ GameObject:
   - component: {fileID: 2091487887}
   - component: {fileID: 2091487886}
   - component: {fileID: 2091487888}
-  m_Layer: 0
+  - component: {fileID: 2091487889}
+  m_Layer: 5
   m_Name: '[Global_Modal_Service]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26723,11 +26779,11 @@ Transform:
   m_GameObject: {fileID: 2091487884}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.4, z: 0.919}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 978833526}
+  m_Father: {fileID: 1822623497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2091487886
 MonoBehaviour:
@@ -26754,7 +26810,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: 0b6a68da62b1d254795b957155e282cf, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: e76a13773c7925a43aea33bd6d6d16d5, type: 3}
   m_SortingOrder: 10
@@ -26763,7 +26819,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!65 &2091487888
 BoxCollider:
@@ -26785,7 +26841,22 @@ BoxCollider:
   m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1.9200001, y: 1.08, z: 0.0000000944166}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.54, z: 0}
+--- !u!114 &2091487889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091487884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace3fe07166ace542859b97a87dfb082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObj
+  data: {fileID: 11400000, guid: 2e2b43ed8540c654db007f8f8b0e4d79, type: 2}
+  vrObjParent: {fileID: 1121302534}
+  vrUiVersion: {fileID: 0}
 --- !u!1 &2092446397
 GameObject:
   m_ObjectHideFlags: 0

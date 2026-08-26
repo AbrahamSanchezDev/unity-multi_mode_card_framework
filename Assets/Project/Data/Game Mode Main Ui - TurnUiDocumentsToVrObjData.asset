@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca1431e303874314ab56a822ea984332, type: 3}
+  m_Name: Game Mode Main Ui - TurnUiDocumentsToVrObjData
+  m_EditorClassIdentifier: XR::TurnUiDocumentsToVrObjData
+  vrPanelSettings: {fileID: 11400000, guid: ec840d42539a7954d9f84dd2f359bcab, type: 2}
+  copyTransform: 1
+  keepParent: 0
+  addVrComponents: 1
+  changeWorldSpaceDimensions: 1
+  worldScale: {x: 400, y: 400}

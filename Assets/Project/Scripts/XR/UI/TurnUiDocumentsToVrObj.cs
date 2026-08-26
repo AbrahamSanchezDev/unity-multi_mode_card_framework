@@ -7,23 +7,16 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
 
     public static UnityEvent RePositionUi = new UnityEvent();
-
+    [SerializeField] private TurnUiDocumentsToVrObjData data;
     [SerializeField] private Transform vrObjParent;
-    [SerializeField] private PanelSettings vrPanelSettings;
-
     [SerializeField] private VisualTreeAsset vrUiVersion;
-    [SerializeField] private bool turnToVR = true;
-    [SerializeField] private bool copyTransform = true;
-    [SerializeField] private bool keepParent;
 
-    [SerializeField] private bool addVrComponents = true;
-    [SerializeField] private bool changeWorldSpaceDimensions;
-
-    [SerializeField] private Vector2 worldScale = new Vector2(400f, 400f);
     private bool _initialized = false;
 
     protected void Awake() {
+#if VR
         Init();
+#endif
     }
 
     protected void OnEnable() {
@@ -34,12 +27,12 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
     }
 
     private void RepositionUi() {
-        if (copyTransform && keepParent == false) {
+        if (data.copyTransform && data.keepParent == false) {
             SetParentPos();
         }
     }
     private void SetParentPos() {
-        if (copyTransform && keepParent == false) {
+        if (data.copyTransform && data.keepParent == false) {
             transform.SetParent(vrObjParent, false);
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
@@ -49,22 +42,22 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
     }
 
     public void Init() {
-        if (_initialized || !turnToVR) return;
+        if (_initialized) return;
         _initialized = true;
 
         var uiDocs = GetComponentsInChildren<UIDocument>(true);
         foreach (var doc in uiDocs) {
-            doc.panelSettings = vrPanelSettings;
-            if (copyTransform) {
+            doc.panelSettings = data.vrPanelSettings;
+            if (data.copyTransform) {
                 doc.transform.SetParent(vrObjParent, false);
                 doc.transform.localPosition = Vector3.zero;
                 doc.transform.localRotation = Quaternion.identity;
                 doc.transform.localScale = Vector3.one;
-                if (keepParent == false)
+                if (data.keepParent == false)
                     doc.transform.SetParent(null, true);
             }
 
-            if (addVrComponents) {
+            if (data.addVrComponents) {
                 var interactable = AddOrGetComponent<XRSimpleInteractable>(doc.gameObject);
                 var collider = AddOrGetComponent<BoxCollider>(doc.gameObject);
                 collider.enabled = true;
@@ -79,8 +72,8 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
                     doc.visualTreeAsset = vrUiVersion;
                 }
             }
-            if (changeWorldSpaceDimensions) {
-                doc.worldSpaceSize = worldScale;
+            if (data.changeWorldSpaceDimensions) {
+                doc.worldSpaceSize = data.worldScale;
             }
 
         }
