@@ -62,7 +62,10 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private void OnEnable() {
+        protected void OnEnable() {
+            UpdateUiReferences();
+        }
+        public override void UpdateUiReferences() {
 
             _boxCollider = GetComponent<BoxCollider>();
             var uiDocument = GetComponent<UIDocument>();

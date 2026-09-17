@@ -3,10 +3,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CardFramework.Core.Interfaces;
+using CardFramework.Presentation.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class GameRoomIntroView : MonoBehaviour {
+    public class GameRoomIntroView : MonoBehaviour, IWindowObj {
         [Header("Room Data")]
         [SerializeField] private GameRoomIntroData introData;
 
@@ -53,27 +54,31 @@ namespace CardFramework.Presentation.Views {
         private BoxCollider _boxCollider;
 
         private void Awake() {
-            _uiDocument = GetComponent<UIDocument>();
-            if (_uiDocument != null) {
-                _uiDocument.enabled = true;
-            }
-
             _audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
             _audioSource.playOnAwake = false;
             _audioSource.volume = audioVolume;
 
-            _boxCollider = GetComponent<BoxCollider>();
+
         }
 
-        private void OnEnable() {
-            if (_uiDocument != null) {
-                _root = _uiDocument.rootVisualElement;
-            }
-
+        public void UpdateUiReferences() {
             EnsureIntroData();
             BuildLayout();
             PopulateFromData();
             Show();
+        }
+
+        private void OnEnable() {
+            UpdateUiReferences();
+        }
+
+        public void ShowUi(bool show) {
+            if (show) {
+                Show();
+            }
+            else {
+                Hide();
+            }
         }
 
         private void OnDisable() {
@@ -101,10 +106,6 @@ namespace CardFramework.Presentation.Views {
             if (container == null) {
                 Debug.LogWarning("[GameRoomIntroView] SetVisible() called but the visual root is null. Ensure the UIDocument is properly set up.");
                 return;
-            }
-
-            if (_uiDocument != null) {
-                _uiDocument.enabled = visible;
             }
 
             container.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
@@ -138,18 +139,9 @@ namespace CardFramework.Presentation.Views {
                 Debug.LogWarning("[GameRoomIntroView] No UIDocument attached. The intro view cannot build its UI.");
                 return;
             }
-
-            if (_uiDocument.visualTreeAsset == null) {
-                var visualTree = Resources.Load<VisualTreeAsset>("GameRoomIntro");
-                if (visualTree != null) {
-                    _uiDocument.visualTreeAsset = visualTree;
-                }
-                else {
-                    Debug.LogWarning("[GameRoomIntroView] Could not load GameRoomIntro visual tree asset from Resources.");
-                }
-            }
-
+            _uiDocument.enabled = true;
             _root = _uiDocument.rootVisualElement;
+            _boxCollider = GetComponent<BoxCollider>();
             if (_root == null) {
                 Debug.LogWarning("[GameRoomIntroView] UIDocument root is still null after assigning the visual tree asset.");
                 return;
@@ -226,8 +218,6 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void PopulateFromData() {
-            if (_root == null || introData == null) return;
-
             if (_titleLabel != null) _titleLabel.text = introData.roomTitle;
             if (_descriptionLabel != null) _descriptionLabel.text = introData.roomDescription;
 

@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Project/UI/GameRoomIntro.uss?fileID=7433441132597879392&amp;guid=40f8133bc9e182545a1b1643b8071581&amp;type=3#GameRoomIntro"/>
-    <ui:VisualElement name="intro-root" picking-mode="Position" class="intro-root">
+    <ui:VisualElement name="intro-root" picking-mode="Position" class="intro-root" style="overflow: hidden;">
         <ui:VisualElement name="background-glow" picking-mode="Ignore" class="background-glow">
             <ui:VisualElement picking-mode="Ignore" class="glow-blob glow-blob--gold" style="background-color: rgba(245, 158, 11, 0.65);"/>
             <ui:VisualElement picking-mode="Ignore" class="glow-blob glow-blob--navy"/>

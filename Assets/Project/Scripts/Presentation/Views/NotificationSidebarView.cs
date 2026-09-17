@@ -8,10 +8,11 @@ using CardFramework.Core.Managers;
 using VContainer;
 using System.Threading.Tasks;
 using CardFramework.Cloud.Interfaces;
+using CardFramework.Presentation.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class NotificationSidebarView : MonoBehaviour, INotificationsView {
+    public class NotificationSidebarView : MonoBehaviour, INotificationsView, IWindowObj {
         public event Action<NotificationItem> OnClaimRewardRequested;
         public event Action<NotificationItem> OnClaimRewardCompleted;
 
@@ -35,6 +36,9 @@ namespace CardFramework.Presentation.Views {
         private bool _isSidebarOpen = false;
         private bool _isInitialized = false;
 
+        private BoxCollider theCollider;
+
+
         [Inject]
         public void Construct(CloudMailboxManager mailboxManager, ICloudService authService) {
             _mailboxManager = mailboxManager;
@@ -49,7 +53,15 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void OnEnable() {
+            UpdateUiReferences();
+        }
+
+        public void UpdateUiReferences() {
             InitUi();
+        }
+
+        public void ShowUi(bool show) {
+            OpenMailModal(show);
         }
 
         private void OnDisable() {
@@ -73,9 +85,17 @@ namespace CardFramework.Presentation.Views {
 
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) return;
+            uiDocument.enabled = true;
 
             _root = uiDocument.rootVisualElement;
 
+            if (_root == null) {
+                Debug.Log("NULL ROOT!");
+                Debug.Log(uiDocument);
+                Debug.Log(uiDocument.rootVisualElement);
+            }
+
+            theCollider = gameObject.GetComponent<BoxCollider>();
             // Structural elements queries
             _sidebarContainer = _root.Q<VisualElement>("sidebar-container");
             _sidebarBody = _root.Q<VisualElement>("sidebar-body");
@@ -142,22 +162,26 @@ namespace CardFramework.Presentation.Views {
         }
 
         public void ToggleNotificationDisplay() {
+            Debug.Log("ToggleNotificationDisplay");
             SetSidebarOpenState(!_isSidebarOpen);
         }
 
         private void SetSidebarOpenState(bool open) {
+            theCollider.enabled = open;
             _isSidebarOpen = open;
             if (_sidebarContainer == null || _sidebarBody == null) return;
 
             if (_isSidebarOpen) {
                 _sidebarContainer.RemoveFromClassList("sidebar-collapsed");
                 _sidebarContainer.AddToClassList("sidebar-expanded");
+                _sidebarBody.style.display = DisplayStyle.Flex;
                 _sidebarBody.pickingMode = PickingMode.Position;
             }
             else {
                 _sidebarContainer.RemoveFromClassList("sidebar-expanded");
                 _sidebarContainer.AddToClassList("sidebar-collapsed");
                 _sidebarBody.pickingMode = PickingMode.Ignore;
+                _sidebarBody.style.display = DisplayStyle.None;
             }
         }
 
@@ -293,6 +317,16 @@ namespace CardFramework.Presentation.Views {
             if (_mailModalOverlay == null) return;
             if (!open) StopCooldownTimer();
             _mailModalOverlay.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
+
+            theCollider.enabled = open;
+            if (open) {
+                _sidebarBody.style.display = DisplayStyle.Flex;
+                _sidebarBody.pickingMode = PickingMode.Position;
+            }
+            else {
+                _sidebarBody.pickingMode = PickingMode.Ignore;
+                _sidebarBody.style.display = DisplayStyle.None;
+            }
         }
 
         private string GetIconClass(NotificationType type) {

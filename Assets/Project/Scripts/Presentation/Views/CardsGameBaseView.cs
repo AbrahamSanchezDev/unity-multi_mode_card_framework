@@ -11,7 +11,7 @@ using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class CardsGameBaseView : MonoBehaviour {
+    public class CardsGameBaseView : MonoBehaviour, IWindowObj {
         protected VisualElement _root;
 
         [SerializeField] protected ViewObj3D view3D;
@@ -37,6 +37,10 @@ namespace CardFramework.Presentation.Views {
                     onEmail: HandleEmailClicked
                 );
             }
+        }
+
+        public virtual void UpdateUiReferences() {
+
         }
 
         protected virtual void HandleMainButtonClicked() {
@@ -65,6 +69,7 @@ namespace CardFramework.Presentation.Views {
         protected void Show3DView(bool show) {
             if (view3D) {
                 view3D.gameObject.SetActive(show);
+                Debug.Log($"SHOW ON {gameObject.name} - {show}");
             }
         }
 
@@ -120,6 +125,9 @@ namespace CardFramework.Presentation.Views {
         public void ShowUi(bool show) {
             if (_root != null) {
                 _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            else {
+                Debug.Log("--------------ROOT NUL!");
             }
             if (_boxCollider)
                 _boxCollider.enabled = show;

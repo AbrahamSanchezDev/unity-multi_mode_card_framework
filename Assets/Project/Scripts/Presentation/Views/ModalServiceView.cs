@@ -8,7 +8,7 @@ using VContainer;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class ModalServiceView : MonoBehaviour, IModalService {
+    public class ModalServiceView : MonoBehaviour, IModalService, IWindowObj {
         private UIDocument _uiDocument;
         private VisualElement _root;
         private VisualElement _modalOverlay;
@@ -22,14 +22,8 @@ namespace CardFramework.Presentation.Views {
 
         private Collider _modalCollider;
 
-        private void Awake() {
-            // Cache the native UIDocument component reference immediately
-            _uiDocument = GetComponent<UIDocument>();
-
-            // Ensure the panel starts completely disabled so it releases input focus on startup
-            _uiDocument.enabled = false;
-
-            _modalCollider = GetComponent<Collider>();
+        private void OnEnable() {
+            UpdateUiReferences();
         }
 
         public IEnumerator Start() {
@@ -41,6 +35,22 @@ namespace CardFramework.Presentation.Views {
                 TestAlert(() => {
                     TestConfirmation();
                 });
+            }
+        }
+
+
+        public void UpdateUiReferences() {
+            // Cache the native UIDocument component reference immediately
+            _uiDocument = GetComponent<UIDocument>();
+
+            // Ensure the panel starts completely disabled so it releases input focus on startup
+            _uiDocument.enabled = false;
+
+            _modalCollider = GetComponent<Collider>();
+        }
+        public void ShowUi(bool show) {
+            if (!show) {
+                HideModal();
             }
         }
 
@@ -164,7 +174,7 @@ namespace CardFramework.Presentation.Views {
                 _modalCancelBtn.clicked -= CancelAction;
                 HideModal();
             }
-            
+
             EnableCollider(true);
         }
 

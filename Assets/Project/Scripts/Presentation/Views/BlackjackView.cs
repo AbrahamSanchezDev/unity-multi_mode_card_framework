@@ -62,7 +62,11 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
-        private void OnEnable() {
+        protected void OnEnable() {
+            UpdateUiReferences();
+        }
+
+        public override void UpdateUiReferences() {
 
             _boxCollider = GetComponent<BoxCollider>();
             var uiDocument = GetComponent<UIDocument>();
@@ -146,7 +150,7 @@ namespace CardFramework.Presentation.Views {
         private void HandleRestartClicked() {
             PlayButtonClickSound();
             OnRestartRequested?.Invoke();
-        }      
+        }
 
         public void UpdatePlayerScore(int score) => _playerScoreLabel.text = $"Player: {score}";
         public void UpdateDealerScore(int score) => _dealerScoreLabel.text = $"Dealer: {score}";
@@ -193,13 +197,13 @@ namespace CardFramework.Presentation.Views {
         public void SetInteractionState(bool canInteract) {
             _hitButton.SetEnabled(canInteract);
             _standButton.SetEnabled(canInteract);
+            Show3DView(canInteract);
             if (_screenContainer == null) {
                 Debug.LogWarning($"[{name}]: _screenContainer is null. Cannot set interaction state.");
                 return;
             }
 
             _screenContainer.pickingMode = canInteract ? PickingMode.Position : PickingMode.Ignore;
-            Show3DView(canInteract);
         }
 
         private void ValidateVisualTreeBindings() {

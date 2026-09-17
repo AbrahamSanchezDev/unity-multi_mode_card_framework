@@ -97,7 +97,7 @@ namespace CardFramework.Presentation.Controllers {
             switch (_gameEngine.CurrentState) {
                 case BlackjackEngine.GameState.PlayerTurn:
                 case BlackjackEngine.GameState.DealerTurn:
-                    SetInteractionState(true);
+                    SetInteractionState(_isGameModeActive);
                     break;
                 case BlackjackEngine.GameState.PlayerBust:
                 case BlackjackEngine.GameState.DealerBust:

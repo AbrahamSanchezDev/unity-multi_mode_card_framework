@@ -72,8 +72,12 @@ namespace CardFramework.Presentation.Views {
                 _gameSettingsService.OnCardDisplayTypeChanged += HandleCardDisplayTypeChanged;
             }
         }
+        
+        protected void OnEnable() {
+            UpdateUiReferences();
+        }
 
-        private void OnEnable() {
+        public override void UpdateUiReferences() {
 
             var inits = GetComponentsInChildren<IViewInitObj>(true);
             foreach (var init in inits) {

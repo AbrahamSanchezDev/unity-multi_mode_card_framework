@@ -9,7 +9,7 @@ using CardFramework.Presentation.Interfaces;
 
 namespace CardFramework.Presentation.Views {
     [RequireComponent(typeof(UIDocument))]
-    public class DashboardMenuView : MonoBehaviour {
+    public class DashboardMenuView : MonoBehaviour, IWindowObj {
         public event Action OnCloseRequested;
         public event Action OnLinkAccountRequested;
         public event Action OnExitApplicationRequested;
@@ -40,6 +40,8 @@ namespace CardFramework.Presentation.Views {
         // Visual collection mapping game name signatures straight to their button instances
         private Dictionary<string, Button> _gameButtonsMap;
 
+        private BoxCollider theCollider;
+
         // Track clean default base text values to safely reconstruct labels during visual update shifts
         private readonly Dictionary<string, string> _gameBaseLabels = new Dictionary<string, string> {
             { "Blackjack", "BLACKJACK" },
@@ -55,7 +57,23 @@ namespace CardFramework.Presentation.Views {
         private IGameSettingsService _gameSettingsService;
         private IAudioService _audioService;
 
+
+        [Inject]
+        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, ICloudService cloudService) {
+            _audioService = audioService;
+            _gameSettingsService = gameSettingsService;
+            _cloudService = cloudService;
+
+            if (_root != null && _gameSettingsService != null) {
+                SetSelectedCardDisplayType(_gameSettingsService.CardDisplayType);
+            }
+        }
+
+
         private void OnEnable() {
+            UpdateUiReferences();
+        }
+        public void UpdateUiReferences() {
             InitUi();
         }
 
@@ -64,6 +82,8 @@ namespace CardFramework.Presentation.Views {
             var uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) return;
             uiDocument.enabled = true;
+
+            theCollider = gameObject.GetComponent<BoxCollider>();
 
             _root = uiDocument.rootVisualElement;
             _lblAccountStatus = _root.Q<Label>("lbl-account-status");
@@ -136,19 +156,13 @@ namespace CardFramework.Presentation.Views {
             UpdateActiveGameVisuals("Blackjack");
 
             _root.style.display = DisplayStyle.None;
+            theCollider.enabled = false;
         }
 
-
-        [Inject]
-        public void Construct(IAudioService audioService, IGameSettingsService gameSettingsService, ICloudService cloudService) {
-            _audioService = audioService;
-            _gameSettingsService = gameSettingsService;
-            _cloudService = cloudService;
-
-            if (_root != null && _gameSettingsService != null) {
-                SetSelectedCardDisplayType(_gameSettingsService.CardDisplayType);
-            }
+        protected void OnDisable() {
+            _root = null;
         }
+
 
         public void ChangeActiveGame(string gameId) {
             UpdateActiveGameVisuals(gameId);
@@ -163,6 +177,7 @@ namespace CardFramework.Presentation.Views {
         private void HandleCloseDashboardClicked() {
             PlayButtonClickSound();
             OnCloseRequested?.Invoke();
+            theCollider.enabled = false;
         }
 
         private void HandleOpenLinkingClicked() {
@@ -171,6 +186,7 @@ namespace CardFramework.Presentation.Views {
         }
 
         private void HandleExitAppClicked() {
+            theCollider.enabled = false;
             PlayButtonClickSound();
             OnExitApplicationRequested?.Invoke();
         }
@@ -217,13 +233,21 @@ namespace CardFramework.Presentation.Views {
             }
         }
 
+        public void ShowUi(bool show) {
+            if (!show) {
+                HideDashboard();
+            }
+        }
+
         public void ShowDashboard(string statusText) {
             if (_lblAccountStatus != null) _lblAccountStatus.text = statusText;
             if (_root != null) _root.style.display = DisplayStyle.Flex;
+            theCollider.enabled = true;
         }
 
         public void HideDashboard() {
             if (_root != null) _root.style.display = DisplayStyle.None;
+            theCollider.enabled = false;
         }
 
         public void SetSelectedCardDisplayType(CardDisplayType displayType) {
