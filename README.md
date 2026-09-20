@@ -18,10 +18,23 @@
 
 ![Epic 4 Preview](/ReadMePreviewImages/Epic_4.gif)
 <video src="/ReadMePreviewImages/Epic_4.mp4" width="800" height="450" controls>
-  Your browser does not support the video tag.
+Your browser does not support the video tag.
 </video>
 
----
+# VR testing video
+
+<div align="center">
+  <!-- Badge con icono de YouTube Play -->
+  <a href="https://youtube.com/shorts/9fTiyTmDf-M">
+    <img src="https://img.shields.io/badge/YouTube-Watch%20Video-red?style=for-the-badge&logo=youtube" alt="Watch on YouTube" />
+  </a>
+
+<br/><br/>
+<a href="https://youtube.com/shorts/9fTiyTmDf-M">
+<img src="https://img.youtube.com/vi/9fTiyTmDf-M/hqdefault.jpg" alt="VR Testing Video" width="350" style="border-radius: 10px;" />
+</a>
+
+</div>
 
 ## 🎯 Project Overview
 
@@ -241,13 +254,13 @@ git commit -m "TASK-2.1: Setup LootLocker integration with guest authentication"
 
 ### EPIC Progress
 
-| Epic | Tasks | Status | Target Completion |
-| :--- | :---: | :---: | :---: |
-| **EPIC-01: Core Pure C# Game Logic** | 4/4 | ✅ COMPLETED | Week 4 |
-| **EPIC-02: Architecture & DI Scoping** | 3/3 | ✅ COMPLETED | Week 8 |
-| **EPIC-03: UI/UX Presentation Layer** | 3/3 | ✅ COMPLETED | Week 12 |
-| **EPIC-04: Cloud Infrastructure & Metagame** | 5/5 | ✅ COMPLETED | Week 16 |
-| **EPIC-05: XR Integration & Meta Quest 3** | 0/4 | 🔄 IN PROGRESS | Week 20 |
+| Epic                                         | Tasks |     Status     | Target Completion |
+| :------------------------------------------- | :---: | :------------: | :---------------: |
+| **EPIC-01: Core Pure C# Game Logic**         |  4/4  |  ✅ COMPLETED  |      Week 4       |
+| **EPIC-02: Architecture & DI Scoping**       |  3/3  |  ✅ COMPLETED  |      Week 8       |
+| **EPIC-03: UI/UX Presentation Layer**        |  3/3  |  ✅ COMPLETED  |      Week 12      |
+| **EPIC-04: Cloud Infrastructure & Metagame** |  5/5  |  ✅ COMPLETED  |      Week 16      |
+| **EPIC-05: XR Integration & Meta Quest 3**   |  0/4  | 🔄 IN PROGRESS |      Week 20      |
 
 ### Granular Phase Updates (EPIC-04 ✅)
 
@@ -278,6 +291,7 @@ This project demonstrates hyper-efficient development velocity by integrating ad
 | **EPIC-02: Architecture & DI Layer** |    Weeks 5 - 8     |     Days 5 - 8     | Solidified | 80% Time Reduc. |
 | **EPIC-03: Responsive UI Toolkit**   |    Weeks 9 - 12    |    Days 9 - 14     | Production | 88% Time Reduc. |
 | **EPIC-04: Cloud, Polish & Input**   |   Weeks 13 - 16    |    Days 15 - 20    | Production | 86% Time Reduc. |
+
 > 💡 **Architectural Note**: This acceleration wasn't achieved by cutting corners. The code maintains a strict Decoupled MVC design pattern, uses VContainer for dependency injection, features adaptive spatial calculation algorithms for portrait mobile viewports, and maintains a stable **90% min Unit Test coverage**.
 
 ---
@@ -365,13 +379,13 @@ Extensions to install:
 
 ### Platform Targets
 
-| Platform | Status | Build Time | Output Size |
-| :--- | :--- | :--- | :--- |
-| WebGL | ✅ Ready | ~2-3 min | <50MB |
-| Windows PC | ✅ Ready | ~3-5 min | ~150MB |
-| macOS | ✅ Ready | ~5-7 min | ~150MB |
-| Mobile (iOS / Android) | ✅ Ready | ~8-10 min | ~200MB |
-| Meta Quest 3 | 🔄 EPIC-05 | ~5-7 min | ~250MB |
+| Platform               | Status     | Build Time | Output Size |
+| :--------------------- | :--------- | :--------- | :---------- |
+| WebGL                  | ✅ Ready   | ~2-3 min   | <50MB       |
+| Windows PC             | ✅ Ready   | ~3-5 min   | ~150MB      |
+| macOS                  | ✅ Ready   | ~5-7 min   | ~150MB      |
+| Mobile (iOS / Android) | ✅ Ready   | ~8-10 min  | ~200MB      |
+| Meta Quest 3           | 🔄 EPIC-05 | ~5-7 min   | ~250MB      |
 
 ### Build Commands (CLI)
 
