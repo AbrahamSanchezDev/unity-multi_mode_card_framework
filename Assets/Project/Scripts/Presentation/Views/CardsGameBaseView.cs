@@ -67,9 +67,14 @@ namespace CardFramework.Presentation.Views {
         }
 
         protected void Show3DView(bool show) {
+#if !VR
+            if (view3D) {
+                view3D.gameObject.SetActive(false);
+            }
+            return;
+#endif
             if (view3D) {
                 view3D.gameObject.SetActive(show);
-                Debug.Log($"SHOW ON {gameObject.name} - {show}");
             }
         }
 

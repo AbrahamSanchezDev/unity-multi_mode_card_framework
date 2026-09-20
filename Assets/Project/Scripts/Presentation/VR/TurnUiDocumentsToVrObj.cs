@@ -21,6 +21,7 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
         yield return null;
 #if VR
         Init();
+        Debug.Log($"TurnUiDocumentsToVrObj: {gameObject.name} initialized");
 #endif
     }
 
@@ -49,6 +50,11 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
     public void Init() {
         if (_initialized) return;
         _initialized = true;
+#if !VR
+        Debug.Log($"TurnUiDocumentsToVrObj: {gameObject.name} is not running in VR mode, so it will not be initialized.");
+        return;
+#endif
+
 
         var doc = GetComponent<UIDocument>();
 
