@@ -2,8 +2,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
+#if VR
 using UnityEngine.XR.Interaction.Toolkit.Filtering;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+#endif
 using CardFramework.Presentation.Interfaces;
 
 public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
@@ -50,12 +52,7 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
     public void Init() {
         if (_initialized) return;
         _initialized = true;
-#if !VR
-        Debug.Log($"TurnUiDocumentsToVrObj: {gameObject.name} is not running in VR mode, so it will not be initialized.");
-        return;
-#endif
-
-
+#if VR
         var doc = GetComponent<UIDocument>();
 
         doc.panelSettings = data.vrPanelSettings;
@@ -89,6 +86,7 @@ public class TurnUiDocumentsToVrObj : MonoBehaviour, IViewInitObj {
             doc.worldSpaceSize = data.worldScale;
         }
         UpdateVisualState();
+#endif
     }
 
     [ContextMenu("Update Visuals")]

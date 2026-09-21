@@ -67,14 +67,13 @@ namespace CardFramework.Presentation.Views {
         }
 
         protected void Show3DView(bool show) {
+            var showIt = show;
+            // We can move around the object for better view when not in VR
 #if !VR
-            if (view3D) {
-                view3D.gameObject.SetActive(false);
-            }
-            return;
+            showIt = false;
 #endif
             if (view3D) {
-                view3D.gameObject.SetActive(show);
+                view3D.gameObject.SetActive(showIt);
             }
         }
 

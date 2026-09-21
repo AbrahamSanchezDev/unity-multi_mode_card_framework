@@ -1,5 +1,7 @@
 using UnityEngine;
+#if VR
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+#endif
 using DG.Tweening;
 
 
@@ -7,9 +9,9 @@ using DG.Tweening;
 namespace CardFramework.Presentation.Views {
     public class ButtonObj3D : BaseObj3D {
         private System.Action onClickAction;
-
+#if VR
         private XRSimpleInteractable interactable;
-
+#endif
         private Transform _buttonVisualTransform;
 
         private void Awake() {
