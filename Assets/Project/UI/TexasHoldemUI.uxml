@@ -3,7 +3,7 @@
     <ui:VisualElement name="screen-container" class="screen-container">
         <ui:VisualElement class="hud-header-row">
             <ui:VisualElement class="hud-left-group">
-                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
+                <ui:Button name="btn-hamburger-menu" text="..." class="btn-hamburger"/>
                 <ui:Label text="TEXAS HOLD&apos;EM" class="title-label"/>
             </ui:VisualElement>
             <ui:VisualElement class="hud-right-group">

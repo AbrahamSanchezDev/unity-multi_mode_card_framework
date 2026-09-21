@@ -3,7 +3,7 @@
     <ui:VisualElement name="screen-container" class="screen-container" style="padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
         <ui:VisualElement class="hud-header-row" style="flex-grow: 1; height: 200px; flex-wrap: wrap; flex-direction: column;">
             <ui:VisualElement name="VisualElement" class="hud-left-group" style="height: auto;">
-                <ui:Button name="btn-hamburger-menu" text="☰" class="btn-hamburger"/>
+                <ui:Button name="btn-hamburger-menu" text="..." class="btn-hamburger"/>
                 <ui:Label text="TEXAS HOLD&apos;EM" class="title-label" style="min-width: 125px; font-size: 12px;"/>
                 <ui:Label name="lbl-wallet-balance" text="Balance: $100000" class="wallet-balance-label"/>
             </ui:VisualElement>

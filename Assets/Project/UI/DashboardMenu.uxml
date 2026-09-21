@@ -4,7 +4,7 @@
         <ui:VisualElement class="dash-panel">
             <ui:VisualElement class="dash-header">
                 <ui:Label text="CASINO DASHBOARD" class="dash-title"/>
-                <ui:Button name="btn-close-dash" text="✕" class="btn-close-generic"/>
+                <ui:Button name="btn-close-dash" text="x" class="btn-close-generic" style="-unity-font-style: bold;"/>
             </ui:VisualElement>
             <ui:VisualElement class="dash-body-content">
                 <ui:Label text="SELECT EXPERIENCE" class="dash-section-subtitle"/>
