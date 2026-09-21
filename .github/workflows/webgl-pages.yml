@@ -52,7 +52,9 @@ jobs:
           customParameters: -nographics
 
       - name: Add Pages compatibility file
-        run: mkdir -p build/WebGL && touch build/WebGL/.nojekyll
+        run: |
+          sudo chmod -R 777 build/
+          touch build/WebGL/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
