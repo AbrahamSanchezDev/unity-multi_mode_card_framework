@@ -52,14 +52,12 @@ jobs:
           customParameters: -nographics
 
       - name: Add Pages compatibility file
-        run: |
-          sudo chmod -R 777 build/
-          touch build/WebGL/.nojekyll
+        run: echo "" > build/WebGL/MultiModeCardFramework/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/WebGL
+          path: build/WebGL/MultiModeCardFramework
 
       - name: Deploy to GitHub Pages
         id: deployment
