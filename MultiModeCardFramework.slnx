@@ -1,4 +1,5 @@
 ﻿<Solution>
+  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="VContainer.csproj" />
   <Project Path="MCPForUnity.Editor.csproj" />
   <Project Path="Tests.csproj" />
@@ -13,7 +14,6 @@
   <Project Path="Editor.csproj" />
   <Project Path="XR.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="PlayModeTests.csproj" />
   <Project Path="PlayFabSDKEditor.csproj" />
   <Project Path="Utils.csproj" />
