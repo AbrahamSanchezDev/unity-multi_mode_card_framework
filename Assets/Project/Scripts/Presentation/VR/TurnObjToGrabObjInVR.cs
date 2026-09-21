@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class TurnObjToGrabObjInVR : MonoBehaviour {
+#if VR
     private XRGrabInteractable _grabInteractable;
-
+#endif
     public bool CallRePositionOfUiOnRelease;
 
     protected IEnumerator Start() {
