@@ -6,19 +6,19 @@ A Unity 6.3 LTS card-game framework built to demonstrate clean architecture, mod
 
 ## ⭐ Why this project matters
 
-This project focuses on the engineering decisions that make game code easier to scale and maintain: a pure C# game domain, explicit layer boundaries, dependency injection, platform adapters, and testable service interfaces.
+This project was designed to show how game systems can be structured for scalability, maintainability, and real production-style delivery. It centers on a pure C# gameplay domain, explicit architectural boundaries, dependency injection, platform adapters, and testable service interfaces.
 
-It is designed to show how a reusable game framework can be structured for real production-style delivery without tightly coupling rules, presentation, and platform-specific behavior.
+The goal is to demonstrate a reusable game framework that keeps rules, presentation, and platform-specific behavior cleanly separated while still shipping on multiple surfaces.
 
 ## 🧰 Tech Stack
 
-- **Unity 6.3 LTS** for the game engine and platform delivery
-- **C#** for core gameplay logic, architecture, and service boundaries
-- **UI Toolkit** for responsive presentation and layout systems
+- **Unity 6.3 LTS** for engine and cross-platform delivery
+- **C#** for gameplay logic, service layers, and architecture
+- **UI Toolkit** for responsive presentation and UI flow
 - **VContainer** for dependency injection and runtime composition
-- **PlayFab** for authentication, cloud data, economy, and server time
+- **PlayFab** for authentication, cloud data, economy, and time validation
 - **XR Interaction Toolkit** for Meta Quest 3 interaction and spatial input
-- **NUnit** for deterministic EditMode and testable system validation
+- **NUnit** for deterministic testing and validation
 
 ---
 
@@ -51,17 +51,17 @@ It is designed to show how a reusable game framework can be structured for real 
 
 ## 🎯 Project Overview
 
-This project is a modular card-game framework designed around a strict architecture boundary: the game rules live in pure C# logic, while Unity-specific presentation, input, and platform integrations remain separated behind interfaces and composition roots.
+This project is a modular card-game framework built around a strict architecture boundary: gameplay rules live in pure C# logic, while Unity-specific presentation, input, and platform integrations remain separated behind interfaces and composition roots.
 
 The result is a codebase that is easier to test, easier to extend, and more representative of how production-ready systems are structured in real game projects.
 
 ### What this demonstrates
 
-- **Pure C# game logic** with no Unity dependency in the domain layer
-- **Layered architecture** with Core, Presentation, Cloud, Input, and XR responsibilities separated clearly
+- **Pure C# gameplay logic** with no Unity dependency in the domain layer
+- **Layered architecture** with clearly separated Core, Presentation, Cloud, Input, and XR responsibilities
 - **Dependency injection** using VContainer instead of scene-based singleton access
 - **Cross-platform delivery** for browser-based WebGL and Meta Quest 3 experiences
-- **Production-oriented patterns** for testability, modularity, and maintainability
+- **Production-minded patterns** for testability, modularity, and long-term maintainability
 
 ---
 
@@ -75,11 +75,11 @@ The result is a codebase that is easier to test, easier to extend, and more repr
 
 ### Core systems
 
-- ✅ **Decoupled MVC-style presentation flow** between controllers and views
+- ✅ **Decoupled presentation flow** between controllers and views
 - ✅ **VContainer-based dependency composition** through a central lifetime scope
-- ✅ **UI Toolkit presentation** with responsive layouts and platform-adaptive UI flow
+- ✅ **UI Toolkit presentation** with responsive layouts and platform-adaptive behavior
 - ✅ **Spatial interaction for XR** with card grabbing, haptics, and interaction feedback
-- ✅ **PlayFab integration** for authentication, cloud data, currency, and server time validation
+- ✅ **PlayFab integration** for authentication, cloud data, economy, and server time validation
 
 ---
 
@@ -118,7 +118,7 @@ This pattern keeps the rule layer portable while allowing the project to ship in
 
 ## 🧭 Project Documentation
 
-The repo includes deeper technical documentation for architecture, roadmap, and structure:
+The repository includes deeper technical documentation for architecture, roadmap, and project structure:
 
 - [Assets/Project/Documentation/PROJECT_ARCHITECTURE.md](Assets/Project/Documentation/PROJECT_ARCHITECTURE.md) — system design and dependency boundaries
 - [Assets/Project/Documentation/PROJECT_ROADMAP.md](Assets/Project/Documentation/PROJECT_ROADMAP.md) — milestone history and delivery status
@@ -129,12 +129,12 @@ The repo includes deeper technical documentation for architecture, roadmap, and 
 
 ## 📊 Current Status
 
-**MVP complete** and available in both delivery channels:
+**MVP complete** and available across both delivery channels:
 
 - Browser demo: live and playable
 - Meta Quest 3 build: published through GitHub Releases
 
-The codebase is structured for continued expansion with future work focused on polish, quality, and gameplay depth rather than foundational architecture changes.
+The codebase is now positioned for continued expansion in polish, quality, and gameplay depth rather than foundational architecture work.
 
 ---
 
@@ -145,7 +145,7 @@ The project is organized around deterministic testing and replaceable infrastruc
 - **EditMode tests** validate domain logic and service behavior
 - **PlayMode coverage** supports scene and integration validation
 - **Infrastructure services** are wrapped behind interfaces to avoid hard dependency coupling
-- **Runtime dependencies** are registered through a central DI composition root
+- **Runtime dependencies** are registered through a central dependency injection composition root
 
 ---
 
@@ -166,4 +166,4 @@ For project details, roadmap updates, and future backlog items, see the document
 
 ---
 
-Built as a senior-level portfolio project for multi-platform game architecture, systems design, and production-minded Unity development.
+Built as a portfolio project centered on clean architecture, scalable systems thinking, and production-minded Unity development.

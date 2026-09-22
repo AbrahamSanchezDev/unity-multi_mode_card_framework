@@ -1,14 +1,14 @@
 {
   "id": "multi-mode-card-framework",
   "title": "Multi-Mode Card Framework",
-  "subtitle": "Modular Unity card engine for Blackjack, Solitaire, and Texas Hold'em with a browser-ready WebGL build.",
-  "techBadge": "Unity • WebGL",
+  "subtitle": "Modular Unity card framework for Blackjack, Solitaire, and Texas Hold'em with WebGL and Meta Quest 3 delivery.",
+  "techBadge": "Unity • WebGL • XR",
   "gifUrl": "/games/multi-mode-card-framework.gif",
   "repoUrl": "https://github.com/AbrahamSanchezDev/unity-multi_mode_card_framework",
   "demoUrl": "https://abrahamsanchezdev.github.io/unity-multi_mode_card_framework/",
-  "challenge": "Building a single Unity codebase that supports WebGL, PC, mobile, and XR while keeping gameplay logic pure C# and deterministic enough for automated testing. The solution separates Core, Presentation, and Cloud layers, and uses dependency injection plus platform adapters so the same engine can run across devices without entangling gameplay rules with Unity objects.",
-  "architecture": "Built around layered MVC with a pure Core domain model, event-driven controllers, and Observer pattern event propagation. The project also applies Dependency Injection, Strategy-based game engines, and platform adapters to keep the rules layer reusable and the UI/input layer interchangeable.",
-  "techStack": ["Unity 6.3 LTS", "C#", "UI Toolkit", "VContainer", "PlayFab", "WebGL"],
+  "challenge": "Designing a single Unity codebase that supports WebGL, desktop, and XR while keeping gameplay logic pure C# and deterministic enough for automated testing. The project separates Core, Presentation, Cloud, and Input/XR layers, then uses dependency injection and platform adapters so one rules engine can run across multiple device contexts without coupling gameplay logic to Unity scene objects.",
+  "architecture": "Built around layered architecture with a pure Core domain model, event-driven controllers, and explicit adapters for platform-specific systems. The project applies Dependency Injection, modular game engines, UI Toolkit presentation, and PlayFab-backed services to keep the rules layer reusable and the presentation layer interchangeable.",
+  "techStack": ["Unity 6.3 LTS", "C#", "UI Toolkit", "VContainer", "PlayFab", "WebGL", "Meta Quest 3", "XR Interaction Toolkit", "NUnit"],
   "codeSnippetTitle": "Blackjack Controller Flow",
   "codeSnippet": "public sealed class BlackjackController : IStartable, IDisposable\n{\n    private readonly BlackjackEngine _engine;\n    private readonly BlackjackView _view;\n\n    public void Start()\n    {\n        _view.OnHit += () => _engine.PlayerHit();\n        _view.OnStand += () => _engine.PlayerStand();\n    }\n}"
 }
