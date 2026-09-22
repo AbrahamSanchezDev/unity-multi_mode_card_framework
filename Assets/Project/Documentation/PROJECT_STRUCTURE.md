@@ -1,478 +1,118 @@
-# Project Folder Structure - Multi-Mode Card Framework
+# Project Structure
 
-```
-Assets/_Project/
-│
-├── Scripts/                          # All C# code (organized by layer)
-│   │
-│   ├── Core/                         # Pure C# - NO MonoBehaviour (Assembly: Project.Core.asmdef)
-│   │   ├── Core.asmdef               # Assembly Definition (no external dependencies)
-│   │   │
-│   │   ├── Models/
-│   │   │   ├── CardData.cs           # POCO: Card representation
-│   │   │   ├── Deck.cs               # POCO: Deck management
-│   │   │   ├── Hand.cs               # POCO: Hand representation
-│   │   │   └── GameState.cs          # POCO: Game state data
-│   │   │
-│   │   ├── Engines/                  # Pure game rule engines
-│   │   │   ├── IGameEngine.cs        # Interface for all engines
-│   │   │   ├── BlackjackEngine.cs    # Blackjack rules
-│   │   │   ├── SolitaireEngine.cs    # Solitaire rules
-│   │   │   └── TexasHoldemEngine.cs  # Poker rules (future)
-│   │   │
-│   │   ├── Utils/
-│   │   │   ├── ShuffleAlgorithm.cs   # Fisher-Yates implementation
-│   │   │   ├── HandEvaluator.cs      # Hand ranking logic
-│   │   │   └── MathUtilities.cs      # Utility functions
-│   │   │
-│   │   └── Economy/
-│   │       ├── EconomyModel.cs       # POCO: Economy state
-│   │       ├── ChipCalculations.cs   # Economy math
-│   │       └── WalletData.cs         # Player balance data
-│   │
-│   ├── Presentation/                 # MonoBehaviour Views & Controllers (Assembly: Project.Presentation.asmdef)
-│   │   ├── Presentation.asmdef       # References: Project.Core
-│   │   │
-│   │   ├── Controllers/              # MVC Controllers (MonoBehaviour)
-│   │   │   ├── GameModeController.cs     # Abstract base controller
-│   │   │   ├── BlackjackController.cs    # Blackjack UI coordinator
-│   │   │   ├── SolitaireController.cs    # Solitaire UI coordinator
-│   │   │   ├── TableController.cs       # Table management
-│   │   │   └── GameRootController.cs    # Scene root coordinator
-│   │   │
-│   │   ├── Views/                    # MVC Views (MonoBehaviour)
-│   │   │   ├── CardView.cs           # 3D card view with animations
-│   │   │   ├── ChipView.cs           # 3D chip view
-│   │   │   ├── PlayerStatusView.cs   # Player status display
-│   │   │   ├── HandDisplayView.cs    # Player hand display
-│   │   │   └── BetDisplayView.cs     # Betting UI view
-│   │   │
-│   │   └── UI/                       # Screen & World Space UI
-│   │       ├── AdaptiveUIManager.cs      # Platform detection & swapping
-│   │       ├── ScreenSpaceUILayout.cs    # Desktop/Mobile UI (Canvas ScreenSpace)
-│   │       ├── WorldSpaceUIAdapter.cs    # VR UI (Canvas World Space)
-│   │       ├── Screens/
-│   │       │   ├── MainMenuScreen.cs
-│   │       │   ├── LobbyScreen.cs
-│   │       │   ├── GameScreen.cs
-│   │       │   ├── ShopScreen.cs
-│   │       │   └── SettingsScreen.cs
-│   │       └── Overlays/
-│   │           ├── MailboxOverlay.cs
-│   │           ├── ChipDisplayOverlay.cs
-│   │           └── ChatOverlay.cs
-│   │
-│   ├── Input/                        # Input Handling (Assembly: Project.Input.asmdef)
-│   │   ├── Input.asmdef              # References: Project.Core
-│   │   │
-│   │   ├── PlatformAdapters/
-│   │   │   ├── IPlatformInput.cs             # Interface
-│   │   │   ├── DesktopInputAdapter.cs       # PC/WebGL input
-│   │   │   ├── MobileInputAdapter.cs        # Mobile touch input
-│   │   │   └── VRInputAdapter.cs            # Meta XR input (basic)
-│   │   │
-│   │   ├── InputActionMaps.inputactions     # Unity Input System asset
-│   │   └── InputManager.cs                  # Input orchestrator
-│   │
-│   ├── Cloud/                        # Backend Integration (Assembly: Project.Cloud.asmdef)
-│   │   ├── Cloud.asmdef              # References: Project.Core, LootLocker SDK
-│   │   │
-│   │   ├── Interfaces/
-│   │   │   ├── INetworkService.cs
-│   │   │   ├── ICloudSave.cs
-│   │   │   └── IEconomyService.cs
-│   │   │
-│   │   ├── LootLocker/
-│   │   │   ├── LootLockerManager.cs      # SDK wrapper (Singleton in DI)
-│   │   │   ├── LootLockerAPI.cs          # Direct API calls
-│   │   │   └── LootLockerErrorHandler.cs # Error handling
-│   │   │
-│   │   ├── CloudSaveHandler.cs           # Persistence orchestration
-│   │   ├── IAPManager.cs                 # In-App Purchase handling
-│   │   ├── MailboxManager.cs             # Mailbox system
-│   │   └── AccountLinkingService.cs      # Cross-progression logic
-│   │
-│   ├── XR/                           # Meta Quest Integration (Assembly: Project.XR.asmdef - OPTIONAL)
-│   │   ├── XR.asmdef                 # References: Project.Core, Meta SDK
-│   │   │
-│   │   ├── Input/
-│   │   │   ├── MetaHandTrackingAdapter.cs    # Hand skeleton tracking
-│   │   │   ├── OVRInputMapper.cs             # OVRInput to action mapping
-│   │   │   └── VRInputAdapter.cs             # VR-specific input
-│   │   │
-│   │   ├── UI/
-│   │   │   ├── WristAnchorUIManager.cs       # Wrist-anchored UI
-│   │   │   └── WorldSpaceUIAdapter.cs        # World space canvas handling
-│   │   │
-│   │   ├── Networking/
-│   │   │   ├── MetaNetServicesAdapter.cs     # Meta Net Services P2P
-│   │   │   ├── AvatarSyncController.cs       # Avatar synchronization
-│   │   │   └── VoIPManager.cs                # Voice chat
-│   │   │
-│   │   └── Spatial/
-│   │       ├── SpatialAnchorManager.cs       # Co-located play anchors
-│   │       └── RoomScanManager.cs            # Room scanning
-│   │
-│   ├── DependencyInjection/          # DI Container (Assembly: Project.Core.asmdef)
-│   │   ├── DependencyContainer.cs
-│   │   ├── SceneContextInitializer.cs
-│   │   └── ServiceLocator.cs         # Optional: for fallback
-│   │
-│   ├── Tests/                        # Unit & Integration Tests (Assembly: Project.Tests.asmdef)
-│   │   ├── Tests.asmdef              # References: all other asmdef
-│   │   │
-│   │   ├── EditMode/                 # NUnit tests (no scene instantiation)
-│   │   │   ├── Core/
-│   │   │   │   ├── CardEvaluationTests.cs
-│   │   │   │   ├── DeckTests.cs
-│   │   │   │   ├── HandEvaluatorTests.cs
-│   │   │   │   ├── BlackjackEngineTests.cs
-│   │   │   │   └── SolitaireEngineTests.cs
-│   │   │   ├── Utilities/
-│   │   │   │   ├── ShuffleAlgorithmTests.cs
-│   │   │   │   └── MathUtilitiesTests.cs
-│   │   │   └── Economy/
-│   │   │       └── ChipCalculationsTests.cs
-│   │   │
-│   │   ├── PlayMode/                 # Scene-based integration tests
-│   │   │   ├── GameFlowTests.cs
-│   │   │   ├── MultiplayerSyncTests.cs
-│   │   │   └── InputSystemTests.cs
-│   │   │
-│   │   └── Mocks/                    # Mock services for testing
-│   │       ├── MockNetworkService.cs
-│   │       ├── MockEconomyService.cs
-│   │       ├── MockCloudSave.cs
-│   │       └── MockIAPService.cs
-│   │
-│   └── Utilities/                    # Generic utilities (Assembly: Project.Core.asmdef or shared)
-│       ├── Singleton.cs              # Generic singleton base (avoid if possible!)
-│       ├── ObjectPool.cs             # Object pooling
-│       ├── EventSystem.cs            # Custom event handling
-│       └── Extensions.cs             # Extension methods
-│
-├── Animations/                       # Animator Controllers & Animation Clips
-│   ├── Cards/
-│   │   ├── Card_Deal.anim
-│   │   ├── Card_Flip.anim
-│   │   └── CardAnimator.controller
-│   ├── Chips/
-│   │   ├── Chip_Toss.anim
-│   │   └── ChipAnimator.controller
-│   └── UI/
-│       ├── UI_Fade.anim
-│       └── UI_Scale.anim
-│
-├── Materials/                        # Material instances & Material Library
-│   ├── Cards/
-│   │   ├── Card_Standard.mat
-│   │   ├── Card_Premium.mat
-│   │   └── Card_Holographic.mat
-│   ├── Chips/
-│   │   ├── Chip_Gold.mat
-│   │   ├── Chip_Silver.mat
-│   │   └── Chip_Bronze.mat
-│   ├── Table/
-│   │   ├── FeltTable.mat
-│   │   └── WoodTable.mat
-│   └── UI/
-│       └── UIOverlay.mat
-│
-├── Prefabs/                          # Reusable GameObject prefabs
-│   │
-│   ├── Cards/
-│   │   ├── Card3D.prefab             # Reusable card with material swaps
-│   │   └── CardBack_Premium.prefab
-│   │
-│   ├── Chips/
-│   │   ├── Chip.prefab               # Animated chip with physics
-│   │   └── ChipStack.prefab
-│   │
-│   ├── Table/
-│   │   ├── PokerTable.prefab         # Complete poker table setup
-│   │   ├── BlackjackTable.prefab
-│   │   └── SolitaireTable.prefab
-│   │
-│   ├── Players/
-│   │   ├── PlayerSeat.prefab         # Player position & indicators
-│   │   └── DealerButton.prefab
-│   │
-│   ├── UI/
-│   │   ├── ScreenSpaceCanvas.prefab
-│   │   └── WorldSpaceCanvas.prefab
-│   │
-│   └── VFX/
-│       ├── CardDealEffect.prefab
-│       ├── ChipWinEffect.prefab
-│       └── BetPlacedEffect.prefab
-│
-├── Shaders/                          # Shader Graph & HLSL shaders
-│   ├── CardHolographic.shadergraph   # Premium card back effect
-│   ├── FeeltTable.shader             # Felt surface with normal mapping
-│   ├── ChipReflection.shader         # Metallic chip rendering
-│   ├── CardGlow.shader               # Card highlight effect
-│   └── UIOverlay.shader              # UI transparency effects
-│
-├── Scenes/                           # Scene files organized by purpose
-│   ├── Initialization.unity          # Bootstrap scene (DI setup)
-│   ├── MainMenu.unity
-│   ├── Lobby.unity
-│   ├── GameScene_Blackjack.unity
-│   ├── GameScene_Solitaire.unity
-│   ├── GameScene_Poker.unity         # Future
-│   └── Editor/
-│       ├── DemoGameFlow.unity        # Editor testing scene
-│       └── ComponentTestbed.unity
-│
-├── Data/                             # Configuration & game data
-│   ├── GameConfig.json               # Master game balance data
-│   ├── CardDefinitions.json          # Card metadata
-│   ├── EconomyConfig.json            # Economy settings
-│   ├── LootLockerConfig.json         # Backend config
-│   └── Localization/
-│       ├── en.json
-│       └── es.json
-│
-├── Resources/                        # Runtime-loaded assets (use sparingly!)
-│   ├── Prefabs/                      # Dynamically instantiated prefabs
-│   │   └── DynamicCard.prefab
-│   └── Data/
-│       └── GameConfig.json           # Can also load from Resources
-│
-├── Editor/                           # Editor-only scripts & tools
-│   ├── Editor.asmdef                 # Assembly (references all others)
-│   │
-│   ├── Tools/
-│   │   ├── CardAssetValidator.cs     # Validate card assets
-│   │   ├── BuildConfiguration.cs     # Build setup automation
-│   │   └── PerformanceProfiler.cs    # Performance monitoring tools
-│   │
-│   └── Windows/
-│       ├── GameConfigWindow.cs       # Edit game config in editor
-│       └── TestHarness.cs            # Run game tests from editor
-│
-├── Config/                           # Project configuration files
-│   ├── ProjectSettings/              # (Already in root, reference only)
-│   └── README.md                     # Setup instructions
-│
-└── Documentation/                    # Markdown documentation (optional)
-    ├── ARCHITECTURE.md               # Architecture decisions
-    ├── SETUP.md                      # Project setup guide
-    └── DEBUGGING.md                  # Debugging tips
+This document describes the current Unity project layout. The structure is organized around architectural layers and platform integrations rather than individual game modes.
 
+## Repository Layout
+
+```text
+Assets/
+└── Project/
+    ├── Scripts/
+    │   ├── Architecture/       # Shared architectural contracts and DI composition
+    │   ├── Core/               # Pure C# domain models, engines, and interfaces
+    │   ├── Presentation/       # Views, controllers, UI, and interaction behaviour
+    │   ├── Cloud/              # PlayFab authentication, persistence, economy, and time services
+    │   ├── Input/              # Platform input adapters
+    │   ├── XR/                 # Meta Quest and XR-specific integrations
+    │   ├── DependencyInjection/ # Shared DI support
+    │   ├── Utilities/          # Small reusable helpers and contracts
+    │   └── Tests/              # EditMode and PlayMode test assemblies
+    ├── Editor/                 # Unity Editor-only tools and assembly definition
+    ├── UI/                     # UI Toolkit UXML layouts and USS styles
+    ├── Scenes/                 # Initialization, menu, and game scenes
+    ├── Prefabs/                # Reusable GameObjects and gameplay prefabs
+    ├── Materials/              # Material assets
+    ├── Animations/             # Animation clips and controllers
+    ├── Art/                    # Audio, card artwork, and other presentation assets
+    ├── Textures/               # Texture assets
+    ├── Shaders/                # Shader Graph and shader assets
+    ├── Data/                   # Game and application data assets
+    ├── Resources/              # Runtime-loaded assets, used selectively
+    ├── Config/                 # Project-specific configuration assets
+    └── Documentation/          # Architecture, roadmap, backlog, and structure docs
 ```
 
----
+## Scripts
 
-## Key Improvements Over Your Structure
+### Core
 
-### 1. **Assembly Definitions (AsmDef) - CRITICAL**
+`Assets/Project/Scripts/Core/` contains the platform-independent game domain. It must remain free of `UnityEngine` and `MonoBehaviour` references.
 
-```
-Project.Core.asmdef
-├── References: None (pure C#)
-├── Includes: Core/, DependencyInjection/, Utilities/
+- `Models/`: `CardData`, `Deck`, and other game state models.
+- `Engines/`: `BlackjackEngine`, `SolitaireEngine`, and `TexasHoldemEngine`.
+- `Utils/`: deterministic domain helpers such as shuffling and hand evaluation.
+- `Interfaces/`: contracts shared by core systems, including economy and time services.
+- `Managers/`: domain-facing managers such as cloud mailbox state coordination.
 
-Project.Presentation.asmdef
-├── References: Project.Core
-├── Includes: Presentation/, Animations, Materials, Prefabs
+### Presentation
 
-Project.Input.asmdef
-├── References: Project.Core
-├── Includes: Input/
+`Assets/Project/Scripts/Presentation/` contains the Unity-facing application layer.
 
-Project.Cloud.asmdef
-├── References: Project.Core, (LootLocker SDK)
-├── Includes: Cloud/
+- `Controllers/`: POCO controllers that orchestrate views and core engines.
+- `Views/`: UI Toolkit and 3D presentation components.
+- `UI/`: UI-specific helpers and layout integration.
+- `Interaction/`: physical card and table interaction behaviour.
+- `VR/`: presentation adaptations for spatial interaction and Quest scenes.
+- `Interfaces/`: view, input, modal, and presentation service contracts.
 
-Project.XR.asmdef (OPTIONAL - only if targeting VR)
-├── References: Project.Core, Project.Presentation, (Meta SDK)
-├── Includes: XR/
+### Cloud
 
-Project.Tests.asmdef
-├── References: All above + test frameworks
-├── Includes: Tests/
-```
+`Assets/Project/Scripts/Cloud/` contains PlayFab adapters and service contracts. External SDK access is isolated behind interfaces so services can be tested with mocks.
 
-**Why?**
+- `Interfaces/`: cloud, authentication, and save-service contracts.
+- `PlayFab/`: authentication, data, economy, time, and cloud service implementations.
 
-- Faster compilation (Core compiles independently)
-- Prevents circular dependencies
-- Enables parallel dev (one person on Core, another on Presentation)
-- Clear separation of concerns
-- Essential for solo dev to catch issues early
+### Input and XR
 
----
+`Input/` contains flat-screen input adapters. `XR/` contains optional XR-specific code and assembly configuration. Presentation code consumes input through interfaces instead of directly depending on a platform device.
 
-### 2. **XR as Optional Assembly**
+### Tests
 
-```csharp
-// In Presentation.asmdef
-{
-  "name": "Project.Presentation",
-  "references": ["Project.Core"],
-  // NO Meta SDK reference here
-}
+`Assets/Project/Scripts/Tests/` contains the automated test assemblies.
 
-// Separately, Project.XR.asmdef
-{
-  "name": "Project.XR",
-  "references": ["Project.Core", "Project.Presentation"],
-  "versionDefines": [
-    { "name": "com.meta.xr.sdk", "expression": "1.0" }
-  ]
-  // Only compile if Meta SDK is present
-}
-```
+- `EditMode/`: fast tests for Core, Cloud, Presentation, and utility code.
+- `PlayMode/`: scene and integration tests, including PlayFab integration coverage.
+- `Tests.asmdef` and `PlayMode/PlayModeTests.asmdef`: Unity assembly definitions for each test environment.
 
-**Why?**
+## Assembly Definitions
 
-- WebGL/Mobile builds don't include unused VR code
-- Faster builds for flat-screen platforms
-- Can develop VR separately
-- Easier to disable VR for non-VR testing
+The project uses assembly definitions to keep compilation boundaries explicit:
 
----
+| Assembly | Responsibility |
+| --- | --- |
+| `Core` | Pure C# domain logic with no Unity dependency |
+| `Presentation` | Unity views, controllers, UI, and interactions |
+| `Cloud` | PlayFab services and cloud adapters |
+| `Input` | Platform input adapters |
+| `XR` | Optional Meta Quest and XR integrations |
+| `Utils` | Shared utility contracts and helpers |
+| `Tests` | EditMode tests |
+| `PlayModeTests` | PlayMode and integration tests |
+| `Editor` | Unity Editor tooling |
 
-### 3. **Scripts Organized by LAYER, not FEATURE**
+## Dependency Direction
 
-❌ **Bad (Feature-based)**:
+```text
+Presentation ──┐
+Cloud ──────────┼──> Core
+Input ──────────┤
+XR ─────────────┘
 
-```
-Scripts/
-├── Blackjack/
-│   ├── BlackjackEngine.cs
-│   ├── BlackjackController.cs
-│   └── BlackjackView.cs
-├── Solitaire/
-│   ├── SolitaireEngine.cs
-│   ├── SolitaireController.cs
-│   └── SolitaireView.cs
+Tests ──> Core, Presentation, Cloud, Input, XR
+Editor ─> project assemblies as required by editor tooling
 ```
 
-✅ **Good (Layer-based - this structure)**:
+Core is the stable domain boundary. It does not depend on Unity, PlayFab, presentation code, or XR code. New game rules belong in Core; new screens and interaction behaviour belong in Presentation; external SDK integrations belong behind adapters in Cloud or XR.
 
-```
-Scripts/
-├── Core/          # Pure logic
-│   ├── Engines/
-│   │   ├── BlackjackEngine.cs
-│   │   └── SolitaireEngine.cs
-├── Presentation/  # Views & Controllers
-│   ├── Controllers/
-│   │   ├── BlackjackController.cs
-│   │   └── SolitaireController.cs
-```
+## Dependency Injection
 
-**Why?**
+`Assets/Project/Scripts/Architecture/DI/GameLifetimeScope.cs` is the composition root. VContainer registers engines, services, views, and controllers there. Runtime systems should receive dependencies through constructors or registered entry points rather than using global singletons or scene searches.
 
-- Reflects MVC architecture
-- Easier to test (Core isolated)
-- Reusable engines across future projects
-- Core layer never knows about Views
+## Documentation
 
----
+- [PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md): architectural decisions and layer boundaries.
+- [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md): completed milestones and future work.
+- [BACKLOG.md](BACKLOG.md): tracked tasks and prioritization.
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md): this document.
 
-### 4. **Input as Separate Assembly**
-
-```
-Scripts/Input/ (Project.Input.asmdef)
-├── PlatformAdapters/
-│   ├── IPlatformInput.cs
-│   ├── DesktopInputAdapter.cs
-│   ├── MobileInputAdapter.cs
-│   └── VRInputAdapter.cs (basic - for TASK-3.2 only)
-```
-
-**Why?**
-
-- VR input is NOT in this assembly
-- TASK-3.2 handles Mouse/Touch/Gamepad → separate from VR hand tracking
-- Hand tracking (TASK-5.1) in Project.XR.asmdef
-- Clean separation between flat-screen and VR input
-
----
-
-### 5. **Dedicated XR Folder Structure**
-
-```
-Scripts/XR/
-├── Input/
-│   ├── MetaHandTrackingAdapter.cs    # TASK-5.1
-│   └── OVRInputMapper.cs              # TASK-5.1
-├── UI/
-│   └── WristAnchorUIManager.cs        # TASK-5.1
-├── Networking/
-│   ├── MetaNetServicesAdapter.cs      # TASK-5.2
-│   └── AvatarSyncController.cs        # TASK-5.2
-└── Spatial/
-    └── SpatialAnchorManager.cs        # TASK-5.3
-```
-
-**Why?**
-
-- All VR-specific code in one place
-- Easy to exclude from non-VR builds
-- Clear what's Meta XR vs generic
-- Matches EPIC-05 task organization
-
----
-
-### 6. **Better Test Organization**
-
-```
-Tests/
-├── EditMode/        # Fast, no scenes, run on CI
-│   ├── Core/        # Engine tests
-│   ├── Utilities/   # Math/algorithm tests
-│   └── Economy/     # Economy logic tests
-├── PlayMode/        # Slow, requires scenes, local dev only
-│   ├── GameFlowTests.cs
-│   └── MultiplayerSyncTests.cs
-└── Mocks/           # Shared across both
-    ├── MockNetworkService.cs
-    └── MockEconomyService.cs
-```
-
-**Why?**
-
-- EditMode runs on every commit (fast feedback)
-- PlayMode only on local testing (slower)
-- Mocks reusable for both types
-- Clear separation of concerns
-
----
-
-### 7. **Data Folder for Non-Code Assets**
-
-```
-Data/
-├── GameConfig.json            # Main game settings
-├── CardDefinitions.json       # Card metadata
-├── EconomyConfig.json         # Chip values, rewards
-├── LootLockerConfig.json      # API keys, endpoints
-└── Localization/
-    ├── en.json               # English strings
-    └── es.json               # Spanish strings
-```
-
-**Why?**
-
-- Version control friendly (JSON not binary)
-- Designers can edit without opening Unity
-- Easy CI/CD integration for config validation
-- Separate from Resources/ (no runtime overhead)
-
----
-
-## Pro Tips
-
-- ✅ Use `#if ENABLE_VR_BUILD` or `#if UNITY_EDITOR` to guard platform-specific code
-- ✅ Never put MonoBehaviour in Core/
-- ✅ Test Core layer code independently (it's pure C#)
-- ✅ Use DI for all service injection (no FindObjectOfType!)
-- ✅ Keep Prefabs/Table/ organized by game mode
-- ✅ Use `Resources/` sparingly (runtime loading cost)
-- ✅ Version control JSON data files, not JSON as text in code
-
----
+When adding a new system, update the relevant assembly definition and place it in the layer that owns its responsibility. Keep this document focused on stable boundaries and folders, not on every individual asset.

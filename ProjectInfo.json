@@ -1,0 +1,14 @@
+{
+  "id": "multi-mode-card-framework",
+  "title": "Multi-Mode Card Framework",
+  "subtitle": "Modular Unity card engine for Blackjack, Solitaire, and Texas Hold'em with a browser-ready WebGL build.",
+  "techBadge": "Unity • WebGL",
+  "gifUrl": "/games/multi-mode-card-framework.gif",
+  "repoUrl": "https://github.com/AbrahamSanchezDev/unity-multi_mode_card_framework",
+  "demoUrl": "https://abrahamsanchezdev.github.io/unity-multi_mode_card_framework/",
+  "challenge": "Building a single Unity codebase that supports WebGL, PC, mobile, and XR while keeping gameplay logic pure C# and deterministic enough for automated testing. The solution separates Core, Presentation, and Cloud layers, and uses dependency injection plus platform adapters so the same engine can run across devices without entangling gameplay rules with Unity objects.",
+  "architecture": "Built around layered MVC with a pure Core domain model, event-driven controllers, and Observer pattern event propagation. The project also applies Dependency Injection, Strategy-based game engines, and platform adapters to keep the rules layer reusable and the UI/input layer interchangeable.",
+  "techStack": ["Unity 6.3 LTS", "C#", "UI Toolkit", "VContainer", "PlayFab", "WebGL"],
+  "codeSnippetTitle": "Blackjack Controller Flow",
+  "codeSnippet": "public sealed class BlackjackController : IStartable, IDisposable\n{\n    private readonly BlackjackEngine _engine;\n    private readonly BlackjackView _view;\n\n    public void Start()\n    {\n        _view.OnHit += () => _engine.PlayerHit();\n        _view.OnStand += () => _engine.PlayerStand();\n    }\n}"
+}

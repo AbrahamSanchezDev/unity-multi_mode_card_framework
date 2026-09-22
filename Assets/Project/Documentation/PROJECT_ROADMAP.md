@@ -1,5 +1,7 @@
 # 🃏 Card Framework - Project Master Roadmap
 
+The MVP is complete and available through the [WebGL demo](https://abrahamsanchezdev.github.io/unity-multi_mode_card_framework/) and the [Meta Quest 3 VR release](https://github.com/AbrahamSanchezDev/unity-multi_mode_card_framework/releases/tag/VR_v1).
+
 ## 🤖 AI Context & System Prompt
 
 **Target AI / Developer Instructions:**
@@ -108,21 +110,21 @@ Expanding the framework to support persistence, cross-platform linking, and econ
 
 ---
 
-## 🥽 Epic 5: XR Integration & Deployment
+## 🥽 Epic 5: XR Integration & Deployment ✅
 
 _Meta Quest 3 spatial design, cross-platform validation, and production build pipelines._
 
-- [ ] **TASK-5.1: Meta Quest 3 Rig Setup & Interaction Binding**
+- [x] **TASK-5.1: Meta Quest 3 Rig Setup & Interaction Binding**
   - Integrate XR Interaction Toolkit (or Meta XR All-In-One SDK) with VContainer lifetime scopes.
   - Wire XR Ray Interactor & Direct Interactor events into `SpatialCardInteractable.StartVRGrab()` and `EndVRGrab()`.
   - Add Haptic Impulse feedback routines (controller vibrations on card grab/drop).
-- [ ] **TASK-5.2: Spatial UI & VR Dashboard Adaptation**
+- [x] **TASK-5.2: Spatial UI & VR Dashboard Adaptation**
   - Adapt UI Toolkit documents and World-Space Canvases for comfortable VR distance/gaze angles.
   - Wire the 6-character PIN sync UI for Quest 3 to display and input authentication codes easily.
-- [ ] **TASK-5.3: WebGL Build & Performance Optimization**
+- [x] **TASK-5.3: WebGL Build & Performance Optimization**
   - Configure WebGL player settings (ASTC/DXT texture compression, Managed Stripping Level, C++ compiler optimizations).
   - Test PlayFab Silent Auth fallback behavior for WebGL browser contexts.
   - Optimize memory allocation during batch card spawning to maintain 60 FPS in WebGL.
-- [ ] **TASK-5.4: Multi-Platform Validation & Build Pipeline**
+- [x] **TASK-5.4: Multi-Platform Validation & Build Pipeline**
   - Perform side-by-side verification: WebGL state sync ↔ Meta Quest 3 headset.
   - Build automated production export profiles for both WebGL and Android/Quest APKs.
